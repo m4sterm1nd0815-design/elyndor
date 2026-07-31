@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Elyndor.Player
@@ -178,7 +178,7 @@ namespace Elyndor.Player
             moveAction = gameplayMap.AddAction(
                 moveActionName,
                 InputActionType.Value,
-                expectedControlType: "Vector2"
+                expectedControlLayout: "Vector2"
             );
 
             moveAction
@@ -227,3 +227,4 @@ namespace Elyndor.Player
         }
     }
 }
+

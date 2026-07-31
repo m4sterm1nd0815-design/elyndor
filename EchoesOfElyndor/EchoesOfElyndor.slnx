@@ -1,0 +1,4 @@
+﻿<Solution>
+  <Project Path="Elyndor.Runtime.csproj" />
+  <Project Path="Elyndor.Editor.csproj" />
+</Solution>

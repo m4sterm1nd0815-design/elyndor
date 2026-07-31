@@ -1,10 +1,10 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Elyndor.Player
 {
     [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(PlayerInputReader))]
     public class PlayerMovement : MonoBehaviour
     {
         [Header("Movement")]
@@ -26,12 +26,13 @@ namespace Elyndor.Player
 
         [Header("Gravity")]
         [SerializeField] private float gravity = -25f;
-        [Tooltip("Kleine Abwärtsgeschwindigkeit am Boden, damit der Controller auf Gefällen Bodenkontakt hält.")]
+        [Tooltip("Kleine Abwaertsgeschwindigkeit am Boden, damit der Controller auf Gefaellen Bodenkontakt haelt.")]
         [SerializeField] private float groundedStickVelocity = -2f;
 
         private static readonly int SpeedHash = Animator.StringToHash("Speed");
 
         private CharacterController characterController;
+        private PlayerInputReader inputReader;
         private Transform cameraTransform;
         private PlayerState currentState = PlayerState.Normal;
 
@@ -42,6 +43,7 @@ namespace Elyndor.Player
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            inputReader = GetComponent<PlayerInputReader>();
 
             if (animator == null)
             {
@@ -57,7 +59,7 @@ namespace Elyndor.Player
                 return;
             }
 
-            Vector2 movementInput = ReadMovementInput();
+            Vector2 movementInput = Vector2.ClampMagnitude(inputReader.Move, 1f);
             Vector3 moveDirection = ToCameraRelativeDirection(movementInput);
 
             bool isMoving = moveDirection.sqrMagnitude > 0.01f;
@@ -68,19 +70,19 @@ namespace Elyndor.Player
                 RotateTowards(lastMoveDirection);
             }
 
-            if (ReadRollInput() && Time.time >= nextRollTime)
+            if (inputReader.RollPressedThisFrame && Time.time >= nextRollTime)
             {
                 Vector3 rollDirection = GetRollDirection(moveDirection);
                 StartCoroutine(PerformRoll(rollDirection));
                 return;
             }
 
-            bool isSprinting = ReadSprintInput();
+            bool isSprinting = inputReader.SprintHeld;
             float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
             ApplyGravity();
 
-            if (characterController.isGrounded && ReadJumpInput())
+            if (characterController.isGrounded && inputReader.JumpPressedThisFrame)
             {
                 verticalVelocity = jumpVelocity;
             }
@@ -124,81 +126,6 @@ namespace Elyndor.Player
             cameraRight.Normalize();
 
             return cameraRight * input.x + cameraForward * input.y;
-        }
-
-        private Vector2 ReadMovementInput()
-        {
-            Vector2 input = Vector2.zero;
-
-            if (Keyboard.current != null)
-            {
-                if (Keyboard.current.wKey.isPressed)
-                {
-                    input.y += 1f;
-                }
-
-                if (Keyboard.current.sKey.isPressed)
-                {
-                    input.y -= 1f;
-                }
-
-                if (Keyboard.current.aKey.isPressed)
-                {
-                    input.x -= 1f;
-                }
-
-                if (Keyboard.current.dKey.isPressed)
-                {
-                    input.x += 1f;
-                }
-            }
-
-            if (Gamepad.current != null)
-            {
-                input += Gamepad.current.leftStick.ReadValue();
-            }
-
-            return Vector2.ClampMagnitude(input, 1f);
-        }
-
-        private bool ReadSprintInput()
-        {
-            bool keyboardSprint =
-                Keyboard.current != null &&
-                Keyboard.current.leftShiftKey.isPressed;
-
-            bool gamepadSprint =
-                Gamepad.current != null &&
-                Gamepad.current.leftStickButton.isPressed;
-
-            return keyboardSprint || gamepadSprint;
-        }
-
-        // Leertaste springt, Strg rollt (Gamepad: Sued springt, Ost rollt).
-        private bool ReadJumpInput()
-        {
-            bool keyboardJump =
-                Keyboard.current != null &&
-                Keyboard.current.spaceKey.wasPressedThisFrame;
-
-            bool gamepadJump =
-                Gamepad.current != null &&
-                Gamepad.current.buttonSouth.wasPressedThisFrame;
-
-            return keyboardJump || gamepadJump;
-        }
-
-        private bool ReadRollInput()
-        {
-            bool keyboardRoll =
-                Keyboard.current != null &&
-                Keyboard.current.leftCtrlKey.wasPressedThisFrame;
-
-            bool gamepadRoll =
-                Gamepad.current != null &&
-                Gamepad.current.buttonEast.wasPressedThisFrame;
-
-            return keyboardRoll || gamepadRoll;
         }
 
         private Vector3 GetRollDirection(Vector3 currentMoveDirection)

@@ -36,5 +36,13 @@ namespace Elyndor.UIFoundation
             memory = Mathf.Clamp(value, 0f, maxMemory);
             Changed?.Invoke();
         }
+
+        public void SetNormalized(float health01, float stamina01, float memory01)
+        {
+            health = Mathf.Clamp01(health01) * maxHealth;
+            stamina = Mathf.Clamp01(stamina01) * maxStamina;
+            memory = Mathf.Clamp01(memory01) * maxMemory;
+            Changed?.Invoke();
+        }
     }
 }

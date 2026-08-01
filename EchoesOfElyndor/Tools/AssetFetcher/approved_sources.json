@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "user_agent": "EchoesOfElyndor-AssetFetcher/1.0 (asset provenance; contact: repository maintainers)",
+  "network": {
+    "timeout_seconds": 20,
+    "max_metadata_bytes": 20971520,
+    "max_asset_bytes": 1073741824,
+    "redirect_limit": 3
+  },
+  "allowed_licenses": ["CC0", "CC0-1.0"],
+  "blocked_extensions": [
+    ".exe", ".msi", ".dll", ".com", ".bat", ".cmd", ".ps1", ".vbs", ".js", ".jar", ".app", ".dmg", ".pkg", ".sh"
+  ],
+  "unity_extensions": [
+    ".fbx", ".obj", ".gltf", ".glb", ".dae", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".tga", ".exr", ".hdr"
+  ],
+  "archive_extensions": [".zip"],
+  "sources": {
+    "poly_haven": {
+      "display_name": "Poly Haven",
+      "enabled": true,
+      "license": "CC0",
+      "api_base": "https://api.polyhaven.com",
+      "allowed_hosts": ["api.polyhaven.com", "dl.polyhaven.org", "cdn.polyhaven.com"],
+      "automated_search": true,
+      "automated_download": false,
+      "api_credit_required": true
+    },
+    "ambientcg": {
+      "display_name": "ambientCG",
+      "enabled": true,
+      "license": "CC0",
+      "api_base": "https://ambientcg.com/api/v2",
+      "allowed_hosts": ["ambientcg.com", "www.ambientcg.com", "cdn.ambientcg.com"],
+      "automated_search": true,
+      "automated_download": false,
+      "api_credit_required": false
+    },
+    "kenney": {
+      "display_name": "Kenney",
+      "enabled": true,
+      "license": "CC0",
+      "catalog_url": "https://kenney.nl/assets",
+      "allowed_hosts": ["kenney.nl", "www.kenney.nl"],
+      "automated_search": false,
+      "automated_download": false,
+      "manual_download_required": true,
+      "api_credit_required": false
+    }
+  }
+}

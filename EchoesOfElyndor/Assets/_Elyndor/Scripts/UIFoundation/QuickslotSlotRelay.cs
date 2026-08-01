@@ -5,7 +5,6 @@ namespace Elyndor.UIFoundation
 {
     public sealed class QuickslotSlotRelay :
         MonoBehaviour,
-        ISelectHandler,
         ISubmitHandler,
         IPointerClickHandler
     {
@@ -22,11 +21,6 @@ namespace Elyndor.UIFoundation
                 QuickslotRuntimeInventory.SlotCount - 1);
 
             presenter = barPresenter;
-        }
-
-        public void OnSelect(BaseEventData eventData)
-        {
-            presenter?.SelectSlot(slotIndex);
         }
 
         public void OnSubmit(BaseEventData eventData)

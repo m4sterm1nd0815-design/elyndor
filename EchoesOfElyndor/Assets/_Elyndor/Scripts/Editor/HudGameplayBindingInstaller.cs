@@ -5,6 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Elyndor.Player;
 using Elyndor.UIFoundation;
 
 namespace Elyndor.EditorTools
@@ -71,6 +72,14 @@ namespace Elyndor.EditorTools
 
             presenter.Configure(inventory, vitals, views);
 
+            PlayerInputReader inputReader =
+                GetOrAdd<PlayerInputReader>(player);
+
+            QuickslotInputController inputController =
+                GetOrAdd<QuickslotInputController>(player);
+
+            inputController.Configure(inputReader, presenter);
+
             SerializedObject inventoryObject =
                 new SerializedObject(inventory);
 
@@ -94,7 +103,8 @@ namespace Elyndor.EditorTools
             {
                 Debug.LogWarning(
                     "No EventSystem exists in the active scene. " +
-                    "Keyboard/controller navigation needs an EventSystem.");
+                    "Pointer and menu navigation will be unavailable; " +
+                    "gameplay quickslot input remains functional.");
             }
 
             EditorUtility.SetDirty(player);
@@ -120,12 +130,26 @@ namespace Elyndor.EditorTools
                 FindSceneObject<HudGameplayBinder>();
             QuickslotBarPresenter presenter =
                 FindSceneObject<QuickslotBarPresenter>();
+            PlayerInputReader inputReader =
+                FindSceneObject<PlayerInputReader>();
 
             errors += Require(hud, "HudFoundationMarker");
             errors += Require(vitals, "PlayerVitals");
             errors += Require(inventory, "QuickslotRuntimeInventory");
             errors += Require(binder, "HudGameplayBinder");
             errors += Require(presenter, "QuickslotBarPresenter");
+            errors += Require(inputReader, "PlayerInputReader");
+
+            QuickslotInputController[] inputControllers =
+                FindSceneObjects<QuickslotInputController>();
+
+            if (inputControllers.Length != 1)
+            {
+                Debug.LogError(
+                    "Expected exactly one QuickslotInputController, " +
+                    $"found {inputControllers.Length}.");
+                errors++;
+            }
 
             QuickslotSlotRelay[] relays =
                 FindSceneObjects<QuickslotSlotRelay>();

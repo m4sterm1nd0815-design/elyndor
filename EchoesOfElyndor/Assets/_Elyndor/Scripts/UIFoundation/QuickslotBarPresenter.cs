@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Elyndor.UIFoundation
 {
@@ -9,6 +8,10 @@ namespace Elyndor.UIFoundation
         [SerializeField] private QuickslotRuntimeInventory inventory;
         [SerializeField] private PlayerVitals playerVitals;
         [SerializeField] private QuickslotView[] views = Array.Empty<QuickslotView>();
+
+        public int SelectedIndex => inventory != null
+            ? inventory.SelectedIndex
+            : 0;
 
         private void OnEnable()
         {
@@ -99,18 +102,14 @@ namespace Elyndor.UIFoundation
 
         private void ApplySelection(int index)
         {
-            if (views == null ||
-                index < 0 ||
-                index >= views.Length ||
-                views[index] == null ||
-                EventSystem.current == null)
-            {
+            if (views == null)
                 return;
-            }
 
-            GameObject target = views[index].gameObject;
-            if (EventSystem.current.currentSelectedGameObject != target)
-                EventSystem.current.SetSelectedGameObject(target);
+            for (int i = 0; i < views.Length; i++)
+            {
+                if (views[i] != null)
+                    views[i].SetSelected(i == index);
+            }
         }
     }
 }

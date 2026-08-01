@@ -11,6 +11,9 @@ namespace Elyndor.UIFoundation
         [SerializeField] private Text amountLabel;
         [SerializeField] private GameObject focusFrame;
 
+        private bool isRuntimeSelected;
+        private bool hasUiFocus;
+
         public void SetVisual(Sprite sprite, string glyph, int amount)
         {
             if (icon != null)
@@ -28,14 +31,26 @@ namespace Elyndor.UIFoundation
 
         public void OnSelect(BaseEventData eventData)
         {
-            if (focusFrame != null)
-                focusFrame.SetActive(true);
+            hasUiFocus = true;
+            RefreshFocusFrame();
         }
 
         public void OnDeselect(BaseEventData eventData)
         {
+            hasUiFocus = false;
+            RefreshFocusFrame();
+        }
+
+        public void SetSelected(bool selected)
+        {
+            isRuntimeSelected = selected;
+            RefreshFocusFrame();
+        }
+
+        private void RefreshFocusFrame()
+        {
             if (focusFrame != null)
-                focusFrame.SetActive(false);
+                focusFrame.SetActive(isRuntimeSelected || hasUiFocus);
         }
     }
 }

@@ -26,12 +26,36 @@ namespace Elyndor.Player
         [SerializeField] private string legacyRollActionName = "Crouch";
         [SerializeField] private string interactActionName = "Interact";
 
+        [Header("Quickslots")]
+        [SerializeField] private string quickslotPreviousActionName =
+            "QuickslotPrevious";
+        [SerializeField] private string quickslotNextActionName =
+            "QuickslotNext";
+        [SerializeField] private string quickslotUseActionName =
+            "QuickslotUse";
+        [SerializeField] private string[] directQuickslotActionNames =
+        {
+            "Quickslot1",
+            "Quickslot2",
+            "Quickslot3",
+            "Quickslot4",
+            "Quickslot5",
+            "Quickslot6",
+            "Quickslot7",
+            "Quickslot8"
+        };
+
         private InputActionMap gameplayMap;
         private InputAction moveAction;
         private InputAction sprintAction;
         private InputAction jumpAction;
         private InputAction rollAction;
         private InputAction interactAction;
+        private InputAction quickslotPreviousAction;
+        private InputAction quickslotNextAction;
+        private InputAction quickslotUseAction;
+        private readonly InputAction[] directQuickslotActions =
+            new InputAction[8];
         private bool initialized;
 
         public Vector2 Move =>
@@ -48,6 +72,32 @@ namespace Elyndor.Player
 
         public bool InteractPressedThisFrame =>
             interactAction != null && interactAction.WasPressedThisFrame();
+
+        public bool QuickslotPreviousPressedThisFrame =>
+            quickslotPreviousAction != null &&
+            quickslotPreviousAction.WasPressedThisFrame();
+
+        public bool QuickslotNextPressedThisFrame =>
+            quickslotNextAction != null &&
+            quickslotNextAction.WasPressedThisFrame();
+
+        public bool QuickslotUsePressedThisFrame =>
+            quickslotUseAction != null &&
+            quickslotUseAction.WasPressedThisFrame();
+
+        public int GetDirectQuickslotPressedThisFrame()
+        {
+            for (int i = 0; i < directQuickslotActions.Length; i++)
+            {
+                if (directQuickslotActions[i] != null &&
+                    directQuickslotActions[i].WasPressedThisFrame())
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
 
         private void Awake()
         {
@@ -150,13 +200,38 @@ namespace Elyndor.Player
                 map.FindAction(rollActionName, false) ??
                 map.FindAction(legacyRollActionName, false);
             InputAction resolvedInteract = map.FindAction(interactActionName, false);
+            InputAction resolvedQuickslotPrevious =
+                map.FindAction(quickslotPreviousActionName, false);
+            InputAction resolvedQuickslotNext =
+                map.FindAction(quickslotNextActionName, false);
+            InputAction resolvedQuickslotUse =
+                map.FindAction(quickslotUseActionName, false);
+
+            InputAction[] resolvedDirectQuickslots =
+                new InputAction[directQuickslotActions.Length];
+
+            for (int i = 0; i < resolvedDirectQuickslots.Length; i++)
+            {
+                string actionName = GetDirectQuickslotActionName(i);
+
+                resolvedDirectQuickslots[i] =
+                    string.IsNullOrWhiteSpace(actionName)
+                        ? null
+                        : map.FindAction(actionName, false);
+            }
 
             if (
                 resolvedMove == null ||
                 resolvedSprint == null ||
                 resolvedJump == null ||
                 resolvedRoll == null ||
-                resolvedInteract == null
+                resolvedInteract == null ||
+                resolvedQuickslotPrevious == null ||
+                resolvedQuickslotNext == null ||
+                resolvedQuickslotUse == null ||
+                System.Array.Exists(
+                    resolvedDirectQuickslots,
+                    action => action == null)
             )
             {
                 return false;
@@ -168,6 +243,13 @@ namespace Elyndor.Player
             jumpAction = resolvedJump;
             rollAction = resolvedRoll;
             interactAction = resolvedInteract;
+            quickslotPreviousAction = resolvedQuickslotPrevious;
+            quickslotNextAction = resolvedQuickslotNext;
+            quickslotUseAction = resolvedQuickslotUse;
+            System.Array.Copy(
+                resolvedDirectQuickslots,
+                directQuickslotActions,
+                directQuickslotActions.Length);
             return true;
         }
 
@@ -224,6 +306,50 @@ namespace Elyndor.Player
             );
             interactAction.AddBinding("<Keyboard>/e");
             interactAction.AddBinding("<Gamepad>/buttonWest");
+
+            quickslotPreviousAction = gameplayMap.AddAction(
+                quickslotPreviousActionName,
+                InputActionType.Button
+            );
+            quickslotPreviousAction.AddBinding("<Gamepad>/leftShoulder");
+
+            quickslotNextAction = gameplayMap.AddAction(
+                quickslotNextActionName,
+                InputActionType.Button
+            );
+            quickslotNextAction.AddBinding("<Gamepad>/rightShoulder");
+
+            quickslotUseAction = gameplayMap.AddAction(
+                quickslotUseActionName,
+                InputActionType.Button
+            );
+            quickslotUseAction.AddBinding("<Keyboard>/r");
+            quickslotUseAction.AddBinding("<Gamepad>/rightStickPress");
+
+            for (int i = 0; i < directQuickslotActions.Length; i++)
+            {
+                string actionName = GetDirectQuickslotActionName(i);
+
+                InputAction action = gameplayMap.AddAction(
+                    actionName,
+                    InputActionType.Button
+                );
+                action.AddBinding($"<Keyboard>/{i + 1}");
+                directQuickslotActions[i] = action;
+            }
+        }
+
+        private string GetDirectQuickslotActionName(int index)
+        {
+            if (directQuickslotActionNames != null &&
+                index >= 0 &&
+                index < directQuickslotActionNames.Length &&
+                !string.IsNullOrWhiteSpace(directQuickslotActionNames[index]))
+            {
+                return directQuickslotActionNames[index];
+            }
+
+            return $"Quickslot{index + 1}";
         }
     }
 }

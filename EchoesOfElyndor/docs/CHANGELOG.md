@@ -10,6 +10,17 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — World Visual Overhaul Foundation
+
+- Additiver, idempotenter Visual-Layer für Finsterwald, Sonnenfelder und
+  Nebelmoor; bestehende Gameplay-Roots, Portale, Spawns und Memory Sites
+  bleiben unangetastet.
+- Neue Landmarken-, Ruhe-, Spielerführungs- und Regenerationsgruppen sowie
+  regionale Light-Probe-Raster ergänzt.
+- Neuer `WorldVisualOverhaulBuilder` mit Build- und Validierungsmenüs.
+- Visuelle Richtung, Regionslayout, Assetbestand, Performance-Risiken und
+  manueller Testplan unter `docs/` dokumentiert.
+
 ## [0.0.9] — 2026-07-25 — Visual Uplift Stufe 1 + Wald-Aufräumen
 
 - **Rendering:** SSAO (PC-Renderer), Schattendistanz 90 m mit 3 Kaskaden,

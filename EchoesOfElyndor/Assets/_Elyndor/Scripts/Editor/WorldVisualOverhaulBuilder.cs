@@ -22,6 +22,14 @@ namespace Elyndor.EditorTools
         private const string SceneFolder = "Assets/_Elyndor/Scenes";
         private const string MaterialFolder =
             "Assets/_Elyndor/Art/Materials/Prototype";
+        private const string NatureModelFolder =
+            "Assets/ThirdParty/Ultimate Stylized Nature - May 2022/FBX";
+        private const string NaturPackModelFolder =
+            "Assets/ThirdParty/Natur Pack/FBX (Unity)";
+        private const string TempleModelFolder =
+            "Assets/ThirdParty/Modular Temple";
+        private const string FanKitModelFolder =
+            "Assets/ThirdParty/fan kit/Models/FBX format";
 
         private static Terrain terrain;
 
@@ -159,17 +167,15 @@ namespace Elyndor.EditorTools
             float width, int count)
         {
             Transform group = CreateGroup(parent, name);
-            Material material = LoadMaterial("Proto_MossyStone", "Proto_Stone");
-
             for (int i = 0; i < count; i++)
             {
                 float t = count == 1 ? 0.5f : i / (count - 1f);
                 Vector2 point = center + Vector2.right * Mathf.Lerp(-width, width, t);
-                GameObject stone = Primitive(group, $"Way Stone {i + 1}",
-                    PrimitiveType.Cube, point,
-                    new Vector3(1.1f, 0.25f, 0.7f), material);
-                stone.transform.rotation = Quaternion.Euler(
-                    0f, Mathf.Lerp(-12f, 12f, t), Mathf.Sin(i * 1.7f) * 4f);
+                PlaceModel(group, $"Way Stone {i + 1}",
+                    $"{NaturPackModelFolder}/RockPath_Round_Small_{i % 3 + 1}.fbx", point,
+                    0.42f + (i % 3) * 0.08f,
+                    new Vector3(i % 2 == 0 ? -4f : 3f,
+                        Mathf.Lerp(-18f, 18f, t), i % 3 - 1f));
             }
         }
 
@@ -190,16 +196,14 @@ namespace Elyndor.EditorTools
             Transform parent, string name, Vector2 center, float radius)
         {
             Transform group = CreateGroup(parent, name);
-            Material stone = LoadMaterial("Proto_MossyStone", "Proto_Stone");
-
             for (int i = 0; i < 5; i++)
             {
                 float angle = i * Mathf.PI * 2f / 5f;
                 Vector2 point = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
-                GameObject perch = Primitive(group, $"Perch Stone {i + 1}",
-                    PrimitiveType.Cylinder, point,
-                    new Vector3(0.65f, 1.1f + i * 0.08f, 0.65f), stone);
-                perch.transform.rotation = Quaternion.Euler(0f, i * 31f, i % 2 == 0 ? 3f : -3f);
+                PlaceModel(group, $"Perch Stone {i + 1}",
+                    $"{NaturPackModelFolder}/Rock_Medium_{i % 3 + 1}.fbx", point,
+                    1.05f + i * 0.08f,
+                    new Vector3(i % 2 == 0 ? 4f : -3f, i * 47f, 0f));
             }
         }
 
@@ -207,13 +211,18 @@ namespace Elyndor.EditorTools
             Transform parent, string name, Vector2 center, float yaw)
         {
             Transform group = CreateGroup(parent, name);
-            Material stone = LoadMaterial("Proto_MossyStone", "Proto_Stone");
-            BuildBeam(group, "Standing Pier", center + new Vector2(-2.4f, 0f),
-                new Vector3(1.2f, 5.5f, 1.2f), new Vector3(0f, yaw, -3f), stone);
-            BuildBeam(group, "Broken Pier", center + new Vector2(2.4f, 0f),
-                new Vector3(1.2f, 3.4f, 1.2f), new Vector3(0f, yaw, 5f), stone);
-            BuildBeam(group, "Lintel", center + new Vector2(-0.6f, 0f),
-                new Vector3(4.8f, 0.8f, 1.1f), new Vector3(0f, yaw, -8f), stone, 5f);
+            PlaceModel(group, "Standing Pier",
+                $"{FanKitModelFolder}/column-damaged.fbx",
+                center + new Vector2(-2.3f, 0f), 5.2f,
+                new Vector3(-2f, yaw, 0f));
+            PlaceModel(group, "Broken Pier",
+                $"{FanKitModelFolder}/column-damaged.fbx",
+                center + new Vector2(2.2f, 0.2f), 3.5f,
+                new Vector3(7f, yaw + 9f, -3f));
+            PlaceModel(group, "Fallen Arch",
+                $"{TempleModelFolder}/Floor_Ruined_Straight_1.obj",
+                center + new Vector2(0.5f, -1.2f), 2.1f,
+                new Vector3(74f, yaw - 12f, 8f));
         }
 
         private static void BuildWarmRestPoint(
@@ -249,18 +258,16 @@ namespace Elyndor.EditorTools
             Transform parent, Vector2 center, int count, int seed)
         {
             Transform group = CreateGroup(parent, $"Young Growth {seed}");
-            Material wood = LoadMaterial("Proto_Wood");
             System.Random random = new System.Random(seed);
 
             for (int i = 0; i < count; i++)
             {
                 Vector2 point = center + UnityRandomInsideCircle(random) * 6f;
-                GameObject sapling = Primitive(group, $"Sapling {i + 1}",
-                    PrimitiveType.Cylinder, point,
-                    new Vector3(0.12f, 1.1f + (float)random.NextDouble(), 0.12f), wood);
-                sapling.transform.rotation = Quaternion.Euler(0f,
-                    (float)random.NextDouble() * 360f,
-                    Mathf.Lerp(-5f, 5f, (float)random.NextDouble()));
+                int variant = i % 5 + 1;
+                PlaceModel(group, $"Sapling {i + 1}",
+                    $"{NatureModelFolder}/NormalTree_{variant}.fbx", point,
+                    2.2f + (float)random.NextDouble() * 1.8f,
+                    new Vector3(0f, (float)random.NextDouble() * 360f, 0f));
             }
         }
 
@@ -268,15 +275,15 @@ namespace Elyndor.EditorTools
             Transform parent, Vector2 from, Vector2 to, int segments)
         {
             Transform group = CreateGroup(parent, "Old Irrigation Channel");
-            Material stone = LoadMaterial("Proto_Stone");
-
             for (int i = 0; i < segments; i++)
             {
                 float t = i / (segments - 1f);
                 Vector2 point = Vector2.Lerp(from, to, t) +
                     Vector2.up * Mathf.Sin(t * Mathf.PI * 3f) * 1.7f;
-                Primitive(group, $"Channel Edge {i + 1}", PrimitiveType.Cube,
-                    point, new Vector3(2.4f, 0.28f, 0.45f), stone);
+                PlaceModel(group, $"Channel Stone {i + 1}",
+                    $"{NaturPackModelFolder}/RockPath_Round_Small_{i % 3 + 1}.fbx", point,
+                    0.35f + (i % 3) * 0.06f,
+                    new Vector3(0f, i * 37f, i % 2 == 0 ? 2f : -2f));
             }
         }
 
@@ -284,14 +291,15 @@ namespace Elyndor.EditorTools
             Transform parent, Vector2 center, int columns, int rows)
         {
             Transform group = CreateGroup(parent, "Old Orchard");
-            Material wood = LoadMaterial("Proto_Wood");
-
             for (int z = 0; z < rows; z++)
             for (int x = 0; x < columns; x++)
             {
                 Vector2 point = center + new Vector2((x - 1.5f) * 4.5f, (z - 1f) * 4.5f);
-                Primitive(group, $"Orchard Trunk {x}-{z}", PrimitiveType.Cylinder,
-                    point, new Vector3(0.28f, 2.2f, 0.28f), wood);
+                int variant = (x + z * columns) % 5 + 1;
+                PlaceModel(group, $"Orchard Tree {x}-{z}",
+                    $"{NatureModelFolder}/NormalTree_{variant}.fbx", point,
+                    5.2f + ((x + z) % 3) * 0.45f,
+                    new Vector3(0f, x * 43f + z * 19f, 0f));
             }
         }
 
@@ -312,10 +320,15 @@ namespace Elyndor.EditorTools
                     Vector2 point = Vector2.Lerp(points[p], points[p + 1], t);
                     GameObject plank = Primitive(group, $"Plank {++index}",
                         PrimitiveType.Cube, point,
-                        new Vector3(2.8f, 0.22f, 0.8f), wood, 0.55f);
+                        new Vector3(1.05f + (index % 3) * 0.08f,
+                            0.18f + (index % 2) * 0.04f,
+                            2.25f + (index % 4) * 0.12f), wood, 0.42f);
                     Vector2 direction = points[p + 1] - points[p];
                     plank.transform.rotation = Quaternion.Euler(
-                        0f, -Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg, 0f);
+                        index % 2 == 0 ? 1.5f : -1f,
+                        90f - Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg +
+                        (index % 3 - 1) * 1.8f,
+                        index % 2 == 0 ? 0.8f : -0.8f);
                 }
             }
         }
@@ -390,6 +403,58 @@ namespace Elyndor.EditorTools
             GameObject group = new GameObject(name);
             group.transform.SetParent(parent);
             return group.transform;
+        }
+
+        private static GameObject PlaceModel(
+            Transform parent, string name, string assetPath,
+            Vector2 position, float targetHeight, Vector3 rotation)
+        {
+            GameObject source = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+            if (source == null)
+                throw new InvalidOperationException($"Required world model is missing: {assetPath}");
+
+            GameObject instance = PrefabUtility.InstantiatePrefab(source) as GameObject;
+            if (instance == null)
+                throw new InvalidOperationException($"Could not instantiate world model: {assetPath}");
+
+            instance.name = name;
+            instance.transform.SetParent(parent);
+            instance.transform.SetPositionAndRotation(
+                new Vector3(position.x, Ground(position), position.y),
+                Quaternion.Euler(rotation));
+
+            Bounds bounds = CalculateRendererBounds(instance);
+            float scale = targetHeight / Mathf.Max(bounds.size.y, 0.01f);
+            instance.transform.localScale *= scale;
+            bounds = CalculateRendererBounds(instance);
+            instance.transform.position += new Vector3(
+                position.x - bounds.center.x,
+                Ground(position) - bounds.min.y,
+                position.y - bounds.center.z);
+
+            foreach (Collider collider in instance.GetComponentsInChildren<Collider>(true))
+                UnityEngine.Object.DestroyImmediate(collider);
+
+            foreach (Renderer renderer in instance.GetComponentsInChildren<Renderer>(true))
+            {
+                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject,
+                    StaticEditorFlags.BatchingStatic |
+                    StaticEditorFlags.OccludeeStatic);
+            }
+
+            return instance;
+        }
+
+        private static Bounds CalculateRendererBounds(GameObject instance)
+        {
+            Renderer[] renderers = instance.GetComponentsInChildren<Renderer>(true);
+            if (renderers.Length == 0)
+                throw new InvalidOperationException($"World model has no renderer: {instance.name}");
+
+            Bounds bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+            return bounds;
         }
 
         private static GameObject Primitive(

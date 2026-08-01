@@ -30,6 +30,8 @@ namespace Elyndor.EditorTools
             "Assets/ThirdParty/Modular Temple";
         private const string FanKitModelFolder =
             "Assets/ThirdParty/fan kit/Models/FBX format";
+        private const string FinsterwaldRootGatePrefab =
+            "Assets/_Elyndor/Art/Environment/Finsterwald/RootGate/Finsterwald_RootGate.prefab";
 
         private static Terrain terrain;
 
@@ -89,7 +91,8 @@ namespace Elyndor.EditorTools
             Transform guidance = CreateGroup(root, "01_Player Guidance");
             BuildStoneThreshold(guidance, "Tutorial Threshold",
                 new Vector2(0f, -45f), 12f, 7);
-            BuildRootArch(guidance, "Root Gate", new Vector2(-8f, -32f), 18f);
+            PlaceModel(guidance, "Root Gate", FinsterwaldRootGatePrefab,
+                new Vector2(-8f, -32f), 7f, new Vector3(0f, 18f, 0f));
             BuildStoneThreshold(guidance, "Bridge Approach",
                 new Vector2(2f, -8f), 8f, 5);
 
@@ -374,6 +377,14 @@ namespace Elyndor.EditorTools
                 errors++;
             }
 
+            if (sceneName == "Finsterwald" && !scene.GetRootGameObjects()
+                    .SelectMany(root => root.GetComponentsInChildren<Transform>(true))
+                    .Any(renderer => PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(
+                        renderer.gameObject) == FinsterwaldRootGatePrefab))
+            {
+                Debug.LogError("Finsterwald: Imported Root Gate prefab is missing.");
+                errors++;
+            }
             if (scene.GetRootGameObjects().SelectMany(root =>
                     root.GetComponentsInChildren<MonoBehaviour>(true))
                 .Any(component => component == null))

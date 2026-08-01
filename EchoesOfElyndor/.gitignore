@@ -43,3 +43,6 @@ Thumbs.db
 
 # Unsortierte / nicht importierbare Asset-Ablage (nicht von Unity importiert, nicht versioniert)
 _AssetInbox/
+# Local AI assistant state
+.claude/
+**/.claude/

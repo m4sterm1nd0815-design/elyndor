@@ -27,3 +27,17 @@ der produktiven `Assets/`-Struktur.
 - einheitliche Obstbäume und Feldrandvegetation,
 - regionale Ambient-Loops mit klarer kommerzieller Lizenz,
 - Hero-Landmarken für spätere Kapitelregionen.
+
+## Finsterwald Root Gate (Meshy import)
+
+- Source candidate: Finsterwald_RootGate_Meshy.fbx (1,197,020 bytes).
+- Final path: Assets/_Elyndor/Art/Environment/Finsterwald/RootGate/.
+- Unity import: one mesh, 29,107 vertices, one submesh and one renderer.
+- Materials: one assigned material slot; no missing material references.
+- Orientation: upright at zero rotation; scene yaw is applied by the world builder.
+- Pivot: centered vertically in the source model. PlaceModel grounds the rendered
+  bounds on the terrain, so the source pivot does not cause floating placement.
+- Prefab: Finsterwald_RootGate.prefab.
+- Integration: replaces the procedural Root Gate placeholder in the generated
+  Finsterwald visual layer. Final appearance, collision clearance and camera
+  occlusion still require the documented Play Mode walkthrough.

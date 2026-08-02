@@ -27,7 +27,7 @@ Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
 | PR #3 UI Polish | INTEGRIERT | geschlossen, nicht gemergt | durch PR #4/`developer` ueberholt |
 | PR #5 Developer | BLOCKIERT | `developer` → `main` | vor Gate 0 nicht mergebereit |
 | Produktionsbibel | REVIEW | `feature/project-production-bible`, PR #10 | Commit wird im PR gefuehrt |
-| Root-Gate-Materialkorrektur | REVIEW | `feature/root-gate-material-fix`, PR ausstehend | URP-Material und Texturzuweisung implementiert; Batch-Compile und World-Validator bestanden; visuelle Play-Mode-Abnahme `MANUELL OFFEN` |
+| Root-Gate-Materialkorrektur | REVIEW | `feature/root-gate-material-fix`, PR #13 | URP-Material und Texturzuweisung implementiert; Batch-Compile und World-Validator bestanden; visuelle Play-Mode-Abnahme `MANUELL OFFEN` |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 

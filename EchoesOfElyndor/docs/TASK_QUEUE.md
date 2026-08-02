@@ -1,120 +1,87 @@
-# Task Queue
+﻿# Task Queue
 
-Stand: 1. August 2026
-Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
+Stand: 2. August 2026
+Basis der Bestandsaufnahme: `origin/developer` bei `3a35bfc`
 
 ## Statusregeln
 
 - `FREIGEGEBEN`: darf in Reihenfolge bearbeitet werden.
 - `IN ARBEIT`: laufendes, isoliertes Paket; nicht duplizieren.
-- `REVIEW`: implementiert, Integration/Abnahme offen.
+- `REVIEW`: implementiert oder geplant, Integration/Abnahme offen.
 - `INTEGRIERT`: in `developer` enthalten.
-- `BLOCKIERT`: Abhaengigkeit oder Entscheidung fehlt.
+- `BLOCKIERT`: AbhÃ¤ngigkeit oder Entscheidung fehlt.
+- `BLOCKIERT BIS GATE-0-FREIGABE`: ausdrÃ¼cklich keine Implementierung beginnen.
 - `GEPLANT`: keine automatische Arbeitsfreigabe.
-- `GATE`: Stop und ausdrueckliche Freigabe erforderlich.
+- `GATE â€” MANUELL OFFEN`: technische Belege vorhanden, manuelle Abnahme und ausdrÃ¼ckliche Freigabe fehlen.
 
 ## Aktueller realer Stand
 
 | Bereich | Status | Branch/PR | Beleg/Notiz |
 |---|---|---|---|
-| UI Foundation | INTEGRIERT | PR #2, spaeter `developer` | HUD-Grundlage vorhanden |
-| UI Polish | INTEGRIERT | PR #4 gegen `developer` | PR #3 gegen `main` ist ueberholt |
-| HUD Gameplay Binding | INTEGRIERT | PR #6, Commit `c21a8e1` | am 01.08.2026 in `developer` gemergt |
-| Quickslot Input | REVIEW | `feature/quickslot-input`, Draft-PR #7 | lokaler Commit `91ce77c`, Base `developer` |
-| World Visual Overhaul | REVIEW | `feature/world-visual-overhaul`, Draft-PR #9 | `5510e06`, enthaelt aktuellen `developer` |
-| Meshy Root Gate | REVIEW | Teil von PR #9 | committed/published, nicht mehr ungesichert |
-| External Asset Pipeline | REVIEW | `feature/external-asset-pipeline`, Draft-PR #8 | `4b13a42`; Worktree sauber, Basis vor PR #6 |
-| PR #3 UI Polish | INTEGRIERT | geschlossen, nicht gemergt | durch PR #4/`developer` ueberholt |
-| PR #5 Developer | BLOCKIERT | `developer` → `main` | vor Gate 0 nicht mergebereit |
-| Produktionsbibel | REVIEW | `feature/project-production-bible`, PR #10 | Commit wird im PR gefuehrt |
+| Produktions- und Wissensstruktur | INTEGRIERT | PR #10 | Merge-Commit `2756795` |
+| Quickslot Input | INTEGRIERT | PR #7 | Merge-Commit `c9cbc4d` |
+| World Visual Overhaul und Root Gate | INTEGRIERT | PR #9 | Merge-Commit `2f3abea` |
+| External Asset Pipeline | INTEGRIERT | PR #8 | Merge-Commit `68c79bf`; Such-/Dry-Run-Pipeline, keine Downloads |
+| Gate-0 HUD-/Szenenintegration | INTEGRIERT | PR #11 | Merge-Commit `3a35bfc` |
+| Gate-0 automatische PrÃ¼fung | INTEGRIERT | `developer` | Batch-Kompilierung und vorhandene Validatoren technisch bestanden |
+| Gate-0 manuelle Unity-Abnahme | GATE â€” MANUELL OFFEN | kein Implementierungsbranch | Play-Mode-PrÃ¼fungen stehen aus |
+| PR #5 Developer â†’ Main | BLOCKIERT | PR #5 | nicht mergen; Status vor spÃ¤terer Freigabe erneut prÃ¼fen |
+| Finsterwald Vertical-Slice-Plan | REVIEW | `feature/finsterwald-vertical-slice-plan`, PR #12 | reiner Dokumentations-PR gegen `developer`; Commit ist der aktuelle PR-Head |
 
-## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
+## Gate 0 â€” nicht Ã¼berschreiten
 
-### 1. DOC-001 — Produktions- und Wissensstruktur
+Status: **GATE â€” MANUELL OFFEN**
 
-- Status: `REVIEW`
-- Branch: `feature/project-production-bible`
-- Scope: acht verbindliche Dateien: `AGENTS.md` und sieben Fachdokumente.
-- Abschluss: Links, Widersprueche, `git diff --check`, Commit und PR gegen
-  `developer`.
+Technisch vorbereitet und bereits belegt:
 
-### 2. P0-QS-001 — Quickslot-PR #7 technisch pruefen
+- Grundlagen konfliktfrei in `developer` integriert;
+- Unity-Batch-Kompilierung erfolgreich;
+- vorhandene automatische Validatoren erfolgreich;
+- Missing-Script- und zentrale KomponentenprÃ¼fungen ohne bekannten Blocker;
+- Asset-Pipeline blieb im Such-/Dry-Run-Modus.
 
-- Status: `FREIGEGEBEN`
-- Abhaengigkeit: DOC-001 integriert oder konfliktfrei parallel.
-- Pruefen: Input Actions, direkte Slotwahl, zyklische Auswahl, Benutzung,
-  UI-Fokus, Controller und Tastatur.
-- Manuell: `MANUELL OFFEN` bis Unity-Play-Mode-Test dokumentiert ist.
+Manuell in Unity noch abzunehmen:
 
-### 3. P0-QS-002 — Quickslot Input integrieren
+- Input mit Tastatur/Maus und Gamepad;
+- HUD, Vitals, Inventory und Quickslots im Play Mode;
+- Kampfprototyp und AusrÃ¼sten der vorhandenen Waffe;
+- erste Memory Site und Watch-Aktivierungsfluss;
+- Portale, Spawns und ÃœbergÃ¤nge der drei Regionen;
+- Rundgang durch Finsterwald, Sonnenfelder und Nebelmoor;
+- visuelle PrÃ¼fung des Root Gate sowie fehlender Scripts und doppelter zentraler Komponenten im Inspector.
 
-- Status: `BLOCKIERT` durch Aufgabe 2/Review.
-- Ziel: Draft-PR #7 nach bestandener Abnahme in `developer` mergen.
-- Commit/PR: `91ce77c`, PR #7; finalen Merge-Commit nachtragen.
+Gate 0 darf erst nach dokumentierter manueller Abnahme und ausdrÃ¼cklicher Freigabe geschlossen werden. Bis dahin sind Ã„nderungen an Spielszenen und bestehenden Gameplay-Systemen fÃ¼r Phase 1 gesperrt.
 
-### 4. P0-WORLD-001 — World-Branch auf aktuellen `developer` bringen
+## Phase 1 â€” Finsterwald Vertical Slice
 
-- Status: `BLOCKIERT` durch Aufgabe 3.
-- Branch: `feature/world-visual-overhaul`, aktuell `5510e06`, Draft-PR #9.
-- Der Branch enthaelt `c21a8e1` und bewahrt das HUD-Binding. Nach Integration
-  von PR #7 muss er erneut auf den dann aktuellen `developer` gebracht werden.
+Planungsgrundlagen:
 
-### 5. P0-WORLD-002 — World Overhaul und Root Gate validieren
+- `FINSTERWALD_VERTICAL_SLICE.md`
+- `FINSTERWALD_ENCOUNTER_PLAN.md`
+- `FINSTERWALD_MEMORY_PUZZLE.md`
+- `FINSTERWALD_LORE_FLOW.md`
+- `FINSTERWALD_ASSET_REQUIREMENTS.md`
+- `FINSTERWALD_TECHNICAL_WORK_PACKAGES.md`
 
-- Status: `BLOCKIERT` durch Aufgabe 4.
-- Pruefen: drei Szenen, Builder-Idempotenz, Root-Gate-Import, Materialien,
-  Scale/Pivot, Collider/LOD, Portale, Spawns, `[Handarbeit]`, Missing Scripts.
-- Manuell: dokumentierter Fuenf-Minuten-Rundgang pro Region.
+Keines der folgenden Pakete ist begonnen oder automatisch freigegeben.
 
-### 6. P0-WORLD-003 — World Overhaul integrieren
+| ID | Arbeitspaket | Branch nach Freigabe | Status | AbhÃ¤ngigkeit |
+|---|---|---|---|---|
+| P1.1 | Movement und Kamera | `feature/finsterwald-movement-camera` | BLOCKIERT BIS GATE-0-FREIGABE | Gate 0 |
+| P1.2 | Vitals-/Ausdaueranbindung | `feature/finsterwald-vitals-stamina` | BLOCKIERT BIS GATE-0-FREIGABE | P1.1 |
+| P1.3 | Kampfbasis | `feature/finsterwald-combat-foundation` | BLOCKIERT BIS GATE-0-FREIGABE | P1.1, P1.2 |
+| P1.4 | Gegner-KI-Grundlage | `feature/finsterwald-enemy-ai` | BLOCKIERT BIS GATE-0-FREIGABE | P1.3 |
+| P1.5 | Erster Gegnertyp â€“ Wurzelstreifer | `feature/finsterwald-root-strider` | BLOCKIERT BIS GATE-0-FREIGABE | P1.4 |
+| P1.6 | Encounter-Erweiterung und Namenloser HÃ¼ter | `feature/finsterwald-encounter-roster` | BLOCKIERT BIS GATE-0-FREIGABE | P1.5 |
+| P1.7 | Memory-Watch-RÃ¤tsel | `feature/finsterwald-memory-bridge-puzzle` | BLOCKIERT BIS GATE-0-FREIGABE | P1.1 |
+| P1.8 | Link-Begleiter | `feature/finsterwald-link-companion` | BLOCKIERT BIS GATE-0-FREIGABE | P1.1, Lore-Freigabe |
+| P1.9 | Lore-/Narrationsintegration | `feature/finsterwald-lore-flow` | BLOCKIERT BIS GATE-0-FREIGABE | P1.7, P1.8, Lore-Freigabe |
+| P1.10 | Regionsregeneration | `feature/finsterwald-region-regeneration` | BLOCKIERT BIS GATE-0-FREIGABE | P1.7, P1.9 |
+| P1.11 | Audio und VFX | `feature/finsterwald-audio-vfx` | BLOCKIERT BIS GATE-0-FREIGABE | P1.5â€“P1.10, Assetfreigabe |
+| P1.12 | Level- und Art-Polishing | `feature/finsterwald-level-art-polish` | BLOCKIERT BIS GATE-0-FREIGABE | P1.6â€“P1.11 |
+| P1.13 | Save-/Checkpoint-Grundlage | `feature/finsterwald-checkpoints` | BLOCKIERT BIS GATE-0-FREIGABE | P1.7, P1.10, P1.12 |
+| P1.14 | Integrationstest und Slice-Abnahme | `feature/finsterwald-vertical-slice-integration` | BLOCKIERT BIS GATE-0-FREIGABE | P1.1â€“P1.13 |
 
-- Status: `BLOCKIERT` durch Aufgabe 5.
-- Ziel: konfliktfreier PR gegen `developer`; keine Regression von HUD,
-  Quickslots oder Gameplay-Roots.
+## Phase 2 und spÃ¤ter
 
-### 7. P0-ASSET-001 — External Asset Pipeline abschliessen
-
-- Status: `REVIEW`, Commit `4b13a42`, Draft-PR #8.
-- Der Worktree ist sauber. Der Branch basiert noch vor PR #6 und muss vor
-  Integration auf den aktuellen `developer` gebracht werden.
-- Abnahme: Tests, Herkunftsmanifest, Quellenallowlist, sichere Downloads,
-  Lizenzregeln und Abgleich mit `ASSET_PIPELINE.md`.
-
-### 8. P0-REMOTE-001 — veralteten PR #3 bereinigen
-
-- Status: `INTEGRIERT`.
-- PR #3 ist geschlossen; sein Inhalt ist ueber PR #4 in `developer` enthalten.
-
-### 9. P0-REMOTE-002 — PR #5 bis Gate 0 zurueckstellen
-
-- Status: `BLOCKIERT` bis Aufgaben 2–8 abgeschlossen sind.
-- Kein Merge nach `main`; nach Gate 0 neuen Gesamtstand und Checks bewerten.
-
-### 10. P0-QA-001 — integrierter Unity-Gesamttest
-
-- Status: `BLOCKIERT` bis Quickslot, World und Asset-Pipeline integriert sind.
-- Frischer `developer`-Worktree, Batch-Kompilierung, Validatoren,
-  `git diff --check`, Missing-Script-Pruefung und manueller Regionen-/Systemtest.
-
-## GATE 0 — nicht ueberschreiten
-
-Status: `GATE`
-
-Erforderliche Belege:
-
-- sauberer und nachvollziehbarer Git-/PR-Stand;
-- technische Grundlagen konfliktfrei in `developer`;
-- Unity-Batch-Kompilierung und Validatoren erfolgreich;
-- manueller Test von Input, HUD, Quickslots, Kampfprototyp, Memory Site,
-  Portalen und drei Regionen;
-- keine ungeklaerten Asset-Lizenzen oder Secrets.
-
-Nach Erreichen mit Ergebnisbericht stoppen und ausdrueckliche Freigabe fuer
-Phase 1 einholen.
-
-## Phase 1 und spaeter
-
-Finsterwald Vertical Slice ist `GEPLANT` und erst nach Gate 0 freigebbar.
-Sonnenfelder, Nebelmoor, Tal der verlorenen Wege und Ruinen von Arvenfall sind
-nur geplant und duerfen nicht automatisch begonnen werden. Details stehen in
-`DEVELOPMENT_PLAN.md`, `WORLD_ROADMAP.md` und `GAMEPLAY_ROADMAP.md`.
+Sonnenfelder, Nebelmoor, Tal der verlorenen Wege und Ruinen von Arvenfall bleiben ausschlieÃŸlich geplant. Details stehen in `DEVELOPMENT_PLAN.md`, `WORLD_ROADMAP.md` und `GAMEPLAY_ROADMAP.md`. Keine dieser Arbeiten wird vor den jeweils vorgesehenen Gates automatisch begonnen.

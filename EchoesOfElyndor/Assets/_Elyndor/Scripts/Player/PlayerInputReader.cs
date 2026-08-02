@@ -58,9 +58,33 @@ namespace Elyndor.Player
         private InputAction quickslotUseAction;
         private readonly InputAction[] directQuickslotActions =
             new InputAction[8];
+        private static readonly Key[] NumberRowQuickslotKeys =
+        {
+            Key.Digit1,
+            Key.Digit2,
+            Key.Digit3,
+            Key.Digit4,
+            Key.Digit5,
+            Key.Digit6,
+            Key.Digit7,
+            Key.Digit8
+        };
+        private static readonly Key[] NumpadQuickslotKeys =
+        {
+            Key.Numpad1,
+            Key.Numpad2,
+            Key.Numpad3,
+            Key.Numpad4,
+            Key.Numpad5,
+            Key.Numpad6,
+            Key.Numpad7,
+            Key.Numpad8
+        };
         private InputActionAsset runtimeInputActions;
         private int pendingDirectQuickslotIndex = -1;
+        private int lastDirectQuickslotSelectionFrame = -1;
         private bool directQuickslotCallbacksRegistered;
+        private bool gameplayInputEnabled;
         private bool initialized;
 
         public Vector2 Move =>
@@ -92,8 +116,22 @@ namespace Elyndor.Player
 
         public bool TryConsumeDirectQuickslotSelection(out int index)
         {
-            index = pendingDirectQuickslotIndex;
+            if (!gameplayInputEnabled ||
+                lastDirectQuickslotSelectionFrame == Time.frameCount)
+            {
+                index = -1;
+                return false;
+            }
+
+            int actionIndex = pendingDirectQuickslotIndex;
             pendingDirectQuickslotIndex = -1;
+
+            int keyboardIndex = GetKeyboardDirectQuickslotPressedThisFrame();
+            index = actionIndex >= 0 ? actionIndex : keyboardIndex;
+
+            if (index >= 0)
+                lastDirectQuickslotSelectionFrame = Time.frameCount;
+
             return index >= 0;
         }
 
@@ -107,10 +145,12 @@ namespace Elyndor.Player
             Initialize();
             RegisterDirectQuickslotCallbacks();
             gameplayMap?.Enable();
+            gameplayInputEnabled = true;
         }
 
         private void OnDisable()
         {
+            gameplayInputEnabled = false;
             UnregisterDirectQuickslotCallbacks();
             gameplayMap?.Disable();
             pendingDirectQuickslotIndex = -1;
@@ -135,6 +175,7 @@ namespace Elyndor.Player
         public void SetGameplayInputEnabled(bool enabled)
         {
             Initialize();
+            gameplayInputEnabled = enabled;
 
             if (enabled)
             {
@@ -361,6 +402,7 @@ namespace Elyndor.Player
                     InputActionType.Button
                 );
                 action.AddBinding($"<Keyboard>/digit{i + 1}");
+                action.AddBinding($"<Keyboard>/numpad{i + 1}");
                 directQuickslotActions[i] = action;
             }
         }
@@ -407,8 +449,29 @@ namespace Elyndor.Player
         {
             int index = Array.IndexOf(directQuickslotActions, context.action);
 
-            if (index >= 0)
+            if (index >= 0 &&
+                lastDirectQuickslotSelectionFrame != Time.frameCount)
+            {
                 pendingDirectQuickslotIndex = index;
+            }
+        }
+
+        private static int GetKeyboardDirectQuickslotPressedThisFrame()
+        {
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null)
+                return -1;
+
+            for (int index = 0; index < NumberRowQuickslotKeys.Length; index++)
+            {
+                if (keyboard[NumberRowQuickslotKeys[index]].wasPressedThisFrame ||
+                    keyboard[NumpadQuickslotKeys[index]].wasPressedThisFrame)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
         }
 
         private string GetDirectQuickslotActionName(int index)

@@ -5,8 +5,8 @@ Gesamtstatus: `MANUELL OFFEN`
 
 Gate 0 ist mit diesem Zwischenstand nicht geschlossen. Dieser Bericht
 dokumentiert ausschließlich bereits manuell geprüfte Teilbereiche. Die
-korrigierte Interaktionsanzeige und Quickslot-Direktwahl müssen erneut im
-Unity Play Mode bestätigt werden.
+korrigierte Quickslot-Direktwahl muss erneut im Unity Play Mode bestätigt
+werden.
 
 ## Finsterwald Root Gate
 
@@ -27,22 +27,32 @@ Hinweis: Das Material wirkt sehr dunkel, ist aktuell jedoch kein Blocker.
 ## Aktueller manueller Input- und HUD-Zwischenstand
 
 - Interaktion mit `E`: **BESTANDEN**
-- Rucksackaufnahme: **BESTANDEN**
-- Interaktionshinweis: **NICHT BESTANDEN**
+- Interaktionshinweis: **BESTANDEN**
 - Quickslot benutzen mit `R`: **BESTANDEN**
 - Quickslot-Direktwahl mit `1–8`: **NICHT BESTANDEN**
 - Controller: **NICHT GETESTET**
 
-Die technische Korrektur bindet den Interaktionshinweis an einen aktiven
-Controller im sichtbaren HUD. Für `1–8` werden die Input-Actions zur Laufzeit
-über `performed` ausgewertet; die Auswahl wird an
-`QuickslotRuntimeInventory` weitergereicht und durch den
-`QuickslotBarPresenter` sichtbar dargestellt.
+## Technische Korrektur der Quickslot-Direktwahl
 
-Diese Korrekturen sind automatisch validiert, ersetzen aber nicht den
-manuellen Wiederholungstest.
+Die vorhandenen Input-Actions und `performed`-Callbacks bleiben erhalten.
+Zusätzlich wertet der zentrale `PlayerInputReader` die obere Zahlenreihe und
+den Nummernblock direkt über `Keyboard.current` aus. Action-Callback und
+Keyboard-Fallback werden pro Frame zusammengeführt, sodass ein Tastendruck
+höchstens eine Auswahl erzeugt.
+
+Ein automatisierter Play-Mode-Test bestätigt für Slot 1 bis 8:
+
+- Tastendruck wird erkannt;
+- `QuickslotInputController` erreicht `SelectSlot`;
+- `QuickslotRuntimeInventory.SelectedIndex` wird gesetzt;
+- `SelectionChanged` wird exakt einmal ausgelöst;
+- `QuickslotBarPresenter` aktualisiert den sichtbaren Slot.
+
+Der Test läuft getrennt für die obere Zahlenreihe und den Nummernblock.
+Der manuelle Wiederholungstest bleibt erforderlich.
 
 ## Verbleibender Gate-0-Status
 
-Weitere manuelle Gate-0-Prüfungen bleiben offen. Dieser Zwischenstand ist
-keine vollständige Gate-Freigabe; `TASK_QUEUE.md` bleibt am Gate.
+Die Quickslot-Direktwahl und der Controller bleiben manuell offen. Dieser
+Zwischenstand ist keine vollständige Gate-Freigabe; `TASK_QUEUE.md` bleibt am
+Gate.

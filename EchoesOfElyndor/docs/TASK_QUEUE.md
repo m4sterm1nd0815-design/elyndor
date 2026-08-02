@@ -109,12 +109,26 @@ Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
 
 ### Gate-0 Runtime-UI-Korrektur — MANUELL OFFEN
 
-- Branch: `feature/gate0-runtime-ui-fix`; Draft-PR: `#15` gegen `developer`
+- Branch: `feature/gate0-runtime-ui-fix`; PR `#15` in `developer` integriert (`7699626`)
 - Scope: sichtbarer Interaktionshinweis und Quickslot-Direktwahl `1–8`.
 - Automatisch bestanden: Gate-0-Input-/HUD-Validator einschließlich
   Runtime-Auswahlroute und sichtbarem Fokuszustand.
-- Manuell offen: Interaktionshinweis, `1–8` und Controller.
+- Manuell bestanden: Interaktionshinweis.
+- Manuell offen: `1–8` und Controller.
 - Bereits bestandene Eingaben `E` und `R` bleiben unverändert.
+- Gate 0 bleibt offen; keine Freigabe für Phase 1.
+
+### Gate-0 Quickslot-Runtime-Korrektur — MANUELL OFFEN
+
+- Branch: `feature/gate0-quickslot-runtime-fix`; Draft-PR: `#16` gegen `developer`; Implementierungscommit: `42a63be`
+- Scope: ausschließlich Quickslot-Direktwahl über obere Zahlenreihe und
+  Nummernblock.
+- Automatisch bestanden: Play-Mode-Runtime-Test für alle acht Slots und beide
+  Tastaturbereiche; pro Tastendruck exakt ein Selection-Event.
+- Gate-0-Input-Validator und Unity-Batch-Kompilierung bestanden.
+- Manuell offen: `1–8` im Finsterwald und Controller.
+- Bereits bestandene Eingaben `E` und `R`, Interaktionshinweis und Root Gate
+  bleiben unverändert.
 - Gate 0 bleibt offen; keine Freigabe für Phase 1.
 ## GATE 0 — nicht ueberschreiten
 

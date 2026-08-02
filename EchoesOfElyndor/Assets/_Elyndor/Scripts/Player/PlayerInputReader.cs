@@ -59,6 +59,8 @@ namespace Elyndor.Player
         private readonly InputAction[] directQuickslotActions =
             new InputAction[8];
         private InputActionAsset runtimeInputActions;
+        private int pendingDirectQuickslotIndex = -1;
+        private bool directQuickslotCallbacksRegistered;
         private bool initialized;
 
         public Vector2 Move =>
@@ -88,18 +90,11 @@ namespace Elyndor.Player
             quickslotUseAction != null &&
             quickslotUseAction.WasPressedThisFrame();
 
-        public int GetDirectQuickslotPressedThisFrame()
+        public bool TryConsumeDirectQuickslotSelection(out int index)
         {
-            for (int i = 0; i < directQuickslotActions.Length; i++)
-            {
-                if (directQuickslotActions[i] != null &&
-                    directQuickslotActions[i].WasPressedThisFrame())
-                {
-                    return i;
-                }
-            }
-
-            return -1;
+            index = pendingDirectQuickslotIndex;
+            pendingDirectQuickslotIndex = -1;
+            return index >= 0;
         }
 
         private void Awake()
@@ -110,16 +105,20 @@ namespace Elyndor.Player
         private void OnEnable()
         {
             Initialize();
+            RegisterDirectQuickslotCallbacks();
             gameplayMap?.Enable();
         }
 
         private void OnDisable()
         {
+            UnregisterDirectQuickslotCallbacks();
             gameplayMap?.Disable();
+            pendingDirectQuickslotIndex = -1;
         }
 
         private void OnDestroy()
         {
+            UnregisterDirectQuickslotCallbacks();
             gameplayMap?.Disable();
 
             if (runtimeInputActions != null)
@@ -373,6 +372,43 @@ namespace Elyndor.Player
                     binding.path,
                     path,
                     StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void RegisterDirectQuickslotCallbacks()
+        {
+            if (directQuickslotCallbacksRegistered)
+                return;
+
+            foreach (InputAction action in directQuickslotActions)
+            {
+                if (action != null)
+                    action.performed += HandleDirectQuickslotPerformed;
+            }
+
+            directQuickslotCallbacksRegistered = true;
+        }
+
+        private void UnregisterDirectQuickslotCallbacks()
+        {
+            if (!directQuickslotCallbacksRegistered)
+                return;
+
+            foreach (InputAction action in directQuickslotActions)
+            {
+                if (action != null)
+                    action.performed -= HandleDirectQuickslotPerformed;
+            }
+
+            directQuickslotCallbacksRegistered = false;
+        }
+
+        private void HandleDirectQuickslotPerformed(
+            InputAction.CallbackContext context)
+        {
+            int index = Array.IndexOf(directQuickslotActions, context.action);
+
+            if (index >= 0)
+                pendingDirectQuickslotIndex = index;
         }
 
         private string GetDirectQuickslotActionName(int index)

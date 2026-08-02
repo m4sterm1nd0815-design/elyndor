@@ -13,6 +13,37 @@ namespace Elyndor.UI
         [SerializeField] private InteractionDetector detector;
         [SerializeField] private GameObject promptRoot;
         [SerializeField] private Text promptText;
+        [SerializeField] private RectTransform presentationRoot;
+
+        public void Configure(
+            InteractionDetector interactionDetector,
+            GameObject root,
+            Text text,
+            RectTransform targetPresentationRoot)
+        {
+            detector = interactionDetector;
+            promptRoot = root;
+            promptText = text;
+            presentationRoot = targetPresentationRoot;
+        }
+
+        private void Awake()
+        {
+            if (promptRoot == null || presentationRoot == null)
+                return;
+
+            RectTransform promptTransform =
+                promptRoot.transform as RectTransform;
+
+            if (promptTransform == null ||
+                promptTransform.parent == presentationRoot)
+            {
+                return;
+            }
+
+            promptTransform.SetParent(presentationRoot, false);
+            promptTransform.SetAsLastSibling();
+        }
 
         private void OnEnable()
         {
@@ -36,6 +67,9 @@ namespace Elyndor.UI
 
         private void HandleTargetChanged(IInteractable target)
         {
+            if (promptRoot == null || promptText == null)
+                return;
+
             bool hasTarget = target != null;
             promptRoot.SetActive(hasTarget);
 

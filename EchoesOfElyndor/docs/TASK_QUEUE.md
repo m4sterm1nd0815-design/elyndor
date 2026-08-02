@@ -107,6 +107,15 @@ Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
 - Manuell offen: erneuter Play-Mode-Test für `E`, `1–8` und Controller.
 - Gate 0 bleibt offen; keine Freigabe für Phase 1.
 
+### Gate-0 Runtime-UI-Korrektur — MANUELL OFFEN
+
+- Branch: `feature/gate0-runtime-ui-fix`
+- Scope: sichtbarer Interaktionshinweis und Quickslot-Direktwahl `1–8`.
+- Automatisch bestanden: Gate-0-Input-/HUD-Validator einschließlich
+  Runtime-Auswahlroute und sichtbarem Fokuszustand.
+- Manuell offen: Interaktionshinweis, `1–8` und Controller.
+- Bereits bestandene Eingaben `E` und `R` bleiben unverändert.
+- Gate 0 bleibt offen; keine Freigabe für Phase 1.
 ## GATE 0 — nicht ueberschreiten
 
 Status: `GATE`

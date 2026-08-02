@@ -4,8 +4,9 @@ Stand: 2. August 2026
 Gesamtstatus: `MANUELL OFFEN`
 
 Gate 0 ist mit diesem Zwischenstand nicht geschlossen. Dieser Bericht
-dokumentiert ausschließlich bereits manuell geprüfte Teilbereiche. Behobene
-Input-Bindings müssen erneut im Unity Play Mode bestätigt werden.
+dokumentiert ausschließlich bereits manuell geprüfte Teilbereiche. Die
+korrigierte Interaktionsanzeige und Quickslot-Direktwahl müssen erneut im
+Unity Play Mode bestätigt werden.
 
 ## Finsterwald Root Gate
 
@@ -23,17 +24,23 @@ Geprüft:
 
 Hinweis: Das Material wirkt sehr dunkel, ist aktuell jedoch kein Blocker.
 
-## Input-Zwischenstand vor der Korrektur
+## Aktueller manueller Input- und HUD-Zwischenstand
 
+- Interaktion mit `E`: **BESTANDEN**
+- Rucksackaufnahme: **BESTANDEN**
+- Interaktionshinweis: **NICHT BESTANDEN**
 - Quickslot benutzen mit `R`: **BESTANDEN**
 - Quickslot-Direktwahl mit `1–8`: **NICHT BESTANDEN**
-- Interaktion mit `E`: **NICHT BESTANDEN**
 - Controller: **NICHT GETESTET**
 
-Die automatisierte Korrektur ersetzt ungültige Zahlenreihen-Pfade durch
-`digit1` bis `digit8`, entfernt die unbeabsichtigte Hold-Anforderung von
-`Interact` und bindet den Finsterwald-Player explizit an das kanonische
-Input-Actions-Asset. Der manuelle Wiederholungstest bleibt offen.
+Die technische Korrektur bindet den Interaktionshinweis an einen aktiven
+Controller im sichtbaren HUD. Für `1–8` werden die Input-Actions zur Laufzeit
+über `performed` ausgewertet; die Auswahl wird an
+`QuickslotRuntimeInventory` weitergereicht und durch den
+`QuickslotBarPresenter` sichtbar dargestellt.
+
+Diese Korrekturen sind automatisch validiert, ersetzen aber nicht den
+manuellen Wiederholungstest.
 
 ## Verbleibender Gate-0-Status
 

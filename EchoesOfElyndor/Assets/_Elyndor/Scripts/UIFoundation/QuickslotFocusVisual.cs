@@ -13,10 +13,15 @@ namespace Elyndor.UIFoundation
         [SerializeField] private float speed = 14f;
 
         private Vector3 targetScale = Vector3.one;
+        private bool hasUiFocus;
+        private bool isRuntimeSelected;
+
+        public bool IsSelectionVisible =>
+            focusFrame != null && focusFrame.enabled;
 
         private void Awake()
         {
-            SetFocused(false);
+            RefreshState();
         }
 
         private void Update()
@@ -33,12 +38,14 @@ namespace Elyndor.UIFoundation
 
         public void OnSelect(BaseEventData eventData)
         {
-            SetFocused(true);
+            hasUiFocus = true;
+            RefreshState();
         }
 
         public void OnDeselect(BaseEventData eventData)
         {
-            SetFocused(false);
+            hasUiFocus = false;
+            RefreshState();
         }
 
         public void SetReduceMotion(bool enabled)
@@ -48,8 +55,15 @@ namespace Elyndor.UIFoundation
                 transform.localScale = targetScale;
         }
 
-        private void SetFocused(bool focused)
+        public void SetRuntimeSelected(bool selected)
         {
+            isRuntimeSelected = selected;
+            RefreshState();
+        }
+
+        private void RefreshState()
+        {
+            bool focused = hasUiFocus || isRuntimeSelected;
             if (focusFrame != null)
                 focusFrame.enabled = focused;
 

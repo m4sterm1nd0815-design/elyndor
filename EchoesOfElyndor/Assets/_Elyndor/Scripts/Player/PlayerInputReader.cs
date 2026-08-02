@@ -21,6 +21,7 @@ namespace Elyndor.Player
 
         [Header("Action Names")]
         [SerializeField] private string moveActionName = "Move";
+        [SerializeField] private string lookActionName = "Look";
         [SerializeField] private string sprintActionName = "Sprint";
         [SerializeField] private string jumpActionName = "Jump";
         [SerializeField] private string rollActionName = "Roll";
@@ -49,6 +50,7 @@ namespace Elyndor.Player
 
         private InputActionMap gameplayMap;
         private InputAction moveAction;
+        private InputAction lookAction;
         private InputAction sprintAction;
         private InputAction jumpAction;
         private InputAction rollAction;
@@ -89,6 +91,33 @@ namespace Elyndor.Player
 
         public Vector2 Move =>
             moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+
+        public Vector2 CameraLook
+        {
+            get
+            {
+                if (!gameplayInputEnabled || lookAction == null)
+                    return Vector2.zero;
+
+                bool usesMouse = lookAction.activeControl?.device is Mouse;
+                if (usesMouse &&
+                    (Mouse.current == null ||
+                     !Mouse.current.rightButton.isPressed))
+                {
+                    return Vector2.zero;
+                }
+
+                return lookAction.ReadValue<Vector2>();
+            }
+        }
+
+        public bool CameraLookUsesPointer =>
+            lookAction?.activeControl?.device is Pointer;
+
+        public float CameraZoom =>
+            gameplayInputEnabled && Mouse.current != null
+                ? Mouse.current.scroll.ReadValue().y
+                : 0f;
 
         public bool SprintHeld =>
             sprintAction != null && sprintAction.IsPressed();
@@ -257,6 +286,7 @@ namespace Elyndor.Player
             }
 
             InputAction resolvedMove = map.FindAction(moveActionName, false);
+            InputAction resolvedLook = map.FindAction(lookActionName, false);
             InputAction resolvedSprint = map.FindAction(sprintActionName, false);
             InputAction resolvedJump = map.FindAction(jumpActionName, false);
             InputAction resolvedRoll =
@@ -285,6 +315,7 @@ namespace Elyndor.Player
 
             if (
                 resolvedMove == null ||
+                resolvedLook == null ||
                 resolvedSprint == null ||
                 resolvedJump == null ||
                 resolvedRoll == null ||
@@ -306,6 +337,7 @@ namespace Elyndor.Player
 
             gameplayMap = map;
             moveAction = resolvedMove;
+            lookAction = resolvedLook;
             sprintAction = resolvedSprint;
             jumpAction = resolvedJump;
             rollAction = resolvedRoll;
@@ -345,6 +377,14 @@ namespace Elyndor.Player
                 .With("Right", "<Keyboard>/rightArrow");
 
             moveAction.AddBinding("<Gamepad>/leftStick");
+
+            lookAction = gameplayMap.AddAction(
+                lookActionName,
+                InputActionType.Value,
+                expectedControlLayout: "Vector2"
+            );
+            lookAction.AddBinding("<Pointer>/delta");
+            lookAction.AddBinding("<Gamepad>/rightStick");
 
             sprintAction = gameplayMap.AddAction(
                 sprintActionName,

@@ -109,6 +109,12 @@ Status: **ABGESCHLOSSEN**
 
 Freigabe: ausdrückliche Nutzerentscheidung vom 2. August 2026.
 
+Dokumentationspaket:
+
+- Branch: `feature/gate0-final-report`
+- Abschlusscommit: `7f3678a`
+- Draft-PR: #18 gegen `developer`
+
 Belege:
 
 - Technischer Integrationsstand liegt konfliktfrei auf developer.

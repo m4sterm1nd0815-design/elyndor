@@ -132,7 +132,7 @@ Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
 - Gate 0 bleibt offen; keine Freigabe für Phase 1.
 ### Gate-0 Portalinteraktions-Korrektur — MANUELL OFFEN
 
-- Branch: `feature/gate0-portal-interaction-fix`
+- Branch: `feature/gate0-portal-interaction-fix`; Draft-PR: `#17` gegen `developer`; Implementierungscommit: `6b042b3`
 - Scope: ausschließlich Interaktionshinweis, E-Auslösung und Regionsreise über
   bestehende `RegionPortal`-Übergänge.
 - Technische Ursache: `RegionPortal` war nicht an `IInteractable` beziehungsweise

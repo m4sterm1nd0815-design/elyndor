@@ -11,6 +11,11 @@ namespace Elyndor.Player
         [SerializeField] private float walkSpeed = 5f;
         [SerializeField] private float sprintSpeed = 8f;
         [SerializeField] private float rotationSpeed = 10f;
+        [Tooltip("Beschleunigung bei Bewegungsbeginn und Richtungswechseln.")]
+        [SerializeField] private float acceleration = 28f;
+        [Tooltip("Abbremsung ohne Bewegungseingabe. Höher als die " +
+                 "Beschleunigung für präzises Stoppen.")]
+        [SerializeField] private float deceleration = 36f;
 
         [Header("Animation")]
         [SerializeField] private Animator animator;
@@ -37,6 +42,7 @@ namespace Elyndor.Player
         private PlayerState currentState = PlayerState.Normal;
 
         private Vector3 lastMoveDirection = Vector3.forward;
+        private Vector3 planarVelocity;
         private float nextRollTime;
         private float verticalVelocity;
 
@@ -62,9 +68,9 @@ namespace Elyndor.Player
             Vector2 movementInput = Vector2.ClampMagnitude(inputReader.Move, 1f);
             Vector3 moveDirection = ToCameraRelativeDirection(movementInput);
 
-            bool isMoving = moveDirection.sqrMagnitude > 0.01f;
+            bool hasMovementInput = moveDirection.sqrMagnitude > 0.01f;
 
-            if (isMoving)
+            if (hasMovementInput)
             {
                 lastMoveDirection = moveDirection.normalized;
                 RotateTowards(lastMoveDirection);
@@ -77,8 +83,17 @@ namespace Elyndor.Player
                 return;
             }
 
-            bool isSprinting = inputReader.SprintHeld;
-            float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+            bool isSprinting = inputReader.SprintHeld && hasMovementInput;
+            float targetSpeed = isSprinting ? sprintSpeed : walkSpeed;
+            Vector3 targetPlanarVelocity = moveDirection * targetSpeed;
+            float velocityChangeRate = hasMovementInput
+                ? acceleration
+                : deceleration;
+
+            planarVelocity = Vector3.MoveTowards(
+                planarVelocity,
+                targetPlanarVelocity,
+                velocityChangeRate * Time.deltaTime);
 
             ApplyGravity();
 
@@ -88,14 +103,13 @@ namespace Elyndor.Player
             }
 
             Vector3 velocity =
-                moveDirection * currentSpeed +
+                planarVelocity +
                 Vector3.up * verticalVelocity;
 
             characterController.Move(velocity * Time.deltaTime);
 
             float animationSpeed = CalculateAnimationSpeed(
-                isMoving,
-                isSprinting
+                planarVelocity.magnitude
             );
 
             UpdateAnimationSpeed(animationSpeed);
@@ -143,17 +157,22 @@ namespace Elyndor.Player
             return transform.forward;
         }
 
-        private float CalculateAnimationSpeed(
-            bool isMoving,
-            bool isSprinting
-        )
+        private float CalculateAnimationSpeed(float movementSpeed)
         {
-            if (!isMoving)
+            if (movementSpeed <= 0.01f)
             {
                 return 0f;
             }
 
-            return isSprinting ? 1f : 0.5f;
+            if (movementSpeed <= walkSpeed)
+            {
+                return Mathf.InverseLerp(0f, walkSpeed, movementSpeed) * 0.5f;
+            }
+
+            return Mathf.Lerp(
+                0.5f,
+                1f,
+                Mathf.InverseLerp(walkSpeed, sprintSpeed, movementSpeed));
         }
 
         private void ApplyGravity()
@@ -187,6 +206,7 @@ namespace Elyndor.Player
         {
             currentState = PlayerState.Rolling;
             nextRollTime = Time.time + rollCooldown;
+            planarVelocity = Vector3.zero;
 
             UpdateAnimationSpeed(0f);
             RotateImmediatelyTowards(rollDirection);
@@ -214,13 +234,24 @@ namespace Elyndor.Player
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
 
+            float rotationBlend = 1f - Mathf.Exp(
+                -rotationSpeed * Time.deltaTime);
+
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 targetRotation,
-                rotationSpeed * Time.deltaTime
+                rotationBlend
             );
         }
 
+        private void OnValidate()
+        {
+            walkSpeed = Mathf.Max(0.1f, walkSpeed);
+            sprintSpeed = Mathf.Max(walkSpeed + 0.1f, sprintSpeed);
+            rotationSpeed = Mathf.Max(0.1f, rotationSpeed);
+            acceleration = Mathf.Max(0.1f, acceleration);
+            deceleration = Mathf.Max(0.1f, deceleration);
+        }
         private void RotateImmediatelyTowards(Vector3 direction)
         {
             if (direction.sqrMagnitude <= 0.01f)

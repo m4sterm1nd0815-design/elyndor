@@ -1,7 +1,7 @@
 # Task Queue
 
 Stand: 2. August 2026
-Basis der Bestandsaufnahme: origin/developer bei 8e032af
+Basis der Bestandsaufnahme: `origin/developer` bei `cd7bc35`
 
 ## Statusregeln
 
@@ -133,6 +133,21 @@ Nicht blockierende Phase-1-Prioritäten:
    verbessern.
 4. Nebelmoor-Nebeldichte für bessere Lesbarkeit abstimmen.
 
+## Phase 1 — aktives Arbeitspaket
+
+### P1.2 — Movement, Kamera und Spielgefuehl
+
+- Status: `REVIEW`
+- Branch: `feature/movement-camera`
+- Scope: Beschleunigung, Abbremsung, Sprint-Zuverlaessigkeit,
+  framerate-stabile Drehung, Kamera-Fokus und Kamera-Occlusion.
+- Bewahrt: vorhandene Animationen, zentrale Input-Struktur, Rolle und Sprung.
+- Ausgeschlossen: Ausdauerverbrauch, Gegner, Lore, Memory-Watch-Raetsel,
+  Portalumbau und neue Regionen.
+- Automatisch bestanden: Unity-Batch-Kompilierung, Movement-/Kamera-Validator,
+  World-Validator, zwei vorhandene Play-Mode-Tests und `git diff --check`.
+- Manuell offen: Maus/Tastatur und Controller in engen Finsterwald-Passagen,
+  Sprintwechsel, Kameraorbit, Zoom und Occlusion an Baum-/Felsgruppen.
 ## Phase 1 und spaeter
 
 Finsterwald Vertical Slice ist nach Abschluss von Gate 0 **FREIGEGEBEN**,

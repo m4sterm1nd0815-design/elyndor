@@ -252940,6 +252940,7 @@ GameObject:
   - component: {fileID: 1117875256}
   - component: {fileID: 1117875257}
   - component: {fileID: 1117875258}
+  - component: {fileID: 1117875259}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -253250,6 +253251,20 @@ MonoBehaviour:
     staminaDelta: 0
     memoryDelta: 0
   selectedIndex: 0
+--- !u!114 &1117875259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117875246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c688b214372a1584d923e037377a1ded, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.UIFoundation.QuickslotInputController
+  inputReader: {fileID: 1117875256}
+  presenter: {fileID: 1802081745}
 --- !u!1001 &1118215899
 PrefabInstance:
   m_ObjectHideFlags: 0

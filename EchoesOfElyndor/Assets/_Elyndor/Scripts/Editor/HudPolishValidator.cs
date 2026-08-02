@@ -30,7 +30,7 @@ namespace Elyndor.EditorTools
             if (focusVisuals.Length != 8)
                 Debug.LogWarning($"Expected 8 quickslot focus visuals, found {focusVisuals.Length}.");
 
-            if (EventSystem.current == null)
+            if (Object.FindFirstObjectByType<EventSystem>(FindObjectsInactive.Include) == null)
             {
                 Debug.LogError("No EventSystem exists in the active scene.");
                 errors++;

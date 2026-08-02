@@ -80,6 +80,8 @@ namespace Elyndor.EditorTools
 
             inputController.Configure(inputReader, presenter);
 
+            EnsureEventSystem();
+
             SerializedObject inventoryObject =
                 new SerializedObject(inventory);
 
@@ -99,13 +101,6 @@ namespace Elyndor.EditorTools
                 EditorUtility.SetDirty(inventory);
             }
 
-            if (EventSystem.current == null)
-            {
-                Debug.LogWarning(
-                    "No EventSystem exists in the active scene. " +
-                    "Pointer and menu navigation will be unavailable; " +
-                    "gameplay quickslot input remains functional.");
-            }
 
             EditorUtility.SetDirty(player);
             EditorUtility.SetDirty(hudMarker.gameObject);
@@ -115,6 +110,34 @@ namespace Elyndor.EditorTools
             Debug.Log(
                 "HUD gameplay binding installed. " +
                 "PlayerVitals, quickslots and HUD are connected.");
+        }
+
+        private static void EnsureEventSystem()
+        {
+            if (FindSceneObject<EventSystem>() != null)
+            {
+                return;
+            }
+
+            Type inputModuleType = Type.GetType(
+                "UnityEngine.InputSystem.UI.InputSystemUIInputModule, " +
+                "Unity.InputSystem");
+
+            if (inputModuleType == null)
+            {
+                throw new InvalidOperationException(
+                    "InputSystemUIInputModule type could not be resolved.");
+            }
+
+            GameObject eventSystemObject = new GameObject(
+                "EventSystem",
+                typeof(EventSystem));
+
+            eventSystemObject.AddComponent(inputModuleType);
+
+            Undo.RegisterCreatedObjectUndo(
+                eventSystemObject,
+                "Create HUD EventSystem");
         }
 
         [MenuItem("Elyndor/QA/Validate HUD Gameplay Binding")]
@@ -161,7 +184,7 @@ namespace Elyndor.EditorTools
                 errors++;
             }
 
-            if (EventSystem.current == null)
+            if (FindSceneObject<EventSystem>() == null)
             {
                 Debug.LogError("No EventSystem exists in the active scene.");
                 errors++;

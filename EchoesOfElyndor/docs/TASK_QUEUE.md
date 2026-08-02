@@ -100,6 +100,7 @@ Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
 ### Gate-0 Input-Korrektur — MANUELL OFFEN
 
 - Branch: `feature/gate0-input-fix`
+- Draft-PR: `#14` gegen `developer`
 - Scope: `E`-Interaktion und Quickslot-Direktwahl `1–8`.
 - Automatisch bestanden: Unity-Kompilierung, HUD-/Input-Validator,
   World-Validator, Binding-Duplikatprüfung und `git diff --check`.

@@ -139,6 +139,8 @@ Nicht blockierende Phase-1-Prioritäten:
 
 - Status: `REVIEW`
 - Branch: `feature/movement-camera`
+- Implementierungscommit: `4b12c57`
+- Draft-PR: `#19` gegen `developer`
 - Scope: Beschleunigung, Abbremsung, Sprint-Zuverlaessigkeit,
   framerate-stabile Drehung, Kamera-Fokus und Kamera-Occlusion.
 - Bewahrt: vorhandene Animationen, zentrale Input-Struktur, Rolle und Sprung.

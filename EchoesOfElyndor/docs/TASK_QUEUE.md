@@ -97,6 +97,16 @@ Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
 - Frischer `developer`-Worktree, Batch-Kompilierung, Validatoren,
   `git diff --check`, Missing-Script-Pruefung und manueller Regionen-/Systemtest.
 
+### Gate-0 Input-Korrektur — MANUELL OFFEN
+
+- Branch: `feature/gate0-input-fix`
+- Draft-PR: `#14` gegen `developer`
+- Scope: `E`-Interaktion und Quickslot-Direktwahl `1–8`.
+- Automatisch bestanden: Unity-Kompilierung, HUD-/Input-Validator,
+  World-Validator, Binding-Duplikatprüfung und `git diff --check`.
+- Manuell offen: erneuter Play-Mode-Test für `E`, `1–8` und Controller.
+- Gate 0 bleibt offen; keine Freigabe für Phase 1.
+
 ## GATE 0 — nicht ueberschreiten
 
 Status: `GATE`

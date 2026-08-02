@@ -38,7 +38,7 @@
                     "id": "852140f2-7766-474d-8707-702459ba45f3",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "Hold",
+                    "interactions": "",
                     "initialStateCheck": false
                 },
                 {
@@ -557,7 +557,7 @@
                 {
                     "name": "",
                     "id": "531eaefa-9b90-4ca0-841d-fe346257a456",
-                    "path": "<Keyboard>/1",
+                    "path": "<Keyboard>/digit1",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -568,7 +568,7 @@
                 {
                     "name": "",
                     "id": "88c25cb2-fe54-47d0-b655-c56d32688b8c",
-                    "path": "<Keyboard>/2",
+                    "path": "<Keyboard>/digit2",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -579,7 +579,7 @@
                 {
                     "name": "",
                     "id": "26863f0f-b8f1-472a-bba5-39c6e05bbe67",
-                    "path": "<Keyboard>/3",
+                    "path": "<Keyboard>/digit3",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -590,7 +590,7 @@
                 {
                     "name": "",
                     "id": "8b28de8d-c8d6-4a09-9ee9-ce2438608f33",
-                    "path": "<Keyboard>/4",
+                    "path": "<Keyboard>/digit4",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -601,7 +601,7 @@
                 {
                     "name": "",
                     "id": "7912849b-d941-4e69-9a38-f95993761298",
-                    "path": "<Keyboard>/5",
+                    "path": "<Keyboard>/digit5",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -612,7 +612,7 @@
                 {
                     "name": "",
                     "id": "1e60a78e-ad7e-43fa-bf23-cddf9cf5438f",
-                    "path": "<Keyboard>/6",
+                    "path": "<Keyboard>/digit6",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -623,7 +623,7 @@
                 {
                     "name": "",
                     "id": "36a27e64-c361-4234-b294-1236418996ab",
-                    "path": "<Keyboard>/7",
+                    "path": "<Keyboard>/digit7",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -634,7 +634,7 @@
                 {
                     "name": "",
                     "id": "d372d532-ab17-480f-91ca-6162a916313b",
-                    "path": "<Keyboard>/8",
+                    "path": "<Keyboard>/digit8",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",

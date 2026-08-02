@@ -120,7 +120,7 @@ Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
 
 ### Gate-0 Quickslot-Runtime-Korrektur — MANUELL OFFEN
 
-- Branch: `feature/gate0-quickslot-runtime-fix`
+- Branch: `feature/gate0-quickslot-runtime-fix`; Draft-PR: `#16` gegen `developer`; Implementierungscommit: `42a63be`
 - Scope: ausschließlich Quickslot-Direktwahl über obere Zahlenreihe und
   Nummernblock.
 - Automatisch bestanden: Play-Mode-Runtime-Test für alle acht Slots und beide

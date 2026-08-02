@@ -109,7 +109,7 @@ Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
 
 ### Gate-0 Runtime-UI-Korrektur — MANUELL OFFEN
 
-- Branch: `feature/gate0-runtime-ui-fix`
+- Branch: `feature/gate0-runtime-ui-fix`; Draft-PR: `#15` gegen `developer`
 - Scope: sichtbarer Interaktionshinweis und Quickslot-Direktwahl `1–8`.
 - Automatisch bestanden: Gate-0-Input-/HUD-Validator einschließlich
   Runtime-Auswahlroute und sichtbarem Fokuszustand.

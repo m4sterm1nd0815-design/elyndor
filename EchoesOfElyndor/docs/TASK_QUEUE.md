@@ -130,6 +130,20 @@ Basis der Bestandsaufnahme: `origin/developer` bei `c21a8e1`
 - Bereits bestandene Eingaben `E` und `R`, Interaktionshinweis und Root Gate
   bleiben unverändert.
 - Gate 0 bleibt offen; keine Freigabe für Phase 1.
+### Gate-0 Portalinteraktions-Korrektur — MANUELL OFFEN
+
+- Branch: `feature/gate0-portal-interaction-fix`
+- Scope: ausschließlich Interaktionshinweis, E-Auslösung und Regionsreise über
+  bestehende `RegionPortal`-Übergänge.
+- Technische Ursache: `RegionPortal` war nicht an `IInteractable` beziehungsweise
+  `InteractableBase` angebunden und reagierte nur automatisch auf
+  `OnTriggerEnter`.
+- Automatisch bestanden: Unity-Batch-Kompilierung, World-Validator,
+  regionsübergreifender Portal-Validator, Missing-Script-Prüfung und
+  `git diff --check`.
+- Manuell offen: Portalreise Finsterwald → Sonnenfelder sowie Controller.
+- Gate 0 bleibt offen; keine Freigabe für Phase 1.
+
 ## GATE 0 — nicht ueberschreiten
 
 Status: `GATE`

@@ -1,10 +1,11 @@
 # Gate-0 Manual Test Report
 
 Stand: 2. August 2026
-Gesamtstatus: `MANUELL OFFEN`
+Gesamtstatus: **ABGESCHLOSSEN**
 
-Gate 0 ist mit diesem Zwischenstand nicht geschlossen. Dieser Bericht
-dokumentiert ausschließlich bereits manuell geprüfte Teilbereiche.
+Gate 0 wurde nach Abschluss aller vorgeschriebenen manuellen Prüfungen
+freigegeben. Verbleibende Qualitäts- und Integrationspunkte sind als
+nicht blockierende Phase-1-Aufgaben dokumentiert.
 
 ## Finsterwald Root Gate
 
@@ -81,26 +82,87 @@ Geprüft:
 - Die Mechanik wird im Play Mode ausgelöst.
 - Es wurden keine blockierenden Fehler beobachtet.
 
-## Portalinteraktion Finsterwald → Sonnenfelder
+## Portalreise Finsterwald → Sonnenfelder
 
-Status: **NICHT BESTANDEN**
+Status: **BESTANDEN**
 
-Beobachtet:
+Geprüft:
 
-- Am Regionsportal erscheint kein Interaktionshinweis.
-- Die Interaktion mit `E` bleibt am Portal ohne Wirkung.
-- Die Reise von Finsterwald nach Sonnenfelder konnte nicht durchgeführt werden.
+- Der unsichtbare Portaltrigger wurde gefunden.
+- Der Hinweis `Weiterreisen` erscheint.
+- Die Interaktion mit `E` startet die Regionsreise.
+- Sonnenfelder wird erfolgreich geladen.
 
-## Verbleibender Gate-0-Status
+## Portalreise Sonnenfelder → Nebelmoor
 
-Die Controller-Bindings wurden noch nicht manuell getestet. Zusätzlich bleiben
-folgende vorgeschriebenen manuellen Gate-0-Prüfungen offen:
+Status: **BESTANDEN**
 
-- Gameplay-Anbindung des Ausdauerverbrauchs;
-- Portalreisen;
-- Rundgang durch Finsterwald;
-- Rundgang durch Sonnenfelder;
-- Rundgang durch Nebelmoor;
+Geprüft:
 
-Dieser Zwischenstand ist keine vollständige Gate-Freigabe; `TASK_QUEUE.md`
-bleibt am Gate.
+- Der Portaltrigger kann gefunden werden.
+- Der Hinweis `Weiterreisen` erscheint.
+- Die Interaktion mit `E` startet die Regionsreise.
+- Nebelmoor wird erfolgreich geladen.
+
+## Gesamtbewertung der Portalreisen
+
+Status: **TECHNISCH FUNKTIONSFÄHIG**
+
+Die folgenden Qualitätsmängel blockieren Gate 0 nicht, werden jedoch als
+priorisierte Phase-1-Aufgabe festgehalten:
+
+- Spielerführung und Sichtbarkeit der Portalpunkte sind unzureichend.
+- Ohne Kenntnis der Triggerpositionen sind die Übergänge schwer auffindbar.
+- Das tatsächliche Reiseportal im Finsterwald ist unsichtbar.
+- Das sichtbare Root Gate ist nur Dekoration und liegt weit vom Reiseportal
+  entfernt.
+- Der Finsterwald-Triggerbereich ist durch eine Birke teilweise blockiert.
+
+## Regionsrundgänge
+
+### Finsterwald
+
+Status: **BESTANDEN**
+
+Der vorgeschriebene manuelle Rundgang wurde abgeschlossen.
+
+### Sonnenfelder
+
+Status: **BESTANDEN**
+
+Der vorgeschriebene manuelle Rundgang wurde abgeschlossen.
+
+### Nebelmoor
+
+Status: **BESTANDEN**
+
+Geprüft:
+
+- Bewegung funktioniert.
+- Die Kamera folgt korrekt.
+- Das HUD bleibt sichtbar.
+- Es bestehen keine offensichtlichen Laufwegblockaden.
+- Die Unity-Konsole bleibt sauber.
+
+Offener Qualitätsmangel:
+
+- Die Nebeldichte ist aktuell sehr hoch und schränkt die Sicht deutlich ein.
+- Die Nebelabstimmung wird als priorisierte Phase-1-Polishing-Aufgabe geführt.
+- Der Qualitätsmangel blockiert Gate 0 nicht.
+
+## Gate-0-Abschluss
+
+Status: **ABGESCHLOSSEN**
+
+Alle vorgeschriebenen manuellen Gate-0-Prüfungen sind abgeschlossen.
+
+Zusätzliche offene, nicht blockierende Punkte für Phase 1:
+
+- Controller-Bindings wurden noch nicht manuell getestet.
+- Der Ausdauerverbrauch ist noch nicht an das Gameplay angebunden.
+- Die Portalpunkte sind technisch funktionsfähig, aber schlecht sichtbar und
+  ohne Kenntnis ihrer Triggerpositionen schwer auffindbar.
+- Der Nebel im Nebelmoor ist aktuell zu stark.
+
+Phase 1 ist damit freigegeben, wurde mit diesem Dokumentationspaket jedoch
+noch nicht begonnen.

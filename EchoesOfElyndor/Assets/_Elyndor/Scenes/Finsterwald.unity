@@ -186449,6 +186449,54 @@ CapsuleCollider:
   m_Height: 11.273455
   m_Direction: 1
   m_Center: {x: 0, y: 5.6367273, z: 0}
+--- !u!1 &831107364
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 831107365}
+  - component: {fileID: 831107366}
+  m_Layer: 0
+  m_Name: InteractionPromptController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &831107365
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 831107364}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1802081710}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &831107366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 831107364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d00276a108202d743ad0885f4462ecf5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.UI.InteractionPromptUI
+  detector: {fileID: 1117875253}
+  promptRoot: {fileID: 465685867}
+  promptText: {fileID: 473886931}
+  presentationRoot: {fileID: 1802081710}
 --- !u!1001 &831276467
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -419078,6 +419126,9 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 769010812986489571, guid: 86fa98e6114c18a45b0dcb8542656a3f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 831107365}
     - targetCorrespondingSourceObject: {fileID: 1933818272791567224, guid: 86fa98e6114c18a45b0dcb8542656a3f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 964705783}

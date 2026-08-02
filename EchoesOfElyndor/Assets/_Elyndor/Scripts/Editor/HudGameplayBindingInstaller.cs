@@ -5,7 +5,9 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Elyndor.Interaction;
 using Elyndor.Player;
+using Elyndor.UI;
 using Elyndor.UIFoundation;
 
 namespace Elyndor.EditorTools
@@ -79,6 +81,7 @@ namespace Elyndor.EditorTools
                 GetOrAdd<QuickslotInputController>(player);
 
             inputController.Configure(inputReader, presenter);
+            ConfigureInteractionPrompt(hudMarker, player);
 
             EnsureEventSystem();
 
@@ -110,6 +113,49 @@ namespace Elyndor.EditorTools
             Debug.Log(
                 "HUD gameplay binding installed. " +
                 "PlayerVitals, quickslots and HUD are connected.");
+        }
+
+        private static void ConfigureInteractionPrompt(
+            HudFoundationMarker hudMarker,
+            GameObject player)
+        {
+            InteractionDetector detector =
+                player.GetComponent<InteractionDetector>();
+
+            InteractionPromptUI[] prompts =
+                FindSceneObjects<InteractionPromptUI>();
+            InteractionPromptUI source = prompts.FirstOrDefault();
+
+            if (source == null || detector == null)
+                return;
+
+            SerializedObject sourceObject = new SerializedObject(source);
+            GameObject promptRoot = sourceObject.FindProperty("promptRoot")
+                .objectReferenceValue as GameObject;
+            Text promptText = sourceObject.FindProperty("promptText")
+                .objectReferenceValue as Text;
+
+            InteractionPromptUI prompt = prompts.FirstOrDefault(candidate =>
+                candidate.isActiveAndEnabled);
+
+            if (prompt == null)
+            {
+                GameObject controller = new GameObject(
+                    "InteractionPromptController");
+                Undo.RegisterCreatedObjectUndo(
+                    controller,
+                    "Create interaction prompt controller");
+                controller.transform.SetParent(hudMarker.transform, false);
+                prompt = controller.AddComponent<InteractionPromptUI>();
+            }
+
+            Undo.RecordObject(prompt, "Configure interaction prompt");
+            prompt.Configure(
+                detector,
+                promptRoot,
+                promptText,
+                hudMarker.transform as RectTransform);
+            EditorUtility.SetDirty(prompt);
         }
 
         private static void EnsureEventSystem()
@@ -243,11 +289,16 @@ namespace Elyndor.EditorTools
             if (amountLabel == null)
                 amountLabel = CreateAmountLabel(view.transform);
 
+            QuickslotFocusVisual focusVisual =
+                view.GetComponent<QuickslotFocusVisual>();
+
             SerializedObject viewObject = new SerializedObject(view);
             viewObject.FindProperty("glyphLabel").objectReferenceValue =
                 glyphLabel;
             viewObject.FindProperty("amountLabel").objectReferenceValue =
                 amountLabel;
+            viewObject.FindProperty("focusVisual").objectReferenceValue =
+                focusVisual;
             viewObject.ApplyModifiedPropertiesWithoutUndo();
 
             QuickslotSlotRelay relay =

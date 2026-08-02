@@ -47,10 +47,8 @@ namespace Elyndor.UIFoundation
             if (inputReader == null || presenter == null)
                 return;
 
-            int directSelection =
-                inputReader.GetDirectQuickslotPressedThisFrame();
-
-            if (directSelection >= 0)
+            if (inputReader.TryConsumeDirectQuickslotSelection(
+                out int directSelection))
             {
                 presenter.SelectSlot(directSelection);
             }

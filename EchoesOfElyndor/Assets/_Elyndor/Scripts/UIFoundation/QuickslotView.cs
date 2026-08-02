@@ -1,18 +1,22 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Elyndor.UIFoundation
 {
-    public sealed class QuickslotView : MonoBehaviour, ISelectHandler, IDeselectHandler
+    public sealed class QuickslotView : MonoBehaviour
     {
         [SerializeField] private Image icon;
         [SerializeField] private Text glyphLabel;
         [SerializeField] private Text amountLabel;
-        [SerializeField] private GameObject focusFrame;
+        [SerializeField] private QuickslotFocusVisual focusVisual;
 
-        private bool isRuntimeSelected;
-        private bool hasUiFocus;
+        public bool IsSelectionVisible =>
+            ResolveFocusVisual()?.IsSelectionVisible ?? false;
+
+        private void Awake()
+        {
+            ResolveFocusVisual();
+        }
 
         public void SetVisual(Sprite sprite, string glyph, int amount)
         {
@@ -29,28 +33,17 @@ namespace Elyndor.UIFoundation
                 amountLabel.text = amount > 1 ? amount.ToString() : string.Empty;
         }
 
-        public void OnSelect(BaseEventData eventData)
+        private QuickslotFocusVisual ResolveFocusVisual()
         {
-            hasUiFocus = true;
-            RefreshFocusFrame();
-        }
+            if (focusVisual == null)
+                focusVisual = GetComponent<QuickslotFocusVisual>();
 
-        public void OnDeselect(BaseEventData eventData)
-        {
-            hasUiFocus = false;
-            RefreshFocusFrame();
+            return focusVisual;
         }
 
         public void SetSelected(bool selected)
         {
-            isRuntimeSelected = selected;
-            RefreshFocusFrame();
-        }
-
-        private void RefreshFocusFrame()
-        {
-            if (focusFrame != null)
-                focusFrame.SetActive(isRuntimeSelected || hasUiFocus);
+            ResolveFocusVisual()?.SetRuntimeSelected(selected);
         }
     }
 }

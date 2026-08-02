@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Elyndor.Interaction;
 using Elyndor.Player;
+using Elyndor.UI;
 using Elyndor.UIFoundation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -36,6 +37,7 @@ namespace Elyndor.EditorTools
             readerObject.FindProperty("gameplayMapName").stringValue = "Player";
             readerObject.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(readers[0]);
+            HudGameplayBindingInstaller.BindActiveScene();
             EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             EditorSceneManager.SaveOpenScenes();
 
@@ -91,10 +93,83 @@ namespace Elyndor.EditorTools
                         $"Interactable '{interactable.name}' has no active trigger collider.");
             }
 
+            ValidateInteractionPrompt();
+            ValidateQuickslotRuntimeRoute();
             HudGameplayBindingInstaller.Validate();
             Debug.Log(
                 $"GATE0_INPUT_VALIDATION_OK: one reader, one controller, " +
                 $"E and 1-8 valid, {interactables.Length} interactables valid.");
+        }
+
+        private static void ValidateInteractionPrompt()
+        {
+            InteractionPromptUI[] prompts =
+                ActiveSceneComponents<InteractionPromptUI>();
+            RequireCount(prompts, 1, nameof(InteractionPromptUI));
+
+            SerializedObject promptObject = new SerializedObject(prompts[0]);
+            RequireReference(promptObject, "detector");
+            RequireReference(promptObject, "promptRoot");
+            RequireReference(promptObject, "promptText");
+            UnityEngine.Object presentationRoot =
+                RequireReference(promptObject, "presentationRoot");
+
+            RectTransform rootTransform = presentationRoot as RectTransform;
+            if (rootTransform == null ||
+                rootTransform.lossyScale.sqrMagnitude < 0.01f)
+            {
+                throw new InvalidOperationException(
+                    "Interaction prompt presentation root is not visible.");
+            }
+        }
+
+        private static void ValidateQuickslotRuntimeRoute()
+        {
+            QuickslotBarPresenter[] presenters =
+                ActiveSceneComponents<QuickslotBarPresenter>();
+            QuickslotRuntimeInventory[] inventories =
+                ActiveSceneComponents<QuickslotRuntimeInventory>();
+            RequireCount(presenters, 1, nameof(QuickslotBarPresenter));
+            RequireCount(inventories, 1, nameof(QuickslotRuntimeInventory));
+
+            SerializedProperty viewsProperty =
+                new SerializedObject(presenters[0]).FindProperty("views");
+            QuickslotView[] views = ToObjectArray<QuickslotView>(viewsProperty);
+
+            RequireCount(
+                views,
+                QuickslotRuntimeInventory.SlotCount,
+                nameof(QuickslotView));
+
+            int originalIndex = inventories[0].SelectedIndex;
+
+            for (int index = 0; index < views.Length; index++)
+            {
+                presenters[0].FocusSlot(index);
+
+                if (inventories[0].SelectedIndex != index ||
+                    !views[index].IsSelectionVisible)
+                {
+                    throw new InvalidOperationException(
+                        $"Quickslot runtime selection failed for slot {index + 1}.");
+                }
+            }
+
+            presenters[0].FocusSlot(originalIndex);
+        }
+
+        private static UnityEngine.Object RequireReference(
+            SerializedObject target,
+            string propertyName)
+        {
+            SerializedProperty property = target.FindProperty(propertyName);
+            UnityEngine.Object value = property?.objectReferenceValue;
+
+            if (value == null)
+                throw new InvalidOperationException(
+                    $"Missing reference {target.targetObject.name}.{propertyName}.");
+
+            return value;
         }
 
         private static void ValidateBinding(InputAction action, string path)
@@ -121,6 +196,23 @@ namespace Elyndor.EditorTools
             if (components.Length != expected)
                 throw new InvalidOperationException(
                     $"Expected {expected} active {name}, found {components.Length}.");
+        }
+
+        private static T[] ToObjectArray<T>(
+            SerializedProperty arrayProperty)
+            where T : UnityEngine.Object
+        {
+            if (arrayProperty == null || !arrayProperty.isArray)
+                return Array.Empty<T>();
+
+            T[] values = new T[arrayProperty.arraySize];
+            for (int i = 0; i < values.Length; i++)
+            {
+                values[i] = arrayProperty.GetArrayElementAtIndex(i)
+                    .objectReferenceValue as T;
+            }
+
+            return values;
         }
     }
 }

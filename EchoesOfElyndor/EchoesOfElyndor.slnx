@@ -1,4 +1,5 @@
 ﻿<Solution>
-  <Project Path="Elyndor.Runtime.csproj" />
   <Project Path="Elyndor.Editor.csproj" />
+  <Project Path="Elyndor.Runtime.csproj" />
+  <Project Path="Elyndor.Runtime.PlayModeTests.csproj" />
 </Solution>

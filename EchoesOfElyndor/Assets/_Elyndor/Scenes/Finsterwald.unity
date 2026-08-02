@@ -253147,7 +253147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79c883f58db44755a812c4ee1caa9ea7, type: 3}
   m_Name:
   m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Player.PlayerInputReader
-  inputActions: {fileID: 0}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   gameplayMapName: Player
   moveActionName: Move
   sprintActionName: Sprint

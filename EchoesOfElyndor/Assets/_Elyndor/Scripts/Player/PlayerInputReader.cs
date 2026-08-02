@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+using System;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Elyndor.Player
@@ -56,6 +58,7 @@ namespace Elyndor.Player
         private InputAction quickslotUseAction;
         private readonly InputAction[] directQuickslotActions =
             new InputAction[8];
+        private InputActionAsset runtimeInputActions;
         private bool initialized;
 
         public Vector2 Move =>
@@ -115,6 +118,17 @@ namespace Elyndor.Player
             gameplayMap?.Disable();
         }
 
+        private void OnDestroy()
+        {
+            gameplayMap?.Disable();
+
+            if (runtimeInputActions != null)
+            {
+                Destroy(runtimeInputActions);
+                runtimeInputActions = null;
+            }
+        }
+
         /// <summary>
         /// Schaltet die komplette Gameplay-Map um. Das ist der spaetere
         /// Anschlusspunkt fuer Dialoge, Pause und Memory-Vision.
@@ -144,9 +158,18 @@ namespace Elyndor.Player
 
             InputActionAsset resolvedAsset = ResolveInputAsset();
 
-            if (resolvedAsset != null && TryBindActions(resolvedAsset))
+            if (resolvedAsset != null)
             {
-                return;
+                runtimeInputActions = Instantiate(resolvedAsset);
+                runtimeInputActions.name = $"{resolvedAsset.name} (Runtime)";
+
+                if (TryBindActions(runtimeInputActions))
+                {
+                    return;
+                }
+
+                Destroy(runtimeInputActions);
+                runtimeInputActions = null;
             }
 
             CreateRuntimeFallbackMap();
@@ -229,9 +252,13 @@ namespace Elyndor.Player
                 resolvedQuickslotPrevious == null ||
                 resolvedQuickslotNext == null ||
                 resolvedQuickslotUse == null ||
-                System.Array.Exists(
+                Array.Exists(
                     resolvedDirectQuickslots,
-                    action => action == null)
+                    action => action == null) ||
+                !HasBinding(resolvedInteract, "<Keyboard>/e") ||
+                resolvedDirectQuickslots.Where((action, index) =>
+                    !HasBinding(action, $"<Keyboard>/digit{index + 1}"))
+                    .Any()
             )
             {
                 return false;
@@ -246,7 +273,7 @@ namespace Elyndor.Player
             quickslotPreviousAction = resolvedQuickslotPrevious;
             quickslotNextAction = resolvedQuickslotNext;
             quickslotUseAction = resolvedQuickslotUse;
-            System.Array.Copy(
+            Array.Copy(
                 resolvedDirectQuickslots,
                 directQuickslotActions,
                 directQuickslotActions.Length);
@@ -334,9 +361,18 @@ namespace Elyndor.Player
                     actionName,
                     InputActionType.Button
                 );
-                action.AddBinding($"<Keyboard>/{i + 1}");
+                action.AddBinding($"<Keyboard>/digit{i + 1}");
                 directQuickslotActions[i] = action;
             }
+        }
+
+        private static bool HasBinding(InputAction action, string path)
+        {
+            return action != null && action.bindings.Any(binding =>
+                string.Equals(
+                    binding.path,
+                    path,
+                    StringComparison.OrdinalIgnoreCase));
         }
 
         private string GetDirectQuickslotActionName(int index)

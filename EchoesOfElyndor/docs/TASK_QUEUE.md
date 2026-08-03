@@ -251,6 +251,8 @@ Nicht blockierende Phase-1-Prioritäten:
 
 - Status: `REVIEW`
 - Branch: `feature/enemy-health-bar`
+- Commit: `2f2985a`
+- Draft-PR: #30 gegen `developer`
 - Issue: #29
 - Scope: World-Space-Lebensanzeige auf Basis der vorhandenen
   `EnemyHealth`. Keine Szenenaenderung, keine ProjectSettings, keine

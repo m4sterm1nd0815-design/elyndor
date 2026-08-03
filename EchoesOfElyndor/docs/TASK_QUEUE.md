@@ -150,6 +150,72 @@ Nicht blockierende Phase-1-Prioritäten:
   World-Validator, zwei vorhandene Play-Mode-Tests und `git diff --check`.
 - Manuell offen: Maus/Tastatur und Controller in engen Finsterwald-Passagen,
   Sprintwechsel, Kameraorbit, Zoom und Occlusion an Baum-/Felsgruppen.
+### P1.3 — Finsterwald-Startbereich und Spielerfuehrung
+
+- Status: `INTEGRIERT`
+- Branch: `feature/finsterwald-start-guidance`
+- PR #24, Merge-Commit `8471ebd`; manuelle Abnahme am 3. August 2026
+  ausdruecklich bestaetigt.
+- Scope: ausschliesslich der unmittelbar sichtbare Startbereich im
+  Finsterwald (Korridor von rund 12 m hinter bis 18 m vor dem Startpunkt).
+- Umgesetzt: 19 Baumkronen, ein Busch und eine grosse Bodenpflanze seitlich
+  aus dem Startbild versetzt; vorhandenes `Startbereich/Wegschild` an den
+  rechten Wegrand gestellt und zum Hauptweg gedreht; `Beschaedigter Rucksack`
+  aus dem Blickzentrum nach links versetzt; vorhandene Kiesel und Felsen als
+  Trittspur und Wegkante ausgelegt; Arens Startpose fest im Spieler-Transform
+  hinterlegt.
+- Bewahrt: `PlayerMovement`, `CameraFollow`, Portalsystem, Memory-System,
+  Gegner, Input und HUD sind unveraendert.
+- Ausgeschlossen: Questpfeile, Marker, neue UI-Hinweise, neue externe Assets,
+  andere Regionen und eine Neugestaltung des uebrigen Finsterwalds.
+- Werkzeug: `Elyndor/Finsterwald/Startbereich - Sichtfuehrung aufraeumen`
+  (`FinsterwaldStartGuidanceBuilder`), idempotent; Korridorursprung ist Arens
+  Startpose in der Szene.
+- Review-Bereinigung (siehe unten): `PlayerStartSetup`, der Hilfsmarker
+  `PlayerStart` und die `Lichtschneise` wurden wieder entfernt. Der Szenen-Diff
+  gegen `developer` legt damit kein einziges Objekt mehr an und aendert nur
+  33 Transformationen, alle innerhalb von 40 m um den Startpunkt.
+- Automatisch bestanden: Unity-Batch-Kompilierung ohne Fehler, World-Validator,
+  Movement-/Kamera-Validator, Regionsportal-Validator, Gate-0-Input-Validator,
+  zehn Play-Mode-Tests inklusive `FinsterwaldStartGuidanceRuntimeTests` und
+  `RegionTravelSpawnRuntimeTests` (zwei Laeufe stabil),
+  Pruefung auf fehlende Scripts (0),
+  Idempotenzprobe des Builders und `git diff --check` ohne Befund.
+- Manuell offen: Rundgang ab Start bis zum Rastbereich, Kameraorbit und Zoom
+  im geoeffneten Korridor, Aufnahme des Rucksacks, Untersuchen des Wegschilds
+  und Reise durch das Root Gate zu den Sonnenfeldern.
+- Nachlauf: der beim manuellen Rundgang von Hand gebaute `TestEnemy` ist
+  bewusst nicht Teil dieses Pakets. Eine Gegnerplatzierung im Finsterwald
+  bleibt einem eigenen Arbeitspaket vorbehalten.
+
+#### Review von PR #24 — Befunde
+
+- `PlayerStartSetup` erfuellte keine notwendige Laufzeitfunktion: die Klasse
+  hat nur dupliziert, was der Spieler-Transform der Szene selbst ausdrueckt.
+  `AlignCamera()` war wirkungslos, weil `CameraFollow.LateUpdate` Position und
+  Blickrichtung der Kamera in jedem Frame neu setzt; `flatForward` wurde
+  berechnet und nie benutzt; `lookTarget` war in der Szene nicht belegt.
+  Zusaetzlich hat die Klasse `RegionSpawnPoint` bedingungslos ueberschrieben —
+  bei der Rueckkehr aus den Sonnenfeldern entschied allein die undefinierte
+  `Start()`-Reihenfolge darueber, ob Aren am Portal oder am Waldstart landet
+  (es ist keine Ausfuehrungsreihenfolge konfiguriert). Komponente, Script und
+  Meta wurden entfernt, die Startpose steht jetzt direkt im Spieler-Transform
+  und liegt exakt auf dem Boden.
+- Dieser Befund ist mit `RegionTravelSpawnRuntimeTests` abgesichert: der Test
+  nimmt das vorhandene Rueckreise-Portal, reist ueber `RegionTravel.TravelTo`
+  und prueft, dass Aren am `RegionSpawnPoint` mit der Portal-Spawn-ID landet
+  und nicht an der normalen Waldstartpose. Gegenprobe mit absichtlich falscher
+  Spawn-ID: der Test schlaegt mit 80,98 m Abweichung fehl.
+- Die `Lichtschneise` war technisch unbedenklich (keine Schatten, keine
+  Occlusion, nur Layer `Default`, realtime, buildsicher), aber unverhaeltnis-
+  maessig: 451 Renderer lagen in ihrer Reichweite von 34 m und bekamen ein
+  zusaetzliches Per-Pixel-Licht, waehrend das einzige bestehende Zusatzlicht
+  der Szene (`Warm Guidance Light`) mit Reichweite 7 arbeitet. Sichtbar wurde
+  sie erst bei 60 cd; bei der beabsichtigten Staerke war keine Wirkung messbar.
+  Nur das Lichtobjekt wurde entfernt, Vegetationskorridor, Schild, Rucksack
+  und Wegfuehrung blieben unangetastet.
+
+
 ### P1.4 — Gegner-Grundlage (EnemyFoundation)
 
 - Status: `REVIEW`

@@ -54,7 +54,7 @@ In `.claude/settings.local.json` muss fuer den Headless-Betrieb die exakte Freig
       "Glob",
       "Grep",
       "Bash",
-      "mcp__meshy__*"
+      "mcp__meshy"
     ],
     "deny": [
       "Bash(git push --force:*)",

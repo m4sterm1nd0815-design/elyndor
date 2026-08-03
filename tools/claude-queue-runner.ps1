@@ -316,13 +316,18 @@ Arbeite nach CLAUDE_QUEUE.md.
 
 Bearbeite ausschliesslich das offene Issue #$($Issue.number) im Repository $Repository.
 
-Pruefe unmittelbar vor jeder Aenderung:
+Pruefe genau einmal unmittelbar vor der Uebernahme:
 - Issue #$($Issue.number) ist weiterhin offen und traegt weiterhin claude-ready.
 - Kein anderes offenes Issue traegt claude-in-progress.
 - Der Working Tree ist sauber.
-- Der Arbeitsbranch basiert auf dem aktuellen origin/developer.
+- origin/developer ist erreichbar; der neue Feature-Branch wird nach der Uebernahme direkt davon erstellt.
 
 Wenn sich der Queue-Zustand geaendert hat, antworte QUEUE_STATE_CHANGED, veraendere nichts und beende den Lauf.
+
+Nach der erfolgreichen Uebernahme gilt:
+- Das ausgewaehlte Issue traegt nun claude-in-progress und nicht mehr claude-ready.
+- Fahre nur fort, solange dieses Issue offen bleibt und claude-in-progress traegt.
+- Wenn ein anderes Issue claude-in-progress erhaelt, stoppe kontrolliert.
 
 Ansonsten:
 - Uebernimm nur Issue #$($Issue.number) nach CLAUDE_QUEUE.md.

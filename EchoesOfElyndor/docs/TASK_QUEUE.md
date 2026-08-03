@@ -247,6 +247,42 @@ Nicht blockierende Phase-1-Prioritäten:
   vorhandenen `PlayerCombat`.
 - Kein Merge; die Abnahme steht aus.
 
+### P1.5 — Gegner-Lebensanzeige (EnemyHealthBar)
+
+- Status: `REVIEW`
+- Branch: `feature/enemy-health-bar`
+- Issue: #29
+- Scope: World-Space-Lebensanzeige auf Basis der vorhandenen
+  `EnemyHealth`. Keine Szenenaenderung, keine ProjectSettings, keine
+  Ausfuehrungsreihenfolge, keine Fremdpakete.
+- Neue Runtime-Skripte unter `Assets/_Elyndor/Scripts/Enemies/UI`
+  (`Elyndor.Enemies.UI`): `EnemyHealthBar` und `EnemyHealthBarVisual`.
+- Die Anzeige haengt allein an `EnemyHealth.HealthChanged` und
+  `EnemyHealth.Died`; der Lebenswert wird nie abgefragt. Getaktet wird nur
+  die Standzeit der Einblendung und die Ausrichtung zur Kamera.
+- Sichtbarkeit: bei voller Gesundheit verborgen, ab dem ersten Treffer
+  sichtbar, nach dem Tod verschwunden. Standzeit, Ausblenden bei voller
+  Gesundheit und Ausblenden im Ruhezustand sind einstellbar.
+- Optik: bewusst kein Prefab. Die endgueltige Gegneroptik steht noch nicht
+  fest; `EnemyHealthBarVisual.CreatePlaceholder` baut zur Laufzeit eine
+  schlichte World-Space-Leiste, die spaeter gegen eine eigene ersetzt wird.
+- Editor: `Elyndor/QA/Validate Enemy Health Bar`
+  (`EnemyHealthBarValidator`) prueft rein statisch die konfigurierbaren
+  Werte, die Laufzeitschnittstelle und dass der Lebenszustand nicht neben
+  `EnemyHealth` dupliziert wird.
+- Geaendert ausserhalb der neuen Dateien: nur
+  `Elyndor.Runtime.PlayModeTests.asmdef` um die Referenz `UnityEngine.UI`.
+- Keine Szenenaenderung: der Branch enthaelt keinen `*.unity`-Diff.
+- Automatisch bestanden: Unity-Batch-Kompilierung ohne Fehler, 19 neue
+  Play-Mode-Tests (`EnemyHealthBarRuntimeTests`), alle 50 Play-Mode-Tests,
+  Enemy-Health-Bar-Validator, Enemy-Foundation-Validator, World-Validator,
+  Movement-/Kamera-Validator, Regionsportal-Validator, Gate-0-Input-
+  Validator, Missing-Script-Pruefung und `git diff --check`.
+- Manuell offen: Lesbarkeit ueber einem provisorischen Gegner, Hoehe und
+  Groesse, Ausrichtung zur Kamera, Ein- und Ausblendverhalten sowie die
+  Sichtbarkeit waehrend Treffer, Trefferreaktion und Tod.
+- Kein Merge; die Abnahme steht aus.
+
 ## Phase 1 und spaeter
 
 Finsterwald Vertical Slice ist nach Abschluss von Gate 0 **FREIGEGEBEN**,

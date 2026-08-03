@@ -150,6 +150,37 @@ Nicht blockierende Phase-1-Prioritäten:
   World-Validator, zwei vorhandene Play-Mode-Tests und `git diff --check`.
 - Manuell offen: Maus/Tastatur und Controller in engen Finsterwald-Passagen,
   Sprintwechsel, Kameraorbit, Zoom und Occlusion an Baum-/Felsgruppen.
+### P1.4 — Gegner-Grundlage (EnemyFoundation)
+
+- Status: `REVIEW`
+- Branch: `feature/enemy-foundation`
+- Scope: erster technischer Gegner-Prototyp als Basis fuer den spaeteren
+  Wurzelstreifer. Bewusst generisch benannt; noch kein konkreter Gegner.
+- Neue Runtime-Skripte unter `Assets/_Elyndor/Scripts/Enemies`
+  (`Elyndor.Enemies`): `EnemyFoundationState`, `EnemyStateRules`,
+  `EnemyStateMachine`, `EnemyHealth`, `EnemyPerception`, `EnemyMovement`,
+  `EnemyAttack`, `EnemyHitReaction`, `EnemyController`.
+- `EnemyHealth` implementiert das vorhandene `IDamageable`, damit der
+  bestehende `PlayerCombat` ohne Anpassung trifft. Der Schaden am Spieler
+  laeuft ueber das vorhandene `PlayerVitals.TakeDamage`.
+- Editor: `Elyndor/QA/Validate Enemy Foundation`
+  (`EnemyFoundationValidator`) prueft die Zustandstabelle vollstaendig und
+  rein statisch — ohne GameObject, ohne Szene.
+- Bewusst ausgeschlossen: NavMesh, Animationen, VFX, Loot, Spawning,
+  Bosslogik, Loretexte, Gegner-Prefab und jede Platzierung im Finsterwald.
+- Keine Szenenaenderung: der Branch enthaelt keinen `*.unity`-Diff. Tests
+  bauen den Gegner vollstaendig zur Laufzeit auf.
+- Automatisch bestanden: Unity-Batch-Kompilierung ohne Fehler,
+  21 neue Play-Mode-Tests (`EnemyFoundationRuntimeTests`), alle bestehenden
+  Play-Mode-Tests, Enemy-Foundation-Validator, World-Validator, Movement-/
+  Kamera-Validator, Regionsportal-Validator, Gate-0-Input-Validator,
+  Missing-Script-Pruefung und `git diff --check`.
+- Manuell offen: Zusammenbau eines Gegners im Editor, Sichtpruefung von
+  Wahrnehmungsradius und Sichtkegel im Terrain, Abstimmung von Werten fuer
+  Reichweite, Tempo und Abklingzeit sowie ein Treffertest mit dem
+  vorhandenen `PlayerCombat`.
+- Kein Merge; die Abnahme steht aus.
+
 ## Phase 1 und spaeter
 
 Finsterwald Vertical Slice ist nach Abschluss von Gate 0 **FREIGEGEBEN**,

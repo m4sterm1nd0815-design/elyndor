@@ -218,7 +218,7 @@ Nicht blockierende Phase-1-Prioritäten:
 
 ### P1.4 — Gegner-Grundlage (EnemyFoundation)
 
-- Status: `REVIEW`
+- Status: `INTEGRIERT` über PR #25, Merge-Commit 57097ce.
 - Branch: `feature/enemy-foundation`
 - Scope: erster technischer Gegner-Prototyp als Basis fuer den spaeteren
   Wurzelstreifer. Bewusst generisch benannt; noch kein konkreter Gegner.
@@ -241,11 +241,12 @@ Nicht blockierende Phase-1-Prioritäten:
   Play-Mode-Tests, Enemy-Foundation-Validator, World-Validator, Movement-/
   Kamera-Validator, Regionsportal-Validator, Gate-0-Input-Validator,
   Missing-Script-Pruefung und `git diff --check`.
-- Manuell offen: Zusammenbau eines Gegners im Editor, Sichtpruefung von
+- Manuell bestanden: Zusammenbau eines Gegners im Editor, Sichtpruefung von
   Wahrnehmungsradius und Sichtkegel im Terrain, Abstimmung von Werten fuer
   Reichweite, Tempo und Abklingzeit sowie ein Treffertest mit dem
   vorhandenen `PlayerCombat`.
-- Kein Merge; die Abnahme steht aus.
+- Abnahme abgeschlossen: PR #25 ist in `developer` gemergt (Merge-Commit
+  57097ce), die manuelle Pruefung der Gegner-Grundlage ist bestanden.
 
 ## Phase 1 und spaeter
 

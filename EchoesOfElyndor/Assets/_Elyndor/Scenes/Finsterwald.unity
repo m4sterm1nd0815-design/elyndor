@@ -252998,7 +252998,6 @@ GameObject:
   - component: {fileID: 1117875257}
   - component: {fileID: 1117875258}
   - component: {fileID: 1117875259}
-  - component: {fileID: 1117875260}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -253095,7 +253094,7 @@ Transform:
   m_GameObject: {fileID: 1117875246}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.2904446, z: -56}
+  m_LocalPosition: {x: -2.96, y: 0.005916044, z: -82.55}
   m_LocalScale: {x: 0.75, y: 0.75, z: 0.75}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -253342,24 +253341,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.UIFoundation.QuickslotInputController
   inputReader: {fileID: 1117875256}
   presenter: {fileID: 1802081745}
---- !u!114 &1117875260
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1117875246}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac1e7369355af5c4aa0dbbae4a4ba434, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Player.PlayerStartSetup
-  startPoint: {fileID: 1776412004}
-  applyPosition: 1
-  applyRotation: 1
-  lookTarget: {fileID: 0}
-  alignMainCamera: 1
-  cameraFocusHeight: 1.2
 --- !u!1001 &1118215899
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -367298,103 +367279,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ece71aef1efd25144b1f8116ed805283, type: 3}
   m_PrefabInstance: {fileID: 1590866189}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1590982994
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1590982995}
-  - component: {fileID: 1590982996}
-  m_Layer: 0
-  m_Name: Lichtschneise
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1590982995
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1590982994}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0.035883397, y: 0.80750805, z: -0.58668894, w: -0.049389258}
-  m_LocalPosition: {x: -0.97868013, y: 11.368355, z: -69.69565}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1740846483}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!108 &1590982996
-Light:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1590982994}
-  m_Enabled: 1
-  serializedVersion: 13
-  m_Type: 0
-  m_Color: {r: 1, g: 0.95, b: 0.82, a: 1}
-  m_Intensity: 60
-  m_Range: 34
-  m_SpotAngle: 96
-  m_InnerSpotAngle: 30
-  m_CookieSize2D: {x: 0.5, y: 0.5}
-  m_Shadows:
-    m_Type: 0
-    m_Resolution: -1
-    m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
-    m_NearPlane: 0.2
-    m_CullingMatrixOverride:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_UseCullingMatrixOverride: 0
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingLayerMask: 1
-  m_Lightmapping: 4
-  m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_UseBoundingSphereOverride: 0
-  m_UseViewFrustumForShadowCasterCull: 1
-  m_ForceVisible: 0
-  m_ShapeRadius: 0.025
-  m_ShadowAngle: 0
-  m_LightUnit: 1
-  m_LuxAtDistance: 1
-  m_EnableSpotReflector: 1
 --- !u!1001 &1592015120
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -401181,7 +401065,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2020999589}
-  - {fileID: 1590982995}
   m_Father: {fileID: 81669772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1741445193
@@ -413367,37 +413250,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8c8e2679aeffda344a6be0bb6b59cde4, type: 3}
   m_PrefabInstance: {fileID: 1775886604}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1776412002
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1776412004}
-  m_Layer: 0
-  m_Name: PlayerStart
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1776412004
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1776412002}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.96, y: 0, z: -82.55}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1777863995
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -499780,4 +499632,3 @@ SceneRoots:
   - {fileID: 753147482}
   - {fileID: 1901678322}
   - {fileID: 867981695}
-  - {fileID: 1776412004}

@@ -10,21 +10,27 @@ namespace Elyndor.EditorTools
     /// Raeumt den unmittelbaren Startbereich im Finsterwald so auf, dass der
     /// Hauptweg beim Spielstart ohne Text erkennbar ist.
     ///
-    /// Das Werkzeug arbeitet ausschliesslich in einem schmalen Korridor um den
-    /// Startpunkt: es schiebt stoerende Kronen, Buesche und grosse Bodenpflanzen
-    /// seitlich aus dem Kamerabild, richtet das vorhandene Wegschild am Weg aus,
-    /// versetzt den Rucksack aus dem zentralen Startfokus und legt vorhandene
-    /// Kiesel und Felsen als Wegkante beziehungsweise Trittsteine aus.
+    /// Das Werkzeug arbeitet ausschliesslich in einem schmalen Korridor um
+    /// Arens Startpose: es schiebt stoerende Kronen, Buesche und grosse
+    /// Bodenpflanzen seitlich aus dem Kamerabild, richtet das vorhandene
+    /// Wegschild am Weg aus, versetzt den Rucksack aus dem zentralen
+    /// Startfokus und legt vorhandene Kiesel und Felsen als Wegkante
+    /// beziehungsweise Trittsteine aus.
     ///
-    /// Es werden keine Objekte geloescht und keine neuen Assets importiert.
-    /// Ein zweiter Lauf findet den Korridor bereits frei und aendert nichts mehr.
+    /// Es werden keine Objekte angelegt oder geloescht und keine neuen Assets
+    /// importiert. Ein zweiter Lauf findet den Korridor bereits frei und
+    /// aendert nichts mehr.
     /// </summary>
     public static class FinsterwaldStartGuidanceBuilder
     {
         private const string ScenePath =
             "Assets/_Elyndor/Scenes/Finsterwald.unity";
 
-        private const string StartPointName = "PlayerStart";
+        /// <summary>
+        /// Der Korridor wird um Arens gespeicherte Startpose gebaut. Der
+        /// Spieler-Transform in der Szene ist die einzige Quelle dafuer.
+        /// </summary>
+        private const string PlayerObjectName = "Player";
 
         /// <summary>
         /// Richtung des Hauptwegs ab dem Startpunkt. Der Weg fuehrt nach Norden
@@ -52,10 +58,6 @@ namespace Elyndor.EditorTools
         // Anstellwinkel des Wegschilds gegenueber der reinen Wegrichtung.
         private const float SignReadingAngle = 30f;
 
-        // Staerke der Lichtschneise in Candela. Aus 11,5 m Hoehe reicht das
-        // gerade fuer eine sichtbare, aber unaufdringliche Aufhellung des Wegs.
-        private const float LightShaftIntensity = 60f;
-
         private static Vector3 pathForward;
         private static Vector3 pathRight;
         private static Vector3 origin;
@@ -65,17 +67,17 @@ namespace Elyndor.EditorTools
         {
             EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
 
-            Transform startPoint = Find(StartPointName);
+            Transform player = Find(PlayerObjectName);
 
-            if (startPoint == null)
+            if (player == null)
             {
                 Debug.LogError(
-                    "Startbereich: PlayerStart wurde nicht gefunden. " +
+                    "Startbereich: Der Spieler wurde nicht gefunden. " +
                     "Es wurde nichts veraendert.");
                 return;
             }
 
-            origin = startPoint.position;
+            origin = player.position;
             pathForward = Quaternion.Euler(0f, PathYaw, 0f) * Vector3.forward;
             pathRight = Quaternion.Euler(0f, PathYaw, 0f) * Vector3.right;
 
@@ -105,8 +107,6 @@ namespace Elyndor.EditorTools
             AlignSignpost();
             OffsetBackpack();
             int stones = LayOutPathStones();
-            SetUpLightShaft();
-            RemoveDuplicateStartSetup(startPoint);
 
             EditorSceneManager.MarkSceneDirty(
                 EditorSceneManager.GetActiveScene());
@@ -437,86 +437,6 @@ namespace Elyndor.EditorTools
             }
 
             return stones.Count;
-        }
-
-        /// <summary>
-        /// Legt den durch die geoeffnete Krone entstehenden Lichteinfall als
-        /// weiches, warmes Licht ueber den Weg. Einziges neues Objekt dieses
-        /// Arbeitspakets; ohne Schatten und ausserhalb jeder Laufflaeche.
-        /// </summary>
-        private static void SetUpLightShaft()
-        {
-            Transform group = FindByPath("Environment/Startbereich");
-
-            if (group == null)
-            {
-                Debug.LogWarning("Startbereich: Gruppe nicht gefunden.");
-                return;
-            }
-
-            Transform existing = group.Find("Lichtschneise");
-
-            GameObject shaft;
-
-            if (existing == null)
-            {
-                shaft = new GameObject("Lichtschneise");
-                shaft.transform.SetParent(group, false);
-                Undo.RegisterCreatedObjectUndo(
-                    shaft, "Startbereich Sichtfuehrung");
-            }
-            else
-            {
-                shaft = existing.gameObject;
-            }
-
-            Vector3 target = ToWorld(13f, 0.4f, 0f);
-            shaft.transform.position = new Vector3(
-                target.x, TerrainHeight(target) + 11.5f, target.z);
-
-            // Leicht zurueck zum Startpunkt geneigt, damit die Aufhellung schon
-            // vor Aren beginnt und nach vorn ausklingt.
-            shaft.transform.rotation = Quaternion.Euler(72f, PathYaw + 180f, 0f);
-
-            Light light = shaft.GetComponent<Light>();
-
-            if (light == null)
-            {
-                light = shaft.AddComponent<Light>();
-            }
-
-            light.type = LightType.Spot;
-            light.color = new Color(1f, 0.95f, 0.82f);
-            light.intensity = LightShaftIntensity;
-            light.range = 34f;
-            light.spotAngle = 96f;
-            light.innerSpotAngle = 30f;
-            light.shadows = LightShadows.None;
-            light.lightmapBakeType = LightmapBakeType.Realtime;
-
-            Debug.Log($"ANGELEGT|Lichtschneise|{shaft.transform.position}");
-        }
-
-        /// <summary>
-        /// Der Startpunkt selbst braucht kein PlayerStartSetup — die Komponente
-        /// gehoert an den Spieler. Ein Duplikat auf dem Marker wird entfernt.
-        /// </summary>
-        private static void RemoveDuplicateStartSetup(Transform startPoint)
-        {
-            MonoBehaviour[] components =
-                startPoint.GetComponents<MonoBehaviour>();
-
-            foreach (MonoBehaviour component in components)
-            {
-                if (component == null ||
-                    component.GetType().Name != "PlayerStartSetup")
-                {
-                    continue;
-                }
-
-                Undo.DestroyObjectImmediate(component);
-                Debug.Log("ENTFERNT|PlayerStartSetup auf PlayerStart");
-            }
         }
 
         // ------------------------------------------------------------------

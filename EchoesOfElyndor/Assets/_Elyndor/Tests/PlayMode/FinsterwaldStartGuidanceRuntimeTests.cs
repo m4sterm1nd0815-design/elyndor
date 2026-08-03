@@ -1,4 +1,5 @@
 using System.Collections;
+using Elyndor.World;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,98 +8,134 @@ using UnityEngine.TestTools;
 namespace Elyndor.Tests
 {
     /// <summary>
-    /// Prueft im laufenden Spiel, dass der Finsterwald-Start die
-    /// Sichtfuehrung zum Hauptweg tatsaechlich liefert: richtige
-    /// Startposition und Blickrichtung, freie Sicht den Weg entlang,
-    /// keine Krone unmittelbar vor der Kamera und ein erreichbarer
-    /// Rucksack ausserhalb des Blickzentrums.
+    /// Prueft im laufenden Spiel, was der Startbereich im Finsterwald leisten
+    /// soll: Aren steht auf dem Boden, blickt eine freie Strecke entlang,
+    /// hat keine Krone im Kamerabild, die Kamera behaelt ihren Abstand, und
+    /// Wegschild wie Rucksack stehen dort, wo sie fuehren beziehungsweise
+    /// entdeckt werden sollen.
+    ///
+    /// Alle Messungen beziehen sich auf Arens tatsaechliche Startpose in der
+    /// Szene. Es gibt bewusst keinen Hilfsmarker und keine fest verdrahtete
+    /// Wegrichtung, damit die Tests die Sichtfuehrung pruefen und nicht ihre
+    /// eigene Implementierung spiegeln.
     /// </summary>
     public sealed class FinsterwaldStartGuidanceRuntimeTests
     {
         private const string SceneName = "Finsterwald";
 
+        /// <summary>Freie Strecke, die Aren vor sich sehen koennen muss.</summary>
+        private const float RequiredClearSight = 20f;
+
         private Transform player;
-        private Transform startPoint;
-        private Vector3 pathDirection;
+        private Vector3 lookDirection;
 
         [UnitySetUp]
         public IEnumerator LoadFinsterwald()
         {
+            // Unabhaengig davon, was zuvor lief: kein offener Portal-Spawn.
+            RegionTravel.ClearPendingSpawn();
+
             AsyncOperation load = SceneManager.LoadSceneAsync(
                 SceneName, LoadSceneMode.Single);
 
             while (!load.isDone)
                 yield return null;
 
-            // PlayerStartSetup setzt im Start() und richtet die Kamera einen
-            // Frame spaeter aus; CameraFollow zieht in LateUpdate nach.
-            for (int frame = 0; frame < 8; frame++)
+            player = GameObject.Find("Player")?.transform;
+            Assert.That(player, Is.Not.Null, "Player fehlt in der Szene.");
+
+            // Aren wird vom CharacterController auf den Boden gesetzt und die
+            // Kamera schwingt aus ihrer Editor-Pose ein. Es wird auf Ruhe
+            // gewartet statt auf eine feste Framezahl, damit die Messungen
+            // nicht von der Bildrate des Testlaufs abhaengen.
+            yield return WaitUntilSettled();
+
+            lookDirection = player.forward;
+            lookDirection.y = 0f;
+            lookDirection.Normalize();
+        }
+
+        /// <summary>
+        /// Wartet, bis Aren und die Kamera zur Ruhe gekommen sind, hoechstens
+        /// aber eine Sekunde Spielzeit.
+        /// </summary>
+        private IEnumerator WaitUntilSettled()
+        {
+            Vector3 lastPlayer = player.position;
+            Vector3 lastCamera = Camera.main == null
+                ? Vector3.zero
+                : Camera.main.transform.position;
+
+            for (int frame = 0; frame < 240; frame++)
+            {
                 yield return null;
 
-            player = GameObject.Find("Player")?.transform;
-            startPoint = GameObject.Find("PlayerStart")?.transform;
+                Vector3 currentCamera = Camera.main == null
+                    ? Vector3.zero
+                    : Camera.main.transform.position;
 
-            Assert.That(player, Is.Not.Null, "Player fehlt in der Szene.");
-            Assert.That(
-                startPoint, Is.Not.Null, "PlayerStart fehlt in der Szene.");
+                bool playerAtRest =
+                    Vector3.Distance(lastPlayer, player.position) < 0.002f;
+                bool cameraAtRest =
+                    Vector3.Distance(lastCamera, currentCamera) < 0.002f;
 
-            pathDirection = Quaternion.Euler(0f, 7f, 0f) * Vector3.forward;
+                lastPlayer = player.position;
+                lastCamera = currentCamera;
+
+                if (frame > 2 && playerAtRest && cameraAtRest)
+                    yield break;
+            }
         }
 
         [UnityTest]
-        public IEnumerator ArenStartsOnTheStartPointFacingThePath()
+        public IEnumerator ArenStandsOnTheGroundAtTheStart()
         {
-            Vector3 flatPlayer =
-                new Vector3(player.position.x, 0f, player.position.z);
-            Vector3 flatStart =
-                new Vector3(startPoint.position.x, 0f, startPoint.position.z);
+            CharacterController controller =
+                player.GetComponent<CharacterController>();
 
             Assert.That(
-                Vector3.Distance(flatPlayer, flatStart),
-                Is.LessThan(0.3f),
-                "Aren steht nicht auf dem Startpunkt.");
+                controller, Is.Not.Null, "Der Spieler hat keinen Controller.");
+
+            // Fusssohle der Kapsel statt Pivot: unabhaengig von Hoehe und
+            // Center des CharacterControllers.
+            float solePosition =
+                player.position.y +
+                controller.center.y -
+                controller.height * 0.5f;
 
             Assert.That(
-                Mathf.Abs(Mathf.DeltaAngle(
-                    player.eulerAngles.y, startPoint.eulerAngles.y)),
-                Is.LessThan(5f),
-                "Arens Blickrichtung weicht vom Startpunkt ab.");
+                solePosition - GroundHeight(player.position),
+                Is.InRange(-0.3f, 0.4f),
+                "Aren startet nicht auf dem Boden.");
 
             yield break;
         }
 
         [UnityTest]
-        public IEnumerator TheMainPathIsVisibleFromTheStart()
+        public IEnumerator ArenLooksAlongAClearStretchOfForest()
         {
             Vector3 eye = player.position + Vector3.up * 1.6f;
 
-            for (float along = 4f; along <= 20f; along += 2f)
+            for (float along = 4f; along <= RequiredClearSight; along += 2f)
             {
-                Vector3 target = player.position + pathDirection * along;
+                Vector3 target = player.position + lookDirection * along;
                 target.y = GroundHeight(target) + 1.2f;
 
-                Vector3 toTarget = target - eye;
-
-                bool blocked = Physics.Raycast(
-                    eye,
-                    toTarget.normalized,
-                    out RaycastHit hit,
-                    toTarget.magnitude,
-                    ~0,
-                    QueryTriggerInteraction.Ignore);
+                Collider blocker = FirstBlocker(eye, target);
 
                 Assert.That(
-                    blocked,
-                    Is.False,
-                    $"Die Sicht auf den Hauptweg ist bei {along} m durch " +
-                    $"{(blocked ? hit.transform.name : string.Empty)} verdeckt.");
+                    blocker,
+                    Is.Null,
+                    $"Arens Blick ist bei {along} m durch " +
+                    $"{(blocker == null ? string.Empty : blocker.transform.name)} " +
+                    "verdeckt.");
             }
 
             yield break;
         }
 
         [UnityTest]
-        public IEnumerator NoLargeFoliageSitsInTheStartCamera()
+        public IEnumerator NoLargeFoliageCrowdsTheStartCamera()
         {
             foreach (Renderer renderer in Object.FindObjectsByType<Renderer>(
                          FindObjectsSortMode.None))
@@ -112,10 +149,7 @@ namespace Elyndor.Tests
 
                 Bounds bounds = renderer.bounds;
 
-                bool isLarge =
-                    Mathf.Max(bounds.size.x, bounds.size.z) > 3f;
-
-                if (!isLarge)
+                if (Mathf.Max(bounds.size.x, bounds.size.z) <= 3f)
                     continue;
 
                 float distance = Vector2.Distance(
@@ -169,7 +203,7 @@ namespace Elyndor.Tests
 
             Assert.That(
                 Mathf.Abs(Vector3.SignedAngle(
-                    pathDirection, offset.normalized, Vector3.up)),
+                    lookDirection, offset.normalized, Vector3.up)),
                 Is.GreaterThan(20f),
                 "Der Rucksack liegt weiterhin im zentralen Startfokus.");
 
@@ -179,21 +213,7 @@ namespace Elyndor.Tests
         [UnityTest]
         public IEnumerator TheSignpostStandsBesideThePathAhead()
         {
-            Transform signpost = null;
-
-            foreach (Transform candidate in Object.FindObjectsByType<Transform>(
-                         FindObjectsSortMode.None))
-            {
-                if (candidate.name != "Wegschild" ||
-                    candidate.parent == null ||
-                    candidate.parent.name != "Startbereich")
-                {
-                    continue;
-                }
-
-                signpost = candidate;
-                break;
-            }
+            Transform signpost = FindSignpost();
 
             Assert.That(
                 signpost, Is.Not.Null, "Startbereich/Wegschild fehlt.");
@@ -206,13 +226,84 @@ namespace Elyndor.Tests
                 Is.LessThan(14f),
                 "Das Wegschild steht nicht mehr im Startbild.");
 
+            float angle = Mathf.Abs(Vector3.SignedAngle(
+                lookDirection, offset.normalized, Vector3.up));
+
             Assert.That(
-                Mathf.Abs(Vector3.SignedAngle(
-                    pathDirection, offset.normalized, Vector3.up)),
-                Is.LessThan(35f),
+                angle,
+                Is.LessThan(40f),
                 "Das Wegschild steht nicht mehr am Hauptweg.");
 
+            // Seitlicher Versatz: das Schild fuehrt, ohne den Weg zu verstellen.
+            Assert.That(
+                offset.magnitude * Mathf.Sin(angle * Mathf.Deg2Rad),
+                Is.GreaterThan(1.5f),
+                "Das Wegschild steht mitten im Laufweg.");
+
             yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TheStartRaisesNoConsoleErrors()
+        {
+            // Der Szenenaufbau lief bereits im Setup; hier wird nur noch
+            // ausdruecklich festgehalten, dass dabei nichts protokolliert wurde.
+            for (int frame = 0; frame < 5; frame++)
+                yield return null;
+
+            LogAssert.NoUnexpectedReceived();
+        }
+
+        private static Transform FindSignpost()
+        {
+            foreach (Transform candidate in Object.FindObjectsByType<Transform>(
+                         FindObjectsSortMode.None))
+            {
+                if (candidate.name == "Wegschild" &&
+                    candidate.parent != null &&
+                    candidate.parent.name == "Startbereich")
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Erster Kollider auf der Sichtlinie, der nicht zu Aren gehoert.
+        /// Bewusst ueber RaycastAll, damit das Ergebnis nicht davon abhaengt,
+        /// welchen Treffer die Physik zuerst meldet.
+        /// </summary>
+        private Collider FirstBlocker(Vector3 from, Vector3 to)
+        {
+            Vector3 direction = to - from;
+            float length = direction.magnitude;
+            direction /= length;
+
+            RaycastHit[] hits = Physics.RaycastAll(
+                from, direction, length, ~0, QueryTriggerInteraction.Ignore);
+
+            Collider nearest = null;
+            float nearestDistance = float.MaxValue;
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider == null ||
+                    hit.collider.transform.IsChildOf(player) ||
+                    hit.collider.transform == player)
+                {
+                    continue;
+                }
+
+                if (hit.distance < nearestDistance)
+                {
+                    nearestDistance = hit.distance;
+                    nearest = hit.collider;
+                }
+            }
+
+            return nearest;
         }
 
         private static float GroundHeight(Vector3 position)

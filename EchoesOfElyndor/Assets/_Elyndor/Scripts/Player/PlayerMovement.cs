@@ -1,4 +1,5 @@
 using System.Collections;
+using Elyndor.UIFoundation;
 using UnityEngine;
 
 namespace Elyndor.Player
@@ -11,10 +12,11 @@ namespace Elyndor.Player
         [SerializeField] private float walkSpeed = 5f;
         [SerializeField] private float sprintSpeed = 8f;
         [SerializeField] private float rotationSpeed = 10f;
+
         [Tooltip("Beschleunigung bei Bewegungsbeginn und Richtungswechseln.")]
         [SerializeField] private float acceleration = 28f;
-        [Tooltip("Abbremsung ohne Bewegungseingabe. Höher als die " +
-                 "Beschleunigung für präzises Stoppen.")]
+
+        [Tooltip("Abbremsung ohne Bewegungseingabe.")]
         [SerializeField] private float deceleration = 36f;
 
         [Header("Animation")]
@@ -31,25 +33,47 @@ namespace Elyndor.Player
 
         [Header("Gravity")]
         [SerializeField] private float gravity = -25f;
-        [Tooltip("Kleine Abwaertsgeschwindigkeit am Boden, damit der Controller auf Gefaellen Bodenkontakt haelt.")]
+
+        [Tooltip("Kleine Abwaertsgeschwindigkeit am Boden.")]
         [SerializeField] private float groundedStickVelocity = -2f;
 
-        private static readonly int SpeedHash = Animator.StringToHash("Speed");
+        [Header("Stamina")]
+        [SerializeField] private PlayerVitals playerVitals;
+
+        [Tooltip("Ausdauerverbrauch pro Sekunde beim Sprinten.")]
+        [SerializeField] private float sprintStaminaPerSecond = 18f;
+
+        [Tooltip("Regeneration pro Sekunde.")]
+        [SerializeField] private float staminaRegenerationPerSecond = 22f;
+
+        [Tooltip("Wartezeit nach dem letzten Verbrauch.")]
+        [SerializeField] private float staminaRegenerationDelay = 1f;
+
+        private static readonly int SpeedHash =
+            Animator.StringToHash("Speed");
 
         private CharacterController characterController;
         private PlayerInputReader inputReader;
         private Transform cameraTransform;
+
         private PlayerState currentState = PlayerState.Normal;
 
         private Vector3 lastMoveDirection = Vector3.forward;
         private Vector3 planarVelocity;
+
         private float nextRollTime;
         private float verticalVelocity;
+        private float lastStaminaUseTime = float.NegativeInfinity;
 
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
             inputReader = GetComponent<PlayerInputReader>();
+
+            if (playerVitals == null)
+            {
+                playerVitals = GetComponent<PlayerVitals>();
+            }
 
             if (animator == null)
             {
@@ -65,10 +89,14 @@ namespace Elyndor.Player
                 return;
             }
 
-            Vector2 movementInput = Vector2.ClampMagnitude(inputReader.Move, 1f);
-            Vector3 moveDirection = ToCameraRelativeDirection(movementInput);
+            Vector2 movementInput =
+                Vector2.ClampMagnitude(inputReader.Move, 1f);
 
-            bool hasMovementInput = moveDirection.sqrMagnitude > 0.01f;
+            Vector3 moveDirection =
+                ToCameraRelativeDirection(movementInput);
+
+            bool hasMovementInput =
+                moveDirection.sqrMagnitude > 0.01f;
 
             if (hasMovementInput)
             {
@@ -76,19 +104,27 @@ namespace Elyndor.Player
                 RotateTowards(lastMoveDirection);
             }
 
-            if (inputReader.RollPressedThisFrame && Time.time >= nextRollTime)
+            if (inputReader.RollPressedThisFrame &&
+                Time.time >= nextRollTime)
             {
-                Vector3 rollDirection = GetRollDirection(moveDirection);
-                StartCoroutine(PerformRoll(rollDirection));
+                StartRoll(moveDirection);
                 return;
             }
 
-            bool isSprinting = inputReader.SprintHeld && hasMovementInput;
-            float targetSpeed = isSprinting ? sprintSpeed : walkSpeed;
-            Vector3 targetPlanarVelocity = moveDirection * targetSpeed;
-            float velocityChangeRate = hasMovementInput
-                ? acceleration
-                : deceleration;
+            bool wantsToSprint =
+                inputReader.SprintHeld && hasMovementInput;
+
+            bool isSprinting =
+                TryMaintainSprint(wantsToSprint);
+
+            float targetSpeed =
+                isSprinting ? sprintSpeed : walkSpeed;
+
+            Vector3 targetPlanarVelocity =
+                moveDirection * targetSpeed;
+
+            float velocityChangeRate =
+                hasMovementInput ? acceleration : deceleration;
 
             planarVelocity = Vector3.MoveTowards(
                 planarVelocity,
@@ -97,7 +133,8 @@ namespace Elyndor.Player
 
             ApplyGravity();
 
-            if (characterController.isGrounded && inputReader.JumpPressedThisFrame)
+            if (characterController.isGrounded &&
+                inputReader.JumpPressedThisFrame)
             {
                 verticalVelocity = jumpVelocity;
             }
@@ -106,17 +143,65 @@ namespace Elyndor.Player
                 planarVelocity +
                 Vector3.up * verticalVelocity;
 
-            characterController.Move(velocity * Time.deltaTime);
+            characterController.Move(
+                velocity * Time.deltaTime);
 
-            float animationSpeed = CalculateAnimationSpeed(
-                planarVelocity.magnitude
-            );
+            float animationSpeed =
+                CalculateAnimationSpeed(planarVelocity.magnitude);
 
             UpdateAnimationSpeed(animationSpeed);
+            RegenerateStamina(isSprinting);
         }
 
-        // Bewegung ist kamerarelativ: "vor" ist immer die Blickrichtung der
-        // Kamera, auf die XZ-Ebene projiziert. Ohne Kamera: Weltachsen.
+        private bool TryMaintainSprint(bool wantsToSprint)
+        {
+            if (!wantsToSprint)
+            {
+                return false;
+            }
+
+            if (playerVitals == null)
+            {
+                return true;
+            }
+
+            float frameCost =
+                sprintStaminaPerSecond * Time.deltaTime;
+
+            if (!playerVitals.TrySpendStamina(frameCost))
+            {
+                return false;
+            }
+
+            lastStaminaUseTime = Time.time;
+            return true;
+        }
+
+        private void RegenerateStamina(bool isSprinting)
+        {
+            if (playerVitals == null || isSprinting)
+            {
+                return;
+            }
+
+            if (Time.time <
+                lastStaminaUseTime + staminaRegenerationDelay)
+            {
+                return;
+            }
+
+            playerVitals.ApplyStamina(
+                staminaRegenerationPerSecond * Time.deltaTime);
+        }
+
+        private void StartRoll(Vector3 moveDirection)
+        {
+            Vector3 rollDirection =
+                GetRollDirection(moveDirection);
+
+            StartCoroutine(PerformRoll(rollDirection));
+        }
+
         private Vector3 ToCameraRelativeDirection(Vector2 input)
         {
             if (cameraTransform == null)
@@ -139,10 +224,12 @@ namespace Elyndor.Player
             cameraRight.y = 0f;
             cameraRight.Normalize();
 
-            return cameraRight * input.x + cameraForward * input.y;
+            return cameraRight * input.x +
+                   cameraForward * input.y;
         }
 
-        private Vector3 GetRollDirection(Vector3 currentMoveDirection)
+        private Vector3 GetRollDirection(
+            Vector3 currentMoveDirection)
         {
             if (currentMoveDirection.sqrMagnitude > 0.01f)
             {
@@ -157,7 +244,8 @@ namespace Elyndor.Player
             return transform.forward;
         }
 
-        private float CalculateAnimationSpeed(float movementSpeed)
+        private float CalculateAnimationSpeed(
+            float movementSpeed)
         {
             if (movementSpeed <= 0.01f)
             {
@@ -166,18 +254,25 @@ namespace Elyndor.Player
 
             if (movementSpeed <= walkSpeed)
             {
-                return Mathf.InverseLerp(0f, walkSpeed, movementSpeed) * 0.5f;
+                return Mathf.InverseLerp(
+                    0f,
+                    walkSpeed,
+                    movementSpeed) * 0.5f;
             }
 
             return Mathf.Lerp(
                 0.5f,
                 1f,
-                Mathf.InverseLerp(walkSpeed, sprintSpeed, movementSpeed));
+                Mathf.InverseLerp(
+                    walkSpeed,
+                    sprintSpeed,
+                    movementSpeed));
         }
 
         private void ApplyGravity()
         {
-            if (characterController.isGrounded && verticalVelocity < 0f)
+            if (characterController.isGrounded &&
+                verticalVelocity < 0f)
             {
                 verticalVelocity = groundedStickVelocity;
             }
@@ -198,11 +293,11 @@ namespace Elyndor.Player
                 SpeedHash,
                 speed,
                 animationDampTime,
-                Time.deltaTime
-            );
+                Time.deltaTime);
         }
 
-        private IEnumerator PerformRoll(Vector3 rollDirection)
+        private IEnumerator PerformRoll(
+            Vector3 rollDirection)
         {
             currentState = PlayerState.Rolling;
             nextRollTime = Time.time + rollCooldown;
@@ -221,7 +316,8 @@ namespace Elyndor.Player
                     rollDirection * rollSpeed +
                     Vector3.up * verticalVelocity;
 
-                characterController.Move(rollVelocity * Time.deltaTime);
+                characterController.Move(
+                    rollVelocity * Time.deltaTime);
 
                 elapsedTime += Time.deltaTime;
                 yield return null;
@@ -232,34 +328,57 @@ namespace Elyndor.Player
 
         private void RotateTowards(Vector3 direction)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            Quaternion targetRotation =
+                Quaternion.LookRotation(direction);
 
-            float rotationBlend = 1f - Mathf.Exp(
-                -rotationSpeed * Time.deltaTime);
+            float rotationBlend =
+                1f - Mathf.Exp(
+                    -rotationSpeed * Time.deltaTime);
 
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 targetRotation,
-                rotationBlend
-            );
+                rotationBlend);
         }
 
-        private void OnValidate()
-        {
-            walkSpeed = Mathf.Max(0.1f, walkSpeed);
-            sprintSpeed = Mathf.Max(walkSpeed + 0.1f, sprintSpeed);
-            rotationSpeed = Mathf.Max(0.1f, rotationSpeed);
-            acceleration = Mathf.Max(0.1f, acceleration);
-            deceleration = Mathf.Max(0.1f, deceleration);
-        }
-        private void RotateImmediatelyTowards(Vector3 direction)
+        private void RotateImmediatelyTowards(
+            Vector3 direction)
         {
             if (direction.sqrMagnitude <= 0.01f)
             {
                 return;
             }
 
-            transform.rotation = Quaternion.LookRotation(direction);
+            transform.rotation =
+                Quaternion.LookRotation(direction);
+        }
+
+        private void OnValidate()
+        {
+            walkSpeed = Mathf.Max(0.1f, walkSpeed);
+
+            sprintSpeed = Mathf.Max(
+                walkSpeed + 0.1f,
+                sprintSpeed);
+
+            rotationSpeed = Mathf.Max(0.1f, rotationSpeed);
+            acceleration = Mathf.Max(0.1f, acceleration);
+            deceleration = Mathf.Max(0.1f, deceleration);
+
+            rollSpeed = Mathf.Max(0.1f, rollSpeed);
+            rollDuration = Mathf.Max(0.01f, rollDuration);
+            rollCooldown = Mathf.Max(0f, rollCooldown);
+
+            jumpVelocity = Mathf.Max(0.1f, jumpVelocity);
+
+            sprintStaminaPerSecond =
+                Mathf.Max(0f, sprintStaminaPerSecond);
+
+            staminaRegenerationPerSecond =
+                Mathf.Max(0f, staminaRegenerationPerSecond);
+
+            staminaRegenerationDelay =
+                Mathf.Max(0f, staminaRegenerationDelay);
         }
     }
 }

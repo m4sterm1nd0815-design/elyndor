@@ -150,6 +150,33 @@ Nicht blockierende Phase-1-Prioritäten:
   World-Validator, zwei vorhandene Play-Mode-Tests und `git diff --check`.
 - Manuell offen: Maus/Tastatur und Controller in engen Finsterwald-Passagen,
   Sprintwechsel, Kameraorbit, Zoom und Occlusion an Baum-/Felsgruppen.
+### P1.3 — Finsterwald-Startbereich und Spielerfuehrung
+
+- Status: `REVIEW`
+- Branch: `feature/finsterwald-start-guidance`
+- Scope: ausschliesslich der unmittelbar sichtbare Startbereich im
+  Finsterwald (Korridor von rund 12 m hinter bis 18 m vor dem Startpunkt).
+- Umgesetzt: 19 Baumkronen, ein Busch und eine grosse Bodenpflanze seitlich
+  aus dem Startbild versetzt; vorhandenes `Startbereich/Wegschild` an den
+  rechten Wegrand gestellt und zum Hauptweg gedreht; `Beschaedigter Rucksack`
+  aus dem Blickzentrum nach links versetzt; vorhandene Kiesel und Felsen als
+  Trittspur und Wegkante ausgelegt; eine weiche `Lichtschneise` ueber dem Weg;
+  doppeltes `PlayerStartSetup` auf dem Marker `PlayerStart` entfernt.
+- Bewahrt: `PlayerMovement`, `CameraFollow`, Portalsystem, Memory-System,
+  Gegner, Input und HUD sind unveraendert.
+- Ausgeschlossen: Questpfeile, Marker, neue UI-Hinweise, neue externe Assets,
+  andere Regionen und eine Neugestaltung des uebrigen Finsterwalds.
+- Werkzeug: `Elyndor/Finsterwald/Startbereich - Sichtfuehrung aufraeumen`
+  (`FinsterwaldStartGuidanceBuilder`), idempotent.
+- Automatisch bestanden: Unity-Batch-Kompilierung ohne Fehler, Movement-/
+  Kamera-Validator, Regionsportal-Validator, Gate-0-Input-Validator, acht
+  Play-Mode-Tests inklusive der neuen
+  `FinsterwaldStartGuidanceRuntimeTests`, Pruefung auf fehlende Scripts und
+  `git diff --check`.
+- Manuell offen: Rundgang ab Start bis zum Rastbereich, Kameraorbit und Zoom
+  im geoeffneten Korridor, Aufnahme des Rucksacks, Untersuchen des Wegschilds
+  und Reise durch das Root Gate zu den Sonnenfeldern.
+
 ## Phase 1 und spaeter
 
 Finsterwald Vertical Slice ist nach Abschluss von Gate 0 **FREIGEGEBEN**,

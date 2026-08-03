@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Elyndor.World;
 using NUnit.Framework;
 using UnityEngine;
@@ -26,12 +27,17 @@ namespace Elyndor.Tests
         /// <summary>Freie Strecke, die Aren vor sich sehen koennen muss.</summary>
         private const float RequiredClearSight = 20f;
 
+        private readonly List<string> consoleErrors = new List<string>();
+
         private Transform player;
         private Vector3 lookDirection;
 
         [UnitySetUp]
         public IEnumerator LoadFinsterwald()
         {
+            consoleErrors.Clear();
+            Application.logMessageReceived += CollectConsoleError;
+
             // Unabhaengig davon, was zuvor lief: kein offener Portal-Spawn.
             RegionTravel.ClearPendingSpawn();
 
@@ -53,6 +59,30 @@ namespace Elyndor.Tests
             lookDirection = player.forward;
             lookDirection.y = 0f;
             lookDirection.Normalize();
+        }
+
+        [UnityTearDown]
+        public IEnumerator DetachLogHandler()
+        {
+            Application.logMessageReceived -= CollectConsoleError;
+            yield break;
+        }
+
+        /// <summary>
+        /// Sammelt ausschliesslich rote Console-Meldungen. Bewusst nicht ueber
+        /// LogAssert.NoUnexpectedReceived: das wuerde auch an Warnungen
+        /// scheitern, die andere Tests der Suite hinterlassen, und damit von
+        /// der Ausfuehrungsreihenfolge abhaengen.
+        /// </summary>
+        private void CollectConsoleError(
+            string condition, string stackTrace, LogType type)
+        {
+            if (type == LogType.Error ||
+                type == LogType.Exception ||
+                type == LogType.Assert)
+            {
+                consoleErrors.Add($"{type}: {condition}");
+            }
         }
 
         /// <summary>
@@ -247,11 +277,14 @@ namespace Elyndor.Tests
         public IEnumerator TheStartRaisesNoConsoleErrors()
         {
             // Der Szenenaufbau lief bereits im Setup; hier wird nur noch
-            // ausdruecklich festgehalten, dass dabei nichts protokolliert wurde.
+            // ausdruecklich festgehalten, dass dabei nichts rot war.
             for (int frame = 0; frame < 5; frame++)
                 yield return null;
 
-            LogAssert.NoUnexpectedReceived();
+            Assert.That(
+                consoleErrors,
+                Is.Empty,
+                "Der Spielstart hat rote Console-Meldungen erzeugt.");
         }
 
         private static Transform FindSignpost()

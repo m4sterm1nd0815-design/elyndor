@@ -175,8 +175,9 @@ Nicht blockierende Phase-1-Prioritäten:
   33 Transformationen, alle innerhalb von 40 m um den Startpunkt.
 - Automatisch bestanden: Unity-Batch-Kompilierung ohne Fehler, World-Validator,
   Movement-/Kamera-Validator, Regionsportal-Validator, Gate-0-Input-Validator,
-  neun Play-Mode-Tests inklusive `FinsterwaldStartGuidanceRuntimeTests`
-  (zwei Laeufe stabil), Pruefung auf fehlende Scripts (0),
+  zehn Play-Mode-Tests inklusive `FinsterwaldStartGuidanceRuntimeTests` und
+  `RegionTravelSpawnRuntimeTests` (zwei Laeufe stabil),
+  Pruefung auf fehlende Scripts (0),
   Idempotenzprobe des Builders und `git diff --check` ohne Befund.
 - Manuell offen: Rundgang ab Start bis zum Rastbereich, Kameraorbit und Zoom
   im geoeffneten Korridor, Aufnahme des Rucksacks, Untersuchen des Wegschilds
@@ -196,9 +197,11 @@ Nicht blockierende Phase-1-Prioritäten:
   (es ist keine Ausfuehrungsreihenfolge konfiguriert). Komponente, Script und
   Meta wurden entfernt, die Startpose steht jetzt direkt im Spieler-Transform
   und liegt exakt auf dem Boden.
-- **OFFEN:** Ein Regressionstest fuer die Portalrueckkehr
-  (`RegionTravel.TravelTo("Finsterwald", "von_sonnenfeldern")` muss am
-  Portal-Spawn landen) waere sinnvoll, lag aber ausserhalb des Review-Scopes.
+- Dieser Befund ist mit `RegionTravelSpawnRuntimeTests` abgesichert: der Test
+  nimmt das vorhandene Rueckreise-Portal, reist ueber `RegionTravel.TravelTo`
+  und prueft, dass Aren am `RegionSpawnPoint` mit der Portal-Spawn-ID landet
+  und nicht an der normalen Waldstartpose. Gegenprobe mit absichtlich falscher
+  Spawn-ID: der Test schlaegt mit 80,98 m Abweichung fehl.
 - Die `Lichtschneise` war technisch unbedenklich (keine Schatten, keine
   Occlusion, nur Layer `Default`, realtime, buildsicher), aber unverhaeltnis-
   maessig: 451 Renderer lagen in ihrer Reichweite von 34 m und bekamen ein

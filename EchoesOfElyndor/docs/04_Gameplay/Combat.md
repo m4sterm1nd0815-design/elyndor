@@ -20,8 +20,14 @@ Die Kanonregeln zu Gegnern stehen in `docs/03_Characters/Enemies.md`.
 Sprint und Rolle verbrauchen **echte** Ausdauer; keine parallele
 Scheinressource.
 
-Stand: `PlayerVitals` ist vorhanden, die echte Anbindung von Sprint und Rolle an
-den Ausdauerverbrauch ist als offene Aufgabe geführt.
+Angebunden sind **Sprint, Rolle, Angriff und Block**. Ein Angriff oder eine
+Rolle wird nur ausgeführt, wenn die Kosten vollständig bezahlt werden können —
+es gibt keine halb bezahlte Aktion. Blocken verbraucht laufend Ausdauer und
+bricht bei Erschöpfung zusammen, statt kostenlos weiterzulaufen.
+
+Vorläufige Werte: Sprint 18/s, Rolle 20 einmalig, leichter Angriff 8, schwerer
+Angriff 18, Block 10/s. Regeneration 22/s nach 1 s ohne Verbrauch. Die Werte
+sind Balancing-Vorschläge und stehen unter Vorbehalt des Balancing-Pakets.
 
 ## Eingabe
 

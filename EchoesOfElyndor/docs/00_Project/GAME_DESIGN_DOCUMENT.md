@@ -60,7 +60,7 @@ Ein 30- bis 45-minuetiger Ablauf im Finsterwald:
 | Interaktion | ein klares Ziel, Controller und Tastatur | eventbasiert vorhanden |
 | Memory Watch | Spuren und vergangene Zustaende sichtbar machen | Memory Site, Echo, Sitzung und VFX-Prototyp vorhanden |
 | Kampf | leichte/schwere Angriffe, Blocken, lesbare Treffer | Prototyp und Trainingsdummy vorhanden |
-| Ausdauer | Bewegung und Kampf sinnvoll begrenzen | `PlayerVitals` vorhanden, echte Anbindung `OFFEN` |
+| Ausdauer | Bewegung und Kampf sinnvoll begrenzen | angebunden: Sprint, Rolle, Angriff und Block verbrauchen Ausdauer; Werte vorlaeufig |
 | Inventar | gefundene Gegenstaende und Ausruestung | statischer Prototyp vorhanden |
 | Quickslots | acht Slots, Auswahl und Nutzung | HUD-Anbindung integriert; Eingabe in PR #7 |
 | HUD | Leben, Ausdauer, Erinnerung, Fokus | Foundation, Polish und Binding integriert |

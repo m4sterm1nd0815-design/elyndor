@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Elyndor.Inventory;
 using Elyndor.Player;
+using Elyndor.UIFoundation;
 using UnityEngine;
 
 namespace Elyndor.Combat
@@ -23,17 +24,31 @@ namespace Elyndor.Combat
         [SerializeField] private float attackRange = 1.4f;
         [SerializeField] private float attackRadius = 1f;
 
+        [Header("Stamina")]
+        [Tooltip("Ausdauer je leichtem Angriff. Vorlaeufiger Balancingwert.")]
+        [Min(0f)] [SerializeField] private float lightAttackStaminaCost = 8f;
+
+        [Tooltip("Ausdauer je schwerem Angriff. Vorlaeufiger Balancingwert.")]
+        [Min(0f)] [SerializeField] private float heavyAttackStaminaCost = 18f;
+
+        [Tooltip("Ausdauerverbrauch pro Sekunde beim Blocken. Vorlaeufiger " +
+                 "Balancingwert.")]
+        [Min(0f)] [SerializeField] private float blockStaminaPerSecond = 10f;
+
         private float nextAttackTime;
         private float pressStartTime;
         private bool buttonHeld;
         private Animator animator;
         private bool animatorHasCombatParameters;
         private PlayerInputReader inputReader;
+        private PlayerVitals playerVitals;
 
         private void Awake()
         {
             inputReader = GetComponent<PlayerInputReader>()
                 ?? PlayerInputReader.FindInLoadedScenes();
+
+            playerVitals = GetComponent<PlayerVitals>();
 
             animator = GetComponentInChildren<Animator>();
 
@@ -64,7 +79,7 @@ namespace Elyndor.Combat
                 return;
             }
 
-            IsBlocking = ReadBlockHeld();
+            IsBlocking = ReadBlockHeld() && TryMaintainBlock();
 
             if (animatorHasCombatParameters)
             {
@@ -90,7 +105,13 @@ namespace Elyndor.Combat
                 if (Time.time >= nextAttackTime)
                 {
                     bool heavy = Time.time - pressStartTime >= heavyHoldThreshold;
-                    PerformAttack(heavy ? AttackType.Heavy : AttackType.Light);
+                    AttackType attackType =
+                        heavy ? AttackType.Heavy : AttackType.Light;
+
+                    if (TrySpendAttackStamina(attackType))
+                    {
+                        PerformAttack(attackType);
+                    }
                 }
             }
         }
@@ -120,6 +141,40 @@ namespace Elyndor.Combat
             }
 
             AttackPerformed?.Invoke(attackType);
+        }
+
+        /// <summary>
+        /// Blocken kostet laufend Ausdauer. Ist sie leer, faellt der Block in
+        /// sich zusammen, statt kostenlos weiterzulaufen — sonst waere Halten
+        /// die dominante Antwort auf jeden Angriff.
+        /// </summary>
+        private bool TryMaintainBlock()
+        {
+            if (playerVitals == null)
+            {
+                return true;
+            }
+
+            return playerVitals.TrySpendStamina(
+                blockStaminaPerSecond * Time.deltaTime);
+        }
+
+        /// <summary>
+        /// Ein Angriff wird nur ausgefuehrt, wenn seine Ausdauer vollstaendig
+        /// bezahlt werden kann. Ein halb bezahlter Schlag existiert nicht.
+        /// </summary>
+        private bool TrySpendAttackStamina(AttackType attackType)
+        {
+            if (playerVitals == null)
+            {
+                return true;
+            }
+
+            float cost = attackType == AttackType.Heavy
+                ? heavyAttackStaminaCost
+                : lightAttackStaminaCost;
+
+            return playerVitals.TrySpendStamina(cost);
         }
 
         /// <summary>

@@ -30,8 +30,16 @@ Namespaces folgen der Ordnerstruktur: `Elyndor.<Domäne>`.
 - **`PlayerMovement`** — CharacterController-basierte Bewegung: WASD/Stick,
   Sprint, Dodge Roll (Coroutine), Gravitation (für unebenes Terrain),
   Animator-Ansteuerung über `Speed`-Parameter.
-  Liest Input direkt über `Keyboard.current` / `Gamepad.current`
-  (bekannte technische Schuld, Refactor auf Input-Actions-Asset geplant → Roadmap M3).
+  Bezieht sämtliche Eingaben über `PlayerInputReader`
+  (`[RequireComponent(typeof(PlayerInputReader))]`) und greift **nicht**
+  direkt auf `Keyboard.current` / `Gamepad.current` zu.
+- **`PlayerInputReader`** — zentrale Eingabeschicht. Löst das Actions-Asset
+  auf (Inspector-Feld, sonst `PlayerInput`, sonst projektweites Asset),
+  klont es für die Laufzeit und stellt Move, Look, Sprint, Jump, Roll,
+  Interact und die Quickslots als Eigenschaften bereit. Fehlt eine Aktion
+  oder ein erwartetes Binding, wird zur Laufzeit eine vollständige
+  Standardbelegung erzeugt. `GameplayMapEnabled` meldet, ob die Map
+  tatsächlich aktiv ist — Absicht und realer Zustand sind bewusst getrennt.
 - **`PlayerState`** — Enum `Normal` / `Rolling`.
 
 ### `Elyndor.Cameras`
@@ -42,8 +50,13 @@ Namespaces folgen der Ordnerstruktur: `Elyndor.<Domäne>`.
 - `Bootstrap.unity` — Startszene: Main Camera, Ground, Directional Light,
   Graphics/Global Volume, Player (Aren-Modell mit Animator).
 - `PlayerAnimator.controller` — Locomotion Blend Tree (Idle/Walk/Run).
-- `InputSystem_Actions.inputactions` — vorhanden, wird vom Gameplay-Code
-  noch nicht verwendet.
+- `InputSystem_Actions.inputactions` — wird von `PlayerInputReader` verwendet.
+  **Wichtig:** Dieses Asset ist zugleich das *projektweite* Actions-Asset
+  (`ProjectSettings/EditorBuildSettings.asset`, Schlüssel
+  `com.unity.input.settings.actions`). Unity aktiviert es beim Start
+  selbsttätig. Wer es klont, muss den Klon vor dem Binden deaktivieren —
+  sonst erbt der Klon die Enabled-Flags ohne gültigen `InputActionState`
+  und jedes `Enable()` scheitert mit „Map must be contained in state".
 
 ---
 
@@ -113,9 +126,39 @@ CharacterController betritt Trigger
 
 ---
 
+## Erlebnisschicht in Regionsszenen
+
+Die Szenen trennen sichtbare UI und nicht-visuelle Laufzeitsysteme in zwei
+getrennte, unabhängig aktive Wurzeln:
+
+| Wurzel | Inhalt |
+|--------|--------|
+| `ElyndorUI` (Canvas) | `ElyndorHudFoundation` mit Vitals und Quickslots |
+| `ElyndorExperienceUI` (Canvas) | `InteractionPromptUI`, `NarrationUI`, `MemoryWatchActivationUI`, `CompassUI`, `InventoryUI` und deren Panels |
+| `ElyndorExperience` (kein Canvas) | `IntroSequence`, `TutorialSequence`, `CombatTutorial`, `SfxLibrary` + `AudioSource` |
+
+Die Trennung ist keine Kosmetik. Vorher lag beides auf einem einzigen
+Canvas-Objekt (`PrototypeHUD`). Als dieses Objekt bei der HUD-Integration
+deaktiviert wurde, starben mit den Panels auch Intro, Tutorial und die
+komplette Soundausgabe — MonoBehaviours auf einem deaktivierten GameObject
+erhalten weder `Awake` noch `Update`. Ein abgeschaltetes UI-Panel darf nie
+wieder den Ton mitnehmen.
+
+Abgesichert wird die Struktur durch `SceneIntegrityAnalyzer` (Editor) mit dem
+Profil aus `FinsterwaldSceneIntegrityValidator`. Geprüft werden Pflichtsysteme
+unter deaktivierten Vorfahren, doppelte Einzelsysteme, UI-Wurzeln mit Scale 0,
+fehlende Scripts und nicht gesetzte Pflichtreferenzen.
+
+**Offene technische Schuld:** `PlayerCombat`, `IntroSequence`,
+`TutorialSequence` und `InventoryUI` lesen weiterhin direkt
+`Keyboard.current` / `Gamepad.current`. Tastatur und Gamepad werden dort
+jeweils explizit behandelt, Rebinding und zentrale Eingabeumschaltung sind an
+diesen Stellen aber nicht möglich.
+
+---
+
 ## Später geplant (noch NICHT vorhanden)
 
-- `PlayerInputReader` — zentraler Input über das Actions-Asset (M3)
 - `GameStateManager` — Playing/Dialogue/MemoryVision/Paused (M5)
 - Dialogsystem (`DialogueAsset`, ScriptableObjects) (M7)
 - Kartografie-System (M9)

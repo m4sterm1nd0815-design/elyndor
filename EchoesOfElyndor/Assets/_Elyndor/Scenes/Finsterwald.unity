@@ -167433,167 +167433,17 @@ GameObject:
   - component: {fileID: 745853518}
   - component: {fileID: 745853517}
   - component: {fileID: 745853516}
-  - component: {fileID: 745853515}
   - component: {fileID: 745853514}
   - component: {fileID: 745853513}
-  - component: {fileID: 745853512}
   - component: {fileID: 745853511}
-  - component: {fileID: 745853510}
   - component: {fileID: 745853509}
-  - component: {fileID: 745853508}
-  - component: {fileID: 745853507}
-  - component: {fileID: 745853506}
   m_Layer: 0
-  m_Name: PrototypeHUD
+  m_Name: ElyndorExperienceUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &745853506
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745853505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbfda7ad92ea4604fad153386e60538c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Core.SfxLibrary
-  narrationClip: {fileID: 8300000, guid: daef0cc65a401a34babc65388655077e, type: 3}
-  memoryStartClip: {fileID: 8300000, guid: 03ec590bd3cf0cd478f5af50fa12309f, type: 3}
-  memoryCompleteClip: {fileID: 8300000, guid: 80192b968ef3b6e4c9bc3a409791b808, type: 3}
-  attackLightClip: {fileID: 8300000, guid: 573548bc01ac58d459848264fe4b8d15, type: 3}
-  attackHeavyClip: {fileID: 8300000, guid: 1312e464144ba3b41b72316c200560b8, type: 3}
-  hitLightClip: {fileID: 8300000, guid: c9fce5528cbee224bbbc7870e6313964, type: 3}
-  hitHeavyClip: {fileID: 8300000, guid: 692a6a7cae5d9c6419f0dce8b72f13ea, type: 3}
-  inventoryOpenClip: {fileID: 8300000, guid: 3caf8cc308b5529418b11ad4c5643f5b, type: 3}
-  inventoryCloseClip: {fileID: 8300000, guid: 8b1502822df93a041900ed2a9c0ab9e7, type: 3}
-  footstepClips:
-  - {fileID: 8300000, guid: 9d3e4e0a438fa03488485c731435f927, type: 3}
-  - {fileID: 8300000, guid: 09479268b4bfa3d4a80ba731dcb97656, type: 3}
-  - {fileID: 8300000, guid: 279a6c6dcf26a234eac5d478112c8dec, type: 3}
-  - {fileID: 8300000, guid: 749fedbb5d4a3de44ba03946d1305889, type: 3}
-  - {fileID: 8300000, guid: 1147c19f63dd2394da40087b9cb3fb52, type: 3}
-  footstepSource: {fileID: 1117875250}
-  stepDistance: 1.9
-  footstepVolume: 0.35
---- !u!82 &745853507
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745853505}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!114 &745853508
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745853505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 858a2ba23825e20489b372fa159ea3d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Core.CombatTutorial
-  promptRoot: {fileID: 1901674444}
-  promptText: {fileID: 1629080646}
-  playerCombat: {fileID: 1117875255}
-  requiredBlockSeconds: 1.5
-  stepCompletedPause: 1.2
+  m_IsActive: 1
 --- !u!114 &745853509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167609,23 +167459,6 @@ MonoBehaviour:
   panelRoot: {fileID: 1184132959}
   equipmentText: {fileID: 973873430}
   bagText: {fileID: 819993493}
---- !u!114 &745853510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745853505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26a2b898a6e162a4892e5c88cfefa809, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Core.TutorialSequence
-  intro: {fileID: 745853512}
-  promptRoot: {fileID: 27099605}
-  promptText: {fileID: 382947680}
-  requiredMoveSeconds: 1.5
-  stepCompletedPause: 1.2
 --- !u!114 &745853511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167639,29 +167472,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.UI.CompassUI
   needle: {fileID: 2013684248}
---- !u!114 &745853512
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745853505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3695f0a1b0b54ff41a3ac57e833dfe17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Core.IntroSequence
-  blackScreen: {fileID: 1620900632}
-  lineText: {fileID: 1548209240}
-  lineDuration: 3.2
-  fadeOutDuration: 3
-  lines:
-  - Wind.
-  - Ein fernes Kinderlachen.
-  - "Eine Frauenstimme \u2014 die Worte sind nicht zu verstehen."
-  - "\u201EVersprich mir nur eines ...\u201C"
-  - Stille.
-  - 'Dann: ein einzelnes Ticken.'
 --- !u!114 &745853513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167691,22 +167501,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.UI.NarrationUI
   narrationRoot: {fileID: 1053803612}
   narrationText: {fileID: 957140019}
---- !u!114 &745853515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745853505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d00276a108202d743ad0885f4462ecf5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.UI.InteractionPromptUI
-  detector: {fileID: 1117875253}
-  promptRoot: {fileID: 465685867}
-  promptText: {fileID: 473886931}
-  presentationRoot: {fileID: 0}
 --- !u!114 &745853516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -339032,6 +338826,226 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0d5d26da1bd516e48a7369a84235445a, type: 3}
   m_PrefabInstance: {fileID: 1484589185}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1484646521
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1484646527}
+  - component: {fileID: 1484646526}
+  - component: {fileID: 1484646525}
+  - component: {fileID: 1484646524}
+  - component: {fileID: 1484646523}
+  - component: {fileID: 1484646522}
+  m_Layer: 0
+  m_Name: ElyndorExperience
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1484646522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484646521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 858a2ba23825e20489b372fa159ea3d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Core.CombatTutorial
+  promptRoot: {fileID: 1901674444}
+  promptText: {fileID: 1629080646}
+  playerCombat: {fileID: 1117875255}
+  requiredBlockSeconds: 1.5
+  stepCompletedPause: 1.2
+--- !u!114 &1484646523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484646521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a2b898a6e162a4892e5c88cfefa809, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Core.TutorialSequence
+  intro: {fileID: 1484646524}
+  promptRoot: {fileID: 27099605}
+  promptText: {fileID: 382947680}
+  requiredMoveSeconds: 1.5
+  stepCompletedPause: 1.2
+--- !u!114 &1484646524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484646521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3695f0a1b0b54ff41a3ac57e833dfe17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Core.IntroSequence
+  blackScreen: {fileID: 1620900632}
+  lineText: {fileID: 1548209240}
+  lineDuration: 3.2
+  fadeOutDuration: 3
+  lines:
+  - Wind.
+  - Ein fernes Kinderlachen.
+  - "Eine Frauenstimme \u2014 die Worte sind nicht zu verstehen."
+  - "\u201EVersprich mir nur eines ...\u201C"
+  - Stille.
+  - 'Dann: ein einzelnes Ticken.'
+--- !u!114 &1484646525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484646521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbfda7ad92ea4604fad153386e60538c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Core.SfxLibrary
+  narrationClip: {fileID: 8300000, guid: daef0cc65a401a34babc65388655077e, type: 3}
+  memoryStartClip: {fileID: 8300000, guid: 03ec590bd3cf0cd478f5af50fa12309f, type: 3}
+  memoryCompleteClip: {fileID: 8300000, guid: 80192b968ef3b6e4c9bc3a409791b808, type: 3}
+  attackLightClip: {fileID: 8300000, guid: 573548bc01ac58d459848264fe4b8d15, type: 3}
+  attackHeavyClip: {fileID: 8300000, guid: 1312e464144ba3b41b72316c200560b8, type: 3}
+  hitLightClip: {fileID: 8300000, guid: c9fce5528cbee224bbbc7870e6313964, type: 3}
+  hitHeavyClip: {fileID: 8300000, guid: 692a6a7cae5d9c6419f0dce8b72f13ea, type: 3}
+  inventoryOpenClip: {fileID: 8300000, guid: 3caf8cc308b5529418b11ad4c5643f5b, type: 3}
+  inventoryCloseClip: {fileID: 8300000, guid: 8b1502822df93a041900ed2a9c0ab9e7, type: 3}
+  footstepClips:
+  - {fileID: 8300000, guid: 9d3e4e0a438fa03488485c731435f927, type: 3}
+  - {fileID: 8300000, guid: 09479268b4bfa3d4a80ba731dcb97656, type: 3}
+  - {fileID: 8300000, guid: 279a6c6dcf26a234eac5d478112c8dec, type: 3}
+  - {fileID: 8300000, guid: 749fedbb5d4a3de44ba03946d1305889, type: 3}
+  - {fileID: 8300000, guid: 1147c19f63dd2394da40087b9cb3fb52, type: 3}
+  footstepSource: {fileID: 1117875250}
+  stepDistance: 1.9
+  footstepVolume: 0.35
+--- !u!82 &1484646526
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484646521}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &1484646527
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484646521}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1484664072
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -499632,3 +499646,4 @@ SceneRoots:
   - {fileID: 753147482}
   - {fileID: 1901678322}
   - {fileID: 867981695}
+  - {fileID: 1484646527}

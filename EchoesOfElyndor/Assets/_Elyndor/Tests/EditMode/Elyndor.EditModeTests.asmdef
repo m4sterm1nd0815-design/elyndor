@@ -1,0 +1,23 @@
+{
+  "name": "Elyndor.EditModeTests",
+  "rootNamespace": "Elyndor.Tests.EditMode",
+  "references": [
+    "Elyndor.Runtime",
+    "Elyndor.Editor",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

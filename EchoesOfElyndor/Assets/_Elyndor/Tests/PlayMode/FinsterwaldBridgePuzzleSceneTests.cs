@@ -234,6 +234,104 @@ namespace Elyndor.Tests
             }
         }
 
+        /// <summary>
+        /// Ein Spieler muss die Stellung eines Ankers <em>zählen</em> können.
+        ///
+        /// Zuerst trug jeder Anker alle Kerbengruppen gleichzeitig, und aus
+        /// jedem Blickwinkel waren Teile mehrerer Gruppen zu sehen — der Stein
+        /// wirkte umwickelt, und zählen liess sich nichts. Sichtbar ist
+        /// deshalb immer genau eine Gruppe, und ihre Kerbenzahl muss zur
+        /// Stellung passen.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator JedeAnkerstellung_ZeigtIhreKerbenzahl()
+        {
+            yield return LoadScene();
+
+            BridgeAnchor[] anchors =
+                UnityEngine.Object.FindObjectsByType<BridgeAnchor>(
+                    FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+            Assert.That(
+                anchors.Length,
+                Is.EqualTo(BridgePuzzleRules.AnchorCount));
+
+            foreach (BridgeAnchor anchor in anchors)
+            {
+                for (int setting = 0;
+                     setting < BridgePuzzleRules.SettingsPerAnchor;
+                     setting++)
+                {
+                    anchor.SetSetting(setting, false);
+
+                    int activeGroups = 0;
+                    int visibleMarks = 0;
+
+                    foreach (Transform child in anchor.transform)
+                    {
+                        if (!child.name.StartsWith("Kerben_"))
+                        {
+                            continue;
+                        }
+
+                        if (child.gameObject.activeSelf)
+                        {
+                            activeGroups++;
+                            visibleMarks += child.childCount;
+                        }
+                    }
+
+                    Assert.That(
+                        activeGroups,
+                        Is.EqualTo(1),
+                        $"{anchor.AnchorId} zeigt in Stellung {setting} " +
+                        $"{activeGroups} Kerbengruppen statt einer.");
+                    Assert.That(
+                        visibleMarks,
+                        Is.EqualTo(anchor.Notches),
+                        $"{anchor.AnchorId} zeigt in Stellung {setting} " +
+                        $"{visibleMarks} Kerben, angezeigt wird aber " +
+                        $"{anchor.Notches}.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Die drei Anker müssen sich voneinander unterscheiden lassen, ohne
+        /// dass man auf sie zeigt. Drei gleiche Zylinder wären ordentlich und
+        /// unbrauchbar.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator DieDreiAnker_SindUnterscheidbar()
+        {
+            yield return LoadScene();
+
+            BridgeAnchor[] anchors =
+                UnityEngine.Object.FindObjectsByType<BridgeAnchor>(
+                    FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+            for (int a = 0; a < anchors.Length; a++)
+            {
+                for (int b = a + 1; b < anchors.Length; b++)
+                {
+                    Assert.That(
+                        anchors[a].transform.localScale,
+                        Is.Not.EqualTo(anchors[b].transform.localScale),
+                        $"{anchors[a].AnchorId} und {anchors[b].AnchorId} " +
+                        "haben dieselbe Form.");
+
+                    Assert.That(
+                        Vector3.Distance(
+                            anchors[a].transform.position,
+                            anchors[b].transform.position),
+                        Is.GreaterThan(2f),
+                        $"{anchors[a].AnchorId} und {anchors[b].AnchorId} " +
+                        "stehen zu dicht beieinander, um raeumlich " +
+                        "unterschieden zu werden.");
+                }
+            }
+        }
+
         [UnityTest]
         public IEnumerator EinFehlversuch_KostetInDerSzeneNichts()
         {

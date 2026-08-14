@@ -10,6 +10,43 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Lesbarkeit am Brückenrätsel
+
+Noch keine finale Kunst. Nur: man muss sehen können, was man tut.
+
+- **Die Kerbenzahl war überhaupt nicht ablesbar.** Jeder Anker trug eine
+  einzige Kerbe, und seine Stellung stand allein in der Drehung des Steins —
+  ausgerechnet die Zahl, von der die Lösung spricht, war unsichtbar. Jeder
+  Anker hat jetzt drei Kerbengruppen mit einer, zwei und drei Kerben.
+- **Sichtbar ist immer nur die Gruppe der aktuellen Stellung.** Mit allen drei
+  gleichzeitig sah man aus jedem Blickwinkel Teile mehrerer Gruppen; der Stein
+  wirkte umwickelt statt gekerbt. Die Drehung bleibt als spürbare Rückmeldung.
+- **Die Kerben liegen auf der Oberseite,** nicht am Mantel. Ein stehender
+  Spieler blickt auf diese Steine hinab; am Mantel liefen sie um den Zylinder
+  herum und waren aus keinem Winkel zu zählen.
+- **Die drei Anker unterscheiden sich in der Form:** der Süd-Tiefanker ist
+  breit und niedrig, der Seitenanker ein schlanker hoher Pfosten, der Nordanker
+  liegt dazwischen. Drei gleiche Zylinder wären ordentlich und unbrauchbar
+  gewesen.
+- **Seilbock und Stammfreigabe sind als Funktionsobjekte erkennbar:** der
+  Seilbock als zwei schräge Pfosten mit einem Seil darüber, die Freigabe als
+  Pfosten mit deutlich abgewinkeltem Hebel. Vorher waren beide derselbe Würfel.
+- **Der Seitenanker steckte sichtbar im gefallenen Stamm.** Beide sind jetzt
+  auseinandergerückt.
+- **Vier einfache Materialien** (Stein, Kerbe, Holz, Seil), damit sich die
+  Funktionsobjekte vom Wald absetzen. Keine Meshy-Assets, keine Beschaffung.
+- **Das Memory Echo bleibt unverändert:** es zeigt die alte Brücke, also die
+  Beziehung — nie die Ankerstellungen.
+- **Tests:** PlayMode 130 → **132**. Neu: jede Stellung zeigt genau eine
+  Gruppe mit der passenden Kerbenzahl, und die drei Anker sind in Form und
+  Abstand unterscheidbar.
+
+**Anmerkung zum Vorgehen:** Dieser Durchgang lief zunächst gegen eine stale
+Editor-Assembly. Die Unity-Console meldete null Fehler, während die
+Kompilierung tatsächlich fehlschlug; erst das Editor-Log zeigte zwei
+Compilerfehler. Kompiliersauberkeit wird seitdem gegen das Editor-Log geprüft,
+nicht gegen die Console allein.
+
 ## [Unreleased] — Gesundheitsfeedback am Wurzelstreifer
 
 Der Gegner zeigt jetzt, wie es um ihn steht.

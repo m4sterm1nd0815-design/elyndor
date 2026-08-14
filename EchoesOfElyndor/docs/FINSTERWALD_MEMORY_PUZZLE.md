@@ -1,10 +1,38 @@
 # Finsterwald Memory-Watch-Raetsel: Die geteilte Bruecke
 
 Stand: 2. August 2026
-Status: `VORSCHLAG`
+Status: **UMGESETZT** (P1.7, 15. August 2026)
 Aktualisiert: 14. August 2026 - Gate 0 ist abgeschlossen; die Blockade
 entfaellt. Die Gegner-Grundlage ist inzwischen integriert, siehe
 `FINSTERWALD_VERTICAL_SLICE_STATUS.md`.
+
+## Umsetzungsstand (15. August 2026)
+
+Das Raetsel steht in der Finsterwald-Szene unter `Environment/Brueckenraetsel`
+und ist von Anfang bis Ende spielbar. Regeln und Zustandstabelle liegen in
+`Scripts/Puzzles/BridgePuzzleRules.cs` und sind ohne Szene geprueft.
+
+Zwei bisher offene Punkte sind jetzt entschieden:
+
+- **Furt** (`OFFEN` -> `ENTSCHIEDEN`): **schadensloses Zuruecksetzen**. Kein
+  Tod, kein Verlust an Leben oder Ausdauer, kein unsichtbarer Todesrand. Die
+  Stroemung traegt Aren sichtbar ans Ufer zurueck, und er darf es sofort wieder
+  versuchen. Begruendung: Tod und Respawn sind noch nicht kanonisch
+  entschieden; dieses Raetsel darf die Entscheidung nicht nebenbei treffen.
+- **Ankerloesung** (`VORSCHLAG` -> Prototyp): Sued-Tiefanker 1 Kerbe,
+  Seitenanker 2, Nordanker 3. Freigegeben fuer den ersten Usability-Prototyp
+  und ausdruecklich **nicht** heilig.
+
+**Noch nicht beantwortet:** ob Spieler die Loesung herleiten oder die 27
+Kombinationen durchprobieren. Das entscheidet der Usability-Test, nicht der
+Code. Sollte Brute Force offensichtlich optimal sein, werden nicht mehr
+Hinweise eingebaut, sondern das Raetseldesign analysiert und am Gate berichtet.
+
+**Nicht enthalten:** Persistenz ueber das Programmende hinaus. Der Stand haelt
+ueber Szenenwechsel innerhalb der Sitzung (`PuzzleSessionState`, nach dem
+Vorbild von `MemorySessionState`); das globale Save- und Checkpoint-System ist
+weiterhin offen und wurde bewusst nicht fuer ein einzelnes Raetsel
+vorweggenommen.
 
 ## Spielversprechen
 
@@ -70,8 +98,8 @@ Kein Hinweis ist ausschliesslich farbcodiert.
 - Nur dem Link-Sitzpunkt folgen: dort wird die Seillinie sichtbar, aber zwei
   Anker bleiben unbestimmt.
 - Furt versuchen: Stroemung und Aren-Animation signalisieren Gefahr; kein
-  unsichtbarer Todesrand. `OFFEN`: schadensloses Zuruecksetzen oder
-  Ausdauerschwelle.
+  unsichtbarer Todesrand. `ENTSCHIEDEN` (15.08.2026): **schadensloses
+  Zuruecksetzen**, keine Ausdauerschwelle.
 
 ## Loesung
 

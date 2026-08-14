@@ -10,6 +10,49 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Hörbare Spielregeln (P1.11A)
+
+Kein Sounddesign, sondern Lesbarkeit. Der Encounter-Plan verlangt Angriffe
+„durch Bewegung **und Ton**" lesbar; das Brückenrätsel verlangt einen Holz-
+gegen einen Steinton. Beides fehlte.
+
+- **Kein neues Audio-System.** Alles hängt an der bereits vorhandenen
+  `SfxLibrary`, die schon zuvor zentral auf Spielereignisse gehört hat. Neu
+  sind acht Hinweise und die statischen Ereignisse, über die sie ankommen —
+  dem Muster von `PlayerCombat.AttackPerformed` folgend.
+- **Telegraph:** eigener Ton vor dem Sprungbiss. `creak1` misst 0,661 s und
+  endet damit fast genau, wenn der Biss landet — der Telegraph bleibt hörbar,
+  auch wenn die Silhouette gerade verdeckt steht.
+- **Treffer am Gegner:** leicht und schwer klingen unterschiedlich; der
+  schwere Ton ist zugleich der hörbare Stagger.
+- **Der tödliche Treffer bekommt keinen Trefferton.** Sonst lägen Treffer und
+  Beruhigung im selben Moment übereinander, und der Spieler hörte zwei
+  Ereignisse, wo eines stattfindet.
+- **Block:** geblockt klingt gedämpft, ungeblockt hart. Ein Block, der klingt
+  wie ein voller Treffer, lehrt nichts.
+- **Brückenrätsel:** trägt die Ankerstellung, klingt Holz und Seil; trägt sie
+  nicht, reibt Stein.
+- **Der Ton verrät nie, WELCHER Anker falsch steht.** Das Ereignis führt genau
+  ein `bool` — was nicht übergeben wird, kann nicht hörbar werden. Alle 26
+  falschen Kombinationen sind einzeln geprüft: gleicher Ton, gleiche Anzahl.
+- **Ein einziger Platzhalter:** `PLACEHOLDER_Stein_Reiben.wav`, erzeugt und im
+  Namen als solcher gekennzeichnet. Der Bestand kennt Aufschläge auf Stein
+  (`impactMining`), aber kein *Reiben*; ein Aufschlag würde als „etwas ist
+  zerbrochen" gelesen statt als „das trägt nicht". Deterministisch erzeugt,
+  damit ein erneuter Lauf keine Scheinänderung schreibt.
+- **Alle übrigen Clips stammen aus dem vorhandenen Kenney-Bestand** (CC0, je
+  eigene `License.txt`). Keine Beschaffung, kein Download, keine Kosten.
+- **Tests:** PlayMode 97 → **109**. Darunter: jeder Hinweis feuert genau
+  einmal, kein Doppeltrigger, korrekte Zustände lösen korrekte Hinweise aus,
+  und die Szene hat alle acht Clips verdrahtet.
+- **Dokumentiert:** `Technical/KNOWN_TOOLCHAIN_MESSAGES.md` nennt Version und
+  Ursache der einen tolerierten Input-System-Meldung. Die Toleranz bleibt auf
+  genau einen Test begrenzt.
+
+**Nicht geprüft:** wie die Clips tatsächlich klingen. Die Auswahl folgt der
+Benennung des Kenney-Bestands und den gemessenen Längen; ein Mensch sollte sie
+abhören.
+
 ## [Unreleased] — Die geteilte Brücke (P1.7)
 
 Das erste Memory-Watch-Rätsel. Nach dem ersten Kampf bewusst ein anderes

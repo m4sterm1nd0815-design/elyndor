@@ -1,10 +1,56 @@
 using Elyndor.Combat;
+using Elyndor.Enemies;
 using Elyndor.Memory;
+using Elyndor.Puzzles;
 using Elyndor.UI;
 using UnityEngine;
 
 namespace Elyndor.Core
 {
+    /// <summary>
+    /// Welcher Hinweis zuletzt gespielt wurde. Bewusst ein eigener Begriff und
+    /// kein String: an diesen Hinweisen haengt Spielbarkeit, und ein Test soll
+    /// pruefen koennen, dass genau der richtige genau einmal kam.
+    /// </summary>
+    public enum SfxCue
+    {
+        None = 0,
+        Narration = 1,
+        MemoryStarted = 2,
+        MemoryCompleted = 3,
+        PlayerAttackLight = 4,
+        PlayerAttackHeavy = 5,
+        DummyHitLight = 6,
+        DummyHitHeavy = 7,
+        InventoryOpen = 8,
+        InventoryClose = 9,
+        Footstep = 10,
+
+        /// <summary>Der Wurzelstreifer setzt zum Sprungbiss an.</summary>
+        EnemyTelegraph = 11,
+
+        /// <summary>Leichter Treffer am Gegner.</summary>
+        EnemyHitLight = 12,
+
+        /// <summary>Schwerer Treffer am Gegner; zugleich der Stagger.</summary>
+        EnemyHitHeavy = 13,
+
+        /// <summary>Der Gegner ist besiegt und beruhigt sich.</summary>
+        EnemyDefeated = 14,
+
+        /// <summary>Ein Treffer wurde geblockt.</summary>
+        BlockedHit = 15,
+
+        /// <summary>Ein Treffer kam ungeblockt durch.</summary>
+        UnblockedHit = 16,
+
+        /// <summary>Die Ankerstellung traegt.</summary>
+        BridgeTensionHolds = 17,
+
+        /// <summary>Die Ankerstellung traegt nicht.</summary>
+        BridgeTensionSlack = 18
+    }
+
     /// <summary>
     /// Zentrale Soundeffekt-Anbindung: hört auf die bestehenden Spiel-Events
     /// (Narration, Memory Watch, Kampf, Inventar) und spielt zugewiesene
@@ -25,6 +71,35 @@ namespace Elyndor.Core
         [SerializeField] private AudioClip hitLightClip;
         [SerializeField] private AudioClip hitHeavyClip;
 
+        [Header("Wurzelstreifer")]
+        [Tooltip("Eigener Ton vor dem Sprungbiss. Er endet, wenn der Biss " +
+                 "kommt — der Telegraph bleibt damit auch dann lesbar, wenn " +
+                 "die Silhouette gerade verdeckt steht.")]
+        [SerializeField] private AudioClip enemyTelegraphClip;
+
+        [SerializeField] private AudioClip enemyHitLightClip;
+
+        [Tooltip("Zugleich der hoerbare Teil des schweren Staggers.")]
+        [SerializeField] private AudioClip enemyHitHeavyClip;
+
+        [Tooltip("Beruhigung statt Sterben; ohne harten Einschlag.")]
+        [SerializeField] private AudioClip enemyDefeatedClip;
+
+        [Header("Verteidigung")]
+        [Tooltip("Gedaempft. Ein Block, der klingt wie ein voller Treffer, " +
+                 "lehrt nichts.")]
+        [SerializeField] private AudioClip blockedHitClip;
+
+        [SerializeField] private AudioClip unblockedHitClip;
+
+        [Header("Brueckenraetsel")]
+        [Tooltip("Klarer Holz-/Seilton, wenn die Ankerstellung traegt.")]
+        [SerializeField] private AudioClip bridgeTensionHoldsClip;
+
+        [Tooltip("Dumpfes Stein-/Reibgeraeusch, wenn sie nicht traegt. " +
+                 "Sagt nie, WELCHER Anker falsch steht.")]
+        [SerializeField] private AudioClip bridgeTensionSlackClip;
+
         [Header("Inventar")]
         [SerializeField] private AudioClip inventoryOpenClip;
         [SerializeField] private AudioClip inventoryCloseClip;
@@ -39,6 +114,12 @@ namespace Elyndor.Core
         private Vector3 lastFootstepPosition;
         private float accumulatedDistance;
         private int lastFootstepIndex = -1;
+
+        /// <summary>Zuletzt ausgeloester Hinweis; fuer Tests und Telemetrie.</summary>
+        public SfxCue LastCue { get; private set; } = SfxCue.None;
+
+        /// <summary>Anzahl ausgeloester Hinweise; fuer Tests und Telemetrie.</summary>
+        public int CueCount { get; private set; }
 
         private void Awake()
         {
@@ -60,6 +141,12 @@ namespace Elyndor.Core
             PlayerCombat.AttackPerformed += HandleAttack;
             TrainingDummy.HitTaken += HandleHit;
             InventoryUI.Toggled += HandleInventoryToggled;
+
+            EnemyAttack.AnyTelegraphStarted += HandleEnemyTelegraph;
+            EnemyHealth.AnyDamaged += HandleEnemyDamaged;
+            EnemyHealth.AnyDied += HandleEnemyDefeated;
+            PlayerDamageReceiver.AnyDamageTaken += HandlePlayerDamaged;
+            BridgePuzzle.AnyTensionEvaluated += HandleBridgeTension;
         }
 
         private void OnDisable()
@@ -70,6 +157,12 @@ namespace Elyndor.Core
             PlayerCombat.AttackPerformed -= HandleAttack;
             TrainingDummy.HitTaken -= HandleHit;
             InventoryUI.Toggled -= HandleInventoryToggled;
+
+            EnemyAttack.AnyTelegraphStarted -= HandleEnemyTelegraph;
+            EnemyHealth.AnyDamaged -= HandleEnemyDamaged;
+            EnemyHealth.AnyDied -= HandleEnemyDefeated;
+            PlayerDamageReceiver.AnyDamageTaken -= HandlePlayerDamaged;
+            BridgePuzzle.AnyTensionEvaluated -= HandleBridgeTension;
         }
 
         private void Update()
@@ -110,32 +203,112 @@ namespace Elyndor.Core
                 } while (footstepClips.Length > 1 && index == lastFootstepIndex);
 
                 lastFootstepIndex = index;
-                Play(footstepClips[index], footstepVolume);
+                Play(SfxCue.Footstep, footstepClips[index], footstepVolume);
             }
         }
 
-        private void HandleNarration(string text, float duration) => Play(narrationClip, 0.7f);
-        private void HandleMemoryStarted(MemorySite site) => Play(memoryStartClip, 0.9f);
-        private void HandleMemoryCompleted(MemorySite site) => Play(memoryCompleteClip, 0.9f);
+        private void HandleNarration(string text, float duration) =>
+            Play(SfxCue.Narration, narrationClip, 0.7f);
+
+        private void HandleMemoryStarted(MemorySite site) =>
+            Play(SfxCue.MemoryStarted, memoryStartClip, 0.9f);
+
+        private void HandleMemoryCompleted(MemorySite site) =>
+            Play(SfxCue.MemoryCompleted, memoryCompleteClip, 0.9f);
 
         private void HandleAttack(AttackType attackType)
         {
-            Play(attackType == AttackType.Heavy ? attackHeavyClip : attackLightClip, 0.8f);
+            bool heavy = attackType == AttackType.Heavy;
+
+            Play(
+                heavy ? SfxCue.PlayerAttackHeavy : SfxCue.PlayerAttackLight,
+                heavy ? attackHeavyClip : attackLightClip,
+                0.8f);
         }
 
         private void HandleHit(AttackType attackType)
         {
-            Play(attackType == AttackType.Heavy ? hitHeavyClip : hitLightClip, 0.9f);
+            bool heavy = attackType == AttackType.Heavy;
+
+            Play(
+                heavy ? SfxCue.DummyHitHeavy : SfxCue.DummyHitLight,
+                heavy ? hitHeavyClip : hitLightClip,
+                0.9f);
         }
 
         private void HandleInventoryToggled(bool open)
         {
-            Play(open ? inventoryOpenClip : inventoryCloseClip, 0.8f);
+            Play(
+                open ? SfxCue.InventoryOpen : SfxCue.InventoryClose,
+                open ? inventoryOpenClip : inventoryCloseClip,
+                0.8f);
         }
 
-        private void Play(AudioClip clip, float volume)
+        // ------------------------------------------------------------------
+        // Lesbarkeit von Kampf und Raetsel
+        // ------------------------------------------------------------------
+
+        private void HandleEnemyTelegraph() =>
+            Play(SfxCue.EnemyTelegraph, enemyTelegraphClip, 0.95f);
+
+        /// <summary>
+        /// Der toedliche Treffer bekommt bewusst keinen Trefferton: sonst
+        /// laegen Treffer und Beruhigung im selben Moment uebereinander, und
+        /// der Spieler hoerte zwei Ereignisse, wo eines stattfindet.
+        /// </summary>
+        private void HandleEnemyDamaged(EnemyDamageInfo info)
         {
-            if (clip != null)
+            if (info.IsLethal)
+            {
+                return;
+            }
+
+            bool heavy = info.AttackType == AttackType.Heavy;
+
+            Play(
+                heavy ? SfxCue.EnemyHitHeavy : SfxCue.EnemyHitLight,
+                heavy ? enemyHitHeavyClip : enemyHitLightClip,
+                0.9f);
+        }
+
+        private void HandleEnemyDefeated() =>
+            Play(SfxCue.EnemyDefeated, enemyDefeatedClip, 0.85f);
+
+        private void HandlePlayerDamaged(PlayerDamageResult result)
+        {
+            bool blocked = result.Context == PlayerDamageContext.Blocked;
+
+            Play(
+                blocked ? SfxCue.BlockedHit : SfxCue.UnblockedHit,
+                blocked ? blockedHitClip : unblockedHitClip,
+                blocked ? 0.8f : 0.9f);
+        }
+
+        /// <summary>
+        /// Traegt die Ankerstellung, klingt Holz und Seil; traegt sie nicht,
+        /// reibt Stein. Der Ton haengt allein an diesem einen Ja oder Nein —
+        /// er kann deshalb gar nicht verraten, welcher Anker falsch steht.
+        /// </summary>
+        private void HandleBridgeTension(bool holds)
+        {
+            Play(
+                holds ? SfxCue.BridgeTensionHolds : SfxCue.BridgeTensionSlack,
+                holds ? bridgeTensionHoldsClip : bridgeTensionSlackClip,
+                0.85f);
+        }
+
+        /// <summary>
+        /// Der Hinweis wird auch dann gezaehlt, wenn ihm noch kein Clip
+        /// zugewiesen ist. Sonst waere ein fehlender Clip von einem gar nicht
+        /// ausgeloesten Hinweis nicht zu unterscheiden — und genau das soll
+        /// ein Test sehen koennen.
+        /// </summary>
+        private void Play(SfxCue cue, AudioClip clip, float volume)
+        {
+            LastCue = cue;
+            CueCount++;
+
+            if (clip != null && audioSource != null)
             {
                 audioSource.PlayOneShot(clip, volume);
             }

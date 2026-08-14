@@ -189,6 +189,51 @@ namespace Elyndor.Tests
                 string.Join("\n", consoleErrors));
         }
 
+        /// <summary>
+        /// Die Töne hängen an der vorhandenen zentralen Bibliothek. Fehlte
+        /// dort ein Clip, bliebe die Regel stumm — und stumm ist von „gibt es
+        /// nicht" im Spiel nicht zu unterscheiden.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator DieSzene_HatAlleLesbarkeitstoeneVerdrahtet()
+        {
+            yield return LoadScene();
+
+            Elyndor.Core.SfxLibrary library =
+                UnityEngine.Object.FindAnyObjectByType<Elyndor.Core.SfxLibrary>();
+
+            Assert.That(
+                library,
+                Is.Not.Null,
+                "Ohne SfxLibrary bleibt jede Regel stumm.");
+
+            string[] fields =
+            {
+                "enemyTelegraphClip",
+                "enemyHitLightClip",
+                "enemyHitHeavyClip",
+                "enemyDefeatedClip",
+                "blockedHitClip",
+                "unblockedHitClip",
+                "bridgeTensionHoldsClip",
+                "bridgeTensionSlackClip"
+            };
+
+            foreach (string field in fields)
+            {
+                var info = typeof(Elyndor.Core.SfxLibrary).GetField(
+                    field,
+                    System.Reflection.BindingFlags.Instance |
+                    System.Reflection.BindingFlags.NonPublic);
+
+                Assert.That(info, Is.Not.Null, $"Feld '{field}' fehlt.");
+                Assert.That(
+                    info.GetValue(library),
+                    Is.Not.Null,
+                    $"Der Hinweis '{field}' hat keinen Clip.");
+            }
+        }
+
         [UnityTest]
         public IEnumerator EinFehlversuch_KostetInDerSzeneNichts()
         {

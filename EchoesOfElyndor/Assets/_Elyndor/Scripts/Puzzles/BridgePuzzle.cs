@@ -84,6 +84,19 @@ namespace Elyndor.Puzzles
         /// <summary>Alter und neuer Zustand nach einem erfolgten Wechsel.</summary>
         public event Action<BridgePuzzleState, BridgePuzzleState> StateChanged;
 
+        /// <summary>
+        /// Wird ausgeloest, sobald die Ankerstellung bewertet wurde — beim
+        /// Pruefen am Seilbock und beim Freigeben des Stamms. Der Parameter
+        /// sagt <b>nur</b>, ob die Stellung traegt.
+        ///
+        /// Bewusst ein einzelnes bool und nicht etwa die Ankerstellungen oder
+        /// die Zahl der richtigen Anker: an diesem Ereignis haengt der Ton,
+        /// und ein Ton, der verraet <em>welcher</em> Anker falsch steht, waere
+        /// die Loesung in Raten. Was hier nicht uebergeben wird, kann auch
+        /// nicht versehentlich hoerbar werden.
+        /// </summary>
+        public static event Action<bool> AnyTensionEvaluated;
+
         public BridgePuzzleState State { get; private set; } =
             BridgePuzzleState.Dormant;
 
@@ -238,6 +251,7 @@ namespace Elyndor.Puzzles
 
             NarrationEvents.RaiseMessage(
                 holds ? tensionHoldsText : tensionSlackText, messageDuration);
+            AnyTensionEvaluated?.Invoke(holds);
 
             return holds;
         }
@@ -257,6 +271,7 @@ namespace Elyndor.Puzzles
             if (!IsConfigurationCorrect())
             {
                 NarrationEvents.RaiseMessage(jammedText, messageDuration);
+                AnyTensionEvaluated?.Invoke(false);
                 recoverRemaining = recoverDuration;
 
                 // Aus ReadyToRelease heraus erst wieder in die Konfiguration,
@@ -270,6 +285,8 @@ namespace Elyndor.Puzzles
 
                 return false;
             }
+
+            AnyTensionEvaluated?.Invoke(true);
 
             if (State == BridgePuzzleState.Configuring)
             {
@@ -476,6 +493,13 @@ namespace Elyndor.Puzzles
             }
 
             NotifyEchoObserved();
+        }
+
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticEvents()
+        {
+            AnyTensionEvaluated = null;
         }
     }
 }

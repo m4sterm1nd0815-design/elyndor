@@ -340283,6 +340283,14 @@ MonoBehaviour:
   attackHeavyClip: {fileID: 8300000, guid: 1312e464144ba3b41b72316c200560b8, type: 3}
   hitLightClip: {fileID: 8300000, guid: c9fce5528cbee224bbbc7870e6313964, type: 3}
   hitHeavyClip: {fileID: 8300000, guid: 692a6a7cae5d9c6419f0dce8b72f13ea, type: 3}
+  enemyTelegraphClip: {fileID: 8300000, guid: bb7460bbda3d4964584bb333a07c5f40, type: 3}
+  enemyHitLightClip: {fileID: 8300000, guid: 6cd9519494542994c868fed32079beee, type: 3}
+  enemyHitHeavyClip: {fileID: 8300000, guid: 08dddd57725f5b848aec5023c5f2ccae, type: 3}
+  enemyDefeatedClip: {fileID: 8300000, guid: 9b595aff313cb0940b59614359ecbbcf, type: 3}
+  blockedHitClip: {fileID: 8300000, guid: 43de8794c30ea4b4f84fe8e3c3fc188e, type: 3}
+  unblockedHitClip: {fileID: 8300000, guid: c9fce5528cbee224bbbc7870e6313964, type: 3}
+  bridgeTensionHoldsClip: {fileID: 8300000, guid: a3b602a38bd82d6419d198d728534624, type: 3}
+  bridgeTensionSlackClip: {fileID: 8300000, guid: 6fd491175bcf2fa49b82d9961c5ea2f4, type: 3}
   inventoryOpenClip: {fileID: 8300000, guid: 3caf8cc308b5529418b11ad4c5643f5b, type: 3}
   inventoryCloseClip: {fileID: 8300000, guid: 8b1502822df93a041900ed2a9c0ab9e7, type: 3}
   footstepClips:

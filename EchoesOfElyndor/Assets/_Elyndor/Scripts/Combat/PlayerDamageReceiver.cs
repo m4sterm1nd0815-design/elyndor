@@ -96,6 +96,14 @@ namespace Elyndor.Combat
         /// <summary>Wird nach jedem eingehenden Treffer ausgeloest.</summary>
         public event Action<PlayerDamageResult> DamageTaken;
 
+        /// <summary>
+        /// Dasselbe statisch, damit die zentrale <c>SfxLibrary</c> den
+        /// Unterschied zwischen einem durchgekommenen und einem geblockten
+        /// Treffer hoerbar machen kann. Ein Block, der genauso klingt wie ein
+        /// voller Treffer, lehrt dem Spieler nichts.
+        /// </summary>
+        public static event Action<PlayerDamageResult> AnyDamageTaken;
+
         public float BlockDamageReduction => blockDamageReduction;
 
         /// <summary>Blockt der Spieler in diesem Moment?</summary>
@@ -150,6 +158,7 @@ namespace Elyndor.Combat
                 raw, applied, context, sourcePosition);
 
             DamageTaken?.Invoke(result);
+            AnyDamageTaken?.Invoke(result);
 
             return result;
         }
@@ -177,6 +186,13 @@ namespace Elyndor.Combat
 
             blockState = GetComponentInChildren<IPlayerBlockState>(true);
             blockStateOwner = blockState as MonoBehaviour;
+        }
+
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticEvents()
+        {
+            AnyDamageTaken = null;
         }
     }
 }

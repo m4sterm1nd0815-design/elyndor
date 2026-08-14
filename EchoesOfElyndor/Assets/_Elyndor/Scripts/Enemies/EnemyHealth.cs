@@ -48,6 +48,17 @@ namespace Elyndor.Enemies
         /// <summary>Wird genau einmal ausgeloest.</summary>
         public event Action Died;
 
+        /// <summary>
+        /// Treffer und Tod zusaetzlich statisch, damit die zentrale
+        /// <c>SfxLibrary</c> zuhoeren kann, ohne jeden Gegner zu kennen.
+        /// Dieselbe Reihenfolge und dieselbe Einmaligkeit wie bei den
+        /// Instanzereignissen.
+        /// </summary>
+        public static event Action<EnemyDamageInfo> AnyDamaged;
+
+        /// <summary>Wird je Gegner genau einmal ausgeloest.</summary>
+        public static event Action AnyDied;
+
         public float MaxHealth => maxHealth;
         public float CurrentHealth => currentHealth;
         public float Health01 => Mathf.Clamp01(currentHealth / Mathf.Max(1f, maxHealth));
@@ -107,13 +118,17 @@ namespace Elyndor.Enemies
                 IsDead = true;
             }
 
-            Damaged?.Invoke(
-                new EnemyDamageInfo(applied, attackType, sourcePosition, lethal));
+            var info = new EnemyDamageInfo(
+                applied, attackType, sourcePosition, lethal);
+
+            Damaged?.Invoke(info);
+            AnyDamaged?.Invoke(info);
             HealthChanged?.Invoke(currentHealth, maxHealth);
 
             if (lethal)
             {
                 Died?.Invoke();
+                AnyDied?.Invoke();
             }
         }
 
@@ -133,6 +148,14 @@ namespace Elyndor.Enemies
         {
             maxHealth = Mathf.Max(1f, maxHealth);
             currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+        }
+
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticEvents()
+        {
+            AnyDamaged = null;
+            AnyDied = null;
         }
     }
 }

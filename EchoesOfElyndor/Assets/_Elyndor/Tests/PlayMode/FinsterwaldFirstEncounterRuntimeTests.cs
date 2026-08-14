@@ -127,15 +127,32 @@ namespace Elyndor.Tests
         [UnityTest]
         public IEnumerator DieRolle_IstEineGueltigeAntwort()
         {
-            // Das Input-System-Paket meldet in diesem Test gelegentlich
-            // „Cached unprocessed value unexpectedly became outdated" als
-            // Error. Die Meldung stammt aus der Zwischenspeicherung des
-            // Pakets und tritt auf, wenn im selben Lauf zusaetzlich Szenen
-            // geladen werden; sie sagt nichts ueber die Rolle aus. Die
-            // eigentlichen Zusicherungen unten laufen davon unberuehrt durch.
+            // Bekannte Fremdmeldung, hier bewusst toleriert.
             //
-            // Bewusst nur hier und nicht fuer die ganze Suite: die uebrigen
-            // Tests pruefen weiterhin ausdruecklich auf rote Meldungen.
+            // Meldung: „Cached unprocessed value unexpectedly became outdated
+            //           for unknown reason".
+            // Quelle:  com.unity.inputsystem 1.19.0,
+            //          InputSystem/Controls/InputControl.cs:1410
+            // Unity:   6000.4.5f1
+            //
+            // Ursache: Die Zeile steht in einem `#if DEBUG`-Block hinter
+            // `paranoidReadValueCachingChecksEnabled`. Dieses Flag setzt
+            // ausschliesslich `Tests/TestFixture/InputTestFixture.cs:156` —
+            // die Selbstpruefung des Pakets laeuft also nur unter der
+            // Test-Fixture und niemals im Spiel. Sie liest den Steuerwert
+            // zusaetzlich frisch aus und meldet, wenn er vom
+            // zwischengespeicherten abweicht, ohne dass das Veraltet-Kennzeichen
+            // gesetzt war. Das passiert hier, weil dieser Test zusaetzlich eine
+            // Szene laedt und der Geraetezustand dabei ueber einen Pfad
+            // wechselt, der das Kennzeichen nicht setzt.
+            //
+            // Folge fuer uns: keine. Weder Elyndor-Code noch das Spiel sind
+            // betroffen, und die Zusicherungen unten laufen unveraendert durch.
+            //
+            // Streng auf diesen einen Test begrenzt — die uebrige Suite prueft
+            // weiterhin ausdruecklich auf rote Meldungen. Bei einem
+            // Paket-Update ist zuerst zu pruefen, ob die Toleranz entfallen
+            // kann.
             LogAssert.ignoreFailingMessages = true;
 
             yield return EnterEncounter(distance: 2f);

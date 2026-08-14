@@ -92,6 +92,15 @@ namespace Elyndor.Enemies
         /// <summary>Wird ausgeloest, sobald der Telegraph beginnt.</summary>
         public event Action TelegraphStarted;
 
+        /// <summary>
+        /// Dasselbe fuer beliebige Gegner. Statisch, damit die vorhandene
+        /// zentrale <c>SfxLibrary</c> zuhoeren kann, ohne jeden Gegner einzeln
+        /// zu kennen — dem Muster von <c>PlayerCombat.AttackPerformed</c>
+        /// folgend. Der Ton ist das, woran der Telegraph auch dann noch
+        /// lesbar ist, wenn die Silhouette gerade verdeckt steht.
+        /// </summary>
+        public static event Action AnyTelegraphStarted;
+
         /// <summary>Wird ausgeloest, wenn ein Telegraph abgebrochen wurde.</summary>
         public event Action TelegraphAborted;
 
@@ -230,7 +239,9 @@ namespace Elyndor.Enemies
             {
                 Phase = EnemyAttackPhase.Telegraph;
                 phaseRemaining = telegraphDuration;
+
                 TelegraphStarted?.Invoke();
+                AnyTelegraphStarted?.Invoke();
 
                 return true;
             }
@@ -356,6 +367,13 @@ namespace Elyndor.Enemies
             offset.y = 0f;
 
             return offset.magnitude;
+        }
+
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticEvents()
+        {
+            AnyTelegraphStarted = null;
         }
     }
 }

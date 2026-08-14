@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Elyndor.Combat;
 using Elyndor.Enemies;
+using Elyndor.Enemies.UI;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEditor.SceneManagement;
@@ -355,6 +356,8 @@ namespace Elyndor.EditorTools
                 Wire(animationDriver, ("animator", animator),
                     ("controller", controllerComponent));
 
+                BuildHealthBar(root, health);
+
                 ParticleSystem dust = BuildBarkDust(root);
                 WurzelstreiferFeedback feedback =
                     root.AddComponent<WurzelstreiferFeedback>();
@@ -403,6 +406,34 @@ namespace Elyndor.EditorTools
                 property.objectReferenceValue = value;
             }
 
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>
+        /// Die Lebensanzeige des Gegners.
+        ///
+        /// Auf einem eigenen Kindobjekt, nicht auf dem Gegner selbst: die
+        /// Anzeige dreht ihren eigenen Transform jeden Takt zur Kamera und
+        /// wuerde sonst den Gegner mitdrehen.
+        ///
+        /// Die Hoehe ist an dieses Tier angepasst. Der Vorgabewert von 2,1 m
+        /// stammt von einer aufrechten Figur; ueber einem 0,9 m hohen
+        /// Vierbeiner schwebte die Leiste dort weit ueber ihm in der Luft.
+        /// </summary>
+        private static void BuildHealthBar(GameObject root, EnemyHealth health)
+        {
+            GameObject bar = new GameObject("Lebensanzeige");
+            bar.transform.SetParent(root.transform, false);
+            bar.transform.localPosition = Vector3.zero;
+
+            EnemyHealthBar healthBar = bar.AddComponent<EnemyHealthBar>();
+
+            Wire(healthBar, ("health", health), ("anchor", root.transform));
+
+            SerializedObject serialized = new SerializedObject(healthBar);
+            serialized.FindProperty("heightOffset").floatValue = 1.25f;
+            serialized.FindProperty("placeholderSize").vector2Value =
+                new Vector2(0.8f, 0.1f);
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 

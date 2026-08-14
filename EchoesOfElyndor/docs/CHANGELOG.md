@@ -10,6 +10,32 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Gesundheitsfeedback am Wurzelstreifer
+
+Der Gegner zeigt jetzt, wie es um ihn steht.
+
+- **Aus PR #30 gerettet, nicht gemergt.** Jener PR stand auf einem alten
+  `developer`-Stand. Übernommen wurden `EnemyHealthBar`,
+  `EnemyHealthBarVisual`, der zugehörige Validator und die 19 Laufzeittests —
+  gegen den **heutigen** `EnemyHealth` und den heutigen Wurzelstreifer. Die
+  veraltete `TASK_QUEUE.md` aus jenem PR blieb draußen.
+- **Verhalten:** bei voller unberührter Gesundheit verborgen, nach dem ersten
+  Treffer sichtbar, Verhältnis korrekt, nach dem Tod wieder verborgen.
+- **Kameraausrichtung:** parallel zur Bildebene statt zur Kameraposition — so
+  kippt die Leiste am Bildrand nicht weg.
+- **Tatsächlich am Gegner integriert:** eigenes Kindobjekt `Lebensanzeige` im
+  Wurzelstreifer-Prefab, Höhe 1,25 m. Der Vorgabewert von 2,1 m stammt von
+  einer aufrechten Figur und hätte über einem 0,9 m hohen Vierbeiner in der
+  Luft geschwebt.
+- **Keine doppelte HUD-Struktur:** der Gegner bringt genau einen eigenen
+  World-Space-Canvas mit, und der entsteht erst zur Laufzeit. Die Szene hat
+  unverändert zwei Canvas-Strukturen.
+- **Optik bleibt Blockout.** Die Darstellung kennt weder `EnemyHealth` noch
+  Sichtbarkeitsregeln; die endgültige Optik ist dadurch austauschbar.
+- **Tests:** PlayMode 109 → **130**. Darunter zwei neue Prüfungen am echten
+  Exemplar auf der Lichtung: die Anzeige hängt am Gegner und verdoppelt das
+  HUD nicht.
+
 ## [Unreleased] — Hörbare Spielregeln (P1.11A)
 
 Kein Sounddesign, sondern Lesbarkeit. Der Encounter-Plan verlangt Angriffe

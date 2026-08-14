@@ -28,6 +28,13 @@ namespace Elyndor.Player
         [Tooltip("Das aktuelle Actions-Asset besitzt noch Crouch statt Roll.")]
         [SerializeField] private string legacyRollActionName = "Crouch";
         [SerializeField] private string interactActionName = "Interact";
+        [SerializeField] private string attackActionName = "Attack";
+        [Tooltip("Blocken. Bildet die Belegung ab, die PlayerCombat bisher " +
+                 "direkt am Geraet gelesen hat.")]
+        [SerializeField] private string blockActionName = "Block";
+        [Tooltip("Inventar. Bewusst eine eigene Action: Interact und Inventar " +
+                 "lagen am Gamepad beide auf buttonNorth und feuerten zusammen.")]
+        [SerializeField] private string inventoryActionName = "Inventory";
 
         [Header("Quickslots")]
         [SerializeField] private string quickslotPreviousActionName =
@@ -55,6 +62,9 @@ namespace Elyndor.Player
         private InputAction jumpAction;
         private InputAction rollAction;
         private InputAction interactAction;
+        private InputAction attackAction;
+        private InputAction blockAction;
+        private InputAction inventoryAction;
         private InputAction quickslotPreviousAction;
         private InputAction quickslotNextAction;
         private InputAction quickslotUseAction;
@@ -141,6 +151,34 @@ namespace Elyndor.Player
         public bool InteractPressedThisFrame =>
             interactAction != null && interactAction.WasPressedThisFrame();
 
+        public bool AttackPressedThisFrame =>
+            attackAction != null && attackAction.WasPressedThisFrame();
+
+        /// <summary>
+        /// Loslassen des Angriffs. <see cref="Elyndor.Combat.PlayerCombat"/>
+        /// unterscheidet ueber die Haltedauer zwischen leichtem und schwerem
+        /// Schlag und braucht deshalb beide Flanken.
+        /// </summary>
+        public bool AttackReleasedThisFrame =>
+            attackAction != null && attackAction.WasReleasedThisFrame();
+
+        public bool BlockHeld =>
+            blockAction != null && blockAction.IsPressed();
+
+        public bool InventoryTogglePressedThisFrame =>
+            inventoryAction != null && inventoryAction.WasPressedThisFrame();
+
+        /// <summary>
+        /// Ueberspringen einer laufenden Sequenz. Bewusst kein "beliebige
+        /// Taste": Das Intro las bisher <c>Keyboard.anyKey</c> und reagierte
+        /// dadurch auch auf Tasten, die im Spiel etwas anderes tun. Hier zaehlen
+        /// die drei Aktionen, die auf jedem Geraet als Bestaetigung gelten.
+        /// </summary>
+        public bool SkipRequestedThisFrame =>
+            JumpPressedThisFrame ||
+            InteractPressedThisFrame ||
+            AttackPressedThisFrame;
+
         public bool QuickslotPreviousPressedThisFrame =>
             quickslotPreviousAction != null &&
             quickslotPreviousAction.WasPressedThisFrame();
@@ -205,6 +243,21 @@ namespace Elyndor.Player
                 Destroy(runtimeInputActions);
                 runtimeInputActions = null;
             }
+        }
+
+        /// <summary>
+        /// Sucht den Reader in der geladenen Szene.
+        ///
+        /// Gedacht als Rueckfalloption fuer Systeme, die nicht auf der
+        /// Spielfigur liegen — Intro, Tutorial und Inventar-UI sitzen auf der
+        /// Erlebnisschicht. Eine serialisierte Referenz ist vorzuziehen; ohne
+        /// diesen Rueckfall muesste aber jede bestehende Szene neu verdrahtet
+        /// werden, nur um dieselbe Eingabe zu lesen wie vorher.
+        /// </summary>
+        public static PlayerInputReader FindInLoadedScenes()
+        {
+            return FindAnyObjectByType<PlayerInputReader>(
+                FindObjectsInactive.Include);
         }
 
         /// <summary>
@@ -303,6 +356,18 @@ namespace Elyndor.Player
                 map.FindAction(rollActionName, false) ??
                 map.FindAction(legacyRollActionName, false);
             InputAction resolvedInteract = map.FindAction(interactActionName, false);
+
+            // Attack, Block und Inventory sind bewusst optional: Aeltere
+            // Actions-Assets und die synthetischen Assets der bestehenden Tests
+            // kennen sie noch nicht. Fehlen sie, bleiben die zugehoerigen
+            // Eigenschaften still false, statt den Reader komplett in die
+            // Standardbelegung zu kippen und dabei auch Move und Look zu
+            // verlieren.
+            InputAction resolvedAttack = map.FindAction(attackActionName, false);
+            InputAction resolvedBlock = map.FindAction(blockActionName, false);
+            InputAction resolvedInventory =
+                map.FindAction(inventoryActionName, false);
+
             InputAction resolvedQuickslotPrevious =
                 map.FindAction(quickslotPreviousActionName, false);
             InputAction resolvedQuickslotNext =
@@ -352,6 +417,9 @@ namespace Elyndor.Player
             jumpAction = resolvedJump;
             rollAction = resolvedRoll;
             interactAction = resolvedInteract;
+            attackAction = resolvedAttack;
+            blockAction = resolvedBlock;
+            inventoryAction = resolvedInventory;
             quickslotPreviousAction = resolvedQuickslotPrevious;
             quickslotNextAction = resolvedQuickslotNext;
             quickslotUseAction = resolvedQuickslotUse;
@@ -423,6 +491,29 @@ namespace Elyndor.Player
             );
             interactAction.AddBinding("<Keyboard>/e");
             interactAction.AddBinding("<Gamepad>/buttonWest");
+
+            attackAction = gameplayMap.AddAction(
+                attackActionName,
+                InputActionType.Button
+            );
+            attackAction.AddBinding("<Mouse>/leftButton");
+            attackAction.AddBinding("<Gamepad>/rightTrigger");
+
+            blockAction = gameplayMap.AddAction(
+                blockActionName,
+                InputActionType.Button
+            );
+            blockAction.AddBinding("<Keyboard>/q");
+            blockAction.AddBinding("<Gamepad>/leftTrigger");
+
+            // Bewusst nicht buttonNorth: Dort liegt in der Standardbelegung
+            // Interact, und genau diese Doppelbelegung war der Fehler.
+            inventoryAction = gameplayMap.AddAction(
+                inventoryActionName,
+                InputActionType.Button
+            );
+            inventoryAction.AddBinding("<Keyboard>/i");
+            inventoryAction.AddBinding("<Gamepad>/select");
 
             quickslotPreviousAction = gameplayMap.AddAction(
                 quickslotPreviousActionName,

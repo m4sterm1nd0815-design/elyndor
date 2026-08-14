@@ -10,6 +10,39 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Input Unification
+
+- **Behoben:** `Interact` und das Inventar lagen am Controller beide auf
+  `buttonNorth`. Ein Tastendruck öffnete das Inventar **und** untersuchte
+  gleichzeitig das Objekt davor. Das Inventar hat jetzt eine eigene
+  `Inventory`-Action (Taste I, Gamepad Select).
+- **Behoben:** Das Tutorial prüfte `leftCtrl` für die Rolle, während das
+  Actions-Asset sie auf `C` legt. Wer die Rolle wie vorgesehen auslöste, kam im
+  Tutorial nicht weiter. Die Fortschrittserkennung liest jetzt die Action.
+- **Behoben:** `PlayerCombat` hörte auf Maustaste und rechten Trigger, die im
+  Actions-Asset gar nicht als `Attack` standen. Belegung und Asset stimmen
+  jetzt überein; `Block` (Q / linker Trigger) ist ebenfalls eine echte Action.
+- **Geändert:** `PlayerCombat`, `IntroSequence`, `TutorialSequence` und
+  `InventoryUI` lesen keine Geräte mehr direkt. `PlayerInputReader` ist die
+  einzige Stelle im Projekt, die `Keyboard.current`, `Gamepad.current` oder
+  `Mouse.current` anfasst.
+- **Geändert:** Das Intro wird nicht mehr über „beliebige Taste" übersprungen,
+  sondern über Sprung, Interagieren oder Angriff. `anyKey` reagierte auch auf
+  Tasten, die im Spiel etwas völlig anderes tun.
+- **Neu:** `InputBindingCollisionTests` prüfen das ausgelieferte Actions-Asset
+  selbst: kein Gamepad-Control darf zwei Aktionen bedienen, `Interact` und
+  `Inventory` teilen kein Control, die bisherigen Belegungen bleiben erhalten,
+  und `<Gamepad>/start` bleibt für Pause frei.
+- **Behoben (Testabdeckung):** Eine neue `InputTestFixture` ließ den bestehenden
+  Regressionstest `PlayerInputReaderProjectAssetTests` still durchrutschen —
+  die Fixture setzt das Input-System zurück und löscht dabei
+  `InputSystem.actions`, worauf der ältere Test sich selbst übersprang.
+  `ProjectInputActions` hält die Referenz jetzt beim Start der Wiedergabe fest.
+  Zurückschreiben ist keine Option, `InputSystem.actions` wirft im Play Mode.
+- **Tests:** EditMode 22 unverändert, PlayMode 37 → 54, alle grün, keine Skips.
+- **Keine Szenenänderung:** Intro, Tutorial und Inventar-UI finden den Reader
+  zur Laufzeit, damit keine bestehende Szene neu verdrahtet werden musste.
+
 ## [Unreleased] — Region Experience Hardening
 
 - **Behoben:** Sonnenfelder und Nebelmoor trugen dieselbe Fehlerklasse wie

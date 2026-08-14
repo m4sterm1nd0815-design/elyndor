@@ -188,11 +188,59 @@ Damit die Regionsspezifik nicht zur Lücke wird, kennt ein Profil zwei Stufen:
 Prüfung und Tests nicht auseinanderlaufen und keine Region still aus der
 Prüfung fällt.
 
-**Offene technische Schuld:** `PlayerCombat`, `IntroSequence`,
-`TutorialSequence` und `InventoryUI` lesen weiterhin direkt
-`Keyboard.current` / `Gamepad.current`. Tastatur und Gamepad werden dort
-jeweils explizit behandelt, Rebinding und zentrale Eingabeumschaltung sind an
-diesen Stellen aber nicht möglich.
+---
+
+## Eingabe
+
+`PlayerInputReader` ist die einzige Stelle, die Geräte liest. Gameplay-Code
+fragt ausschließlich Eigenschaften des Readers ab, nie `Keyboard.current`,
+`Gamepad.current` oder `Mouse.current`.
+
+Vorher lasen `PlayerCombat`, `IntroSequence`, `TutorialSequence` und
+`InventoryUI` ihre Tasten selbst. Das hatte drei konkrete Folgen:
+
+- **Doppelbelegung blieb unsichtbar.** `Interact` lag im Actions-Asset auf
+  `<Gamepad>/buttonNorth`, und `InventoryUI` las dieselbe Taste direkt. Am
+  Controller öffnete ein Druck das Inventar **und** untersuchte gleichzeitig das
+  Objekt davor.
+- **Code und Asset liefen auseinander.** Das Tutorial prüfte `leftCtrl` für die
+  Rolle, während das Asset sie auf `C` legt — wer die Rolle wie vorgesehen
+  auslöste, kam im Tutorial nicht weiter. `PlayerCombat` hörte auf den rechten
+  Trigger, den das Asset gar nicht kannte.
+- **Nichts davon war testbar**, weil kein Test an einer Belegung vorbeikam, die
+  nur im Code stand.
+
+Belegung im Actions-Asset (Map `Player`):
+
+| Aktion | Tastatur | Gamepad |
+|--------|----------|---------|
+| Move | WASD / Pfeile | linker Stick |
+| Look | Maus | rechter Stick |
+| Sprint | Linke Umschalt | linker Stick gedrückt |
+| Jump | Leertaste | A |
+| Crouch (Rolle) | C | B |
+| Interact | E | Y |
+| Attack | Maustaste links, Enter | X, rechter Trigger |
+| Block | Q | linker Trigger |
+| Inventory | I | Select |
+| Quickslots | 1–8, R | Schultertasten, rechter Stick gedrückt |
+
+`<Gamepad>/start` bleibt bewusst unbelegt und ist für Pause reserviert.
+
+Abgesichert durch `InputBindingCollisionTests`: kein Gamepad-Control darf zwei
+Aktionen bedienen, `Interact` und `Inventory` dürfen kein Control teilen, die
+bisherigen Belegungen müssen erhalten bleiben und `start` frei. Diese Tests
+laufen bewusst **ohne** `InputTestFixture` — deren Setup löscht
+`InputSystem.actions` und würde die Prüfung still überspringen.
+
+`SetGameplayInputEnabled` schaltet die gesamte Gameplay-Map ab; das ist der
+Anschlusspunkt für Dialoge, Pause und Memory-Vision.
+
+**Verbleibende Schuld:** Intro, Tutorial und Inventar-UI liegen nicht auf der
+Spielfigur und suchen den Reader zur Laufzeit über
+`PlayerInputReader.FindInLoadedScenes()`, wenn das optionale serialisierte Feld
+leer ist. Das vermeidet, jede bestehende Szene neu verdrahten zu müssen, ist
+aber eine Suche statt einer Referenz.
 
 ---
 

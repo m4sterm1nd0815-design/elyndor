@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Elyndor.Inventory;
+using Elyndor.Player;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Elyndor.Combat
 {
@@ -28,9 +28,13 @@ namespace Elyndor.Combat
         private bool buttonHeld;
         private Animator animator;
         private bool animatorHasCombatParameters;
+        private PlayerInputReader inputReader;
 
         private void Awake()
         {
+            inputReader = GetComponent<PlayerInputReader>()
+                ?? PlayerInputReader.FindInLoadedScenes();
+
             animator = GetComponentInChildren<Animator>();
 
             if (animator != null)
@@ -118,27 +122,22 @@ namespace Elyndor.Combat
             AttackPerformed?.Invoke(attackType);
         }
 
-        // Direkter Device-Zugriff wie im restlichen Gameplay-Code (M3-Refactor folgt).
-        private static bool ReadAttackPressed()
-        {
-            bool mouse = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
-            bool gamepad = Gamepad.current != null && Gamepad.current.rightTrigger.wasPressedThisFrame;
-            return mouse || gamepad;
-        }
+        /// <summary>
+        /// Eingabe kommt ausschliesslich ueber den <see cref="PlayerInputReader"/>.
+        /// Vorher las diese Klasse Maus, Tastatur und Gamepad direkt; die
+        /// Belegung (Maustaste / rechter Trigger fuer Angriff, Q / linker
+        /// Trigger fuer Block) stand dadurch nur hier im Code und nicht im
+        /// Actions-Asset — nicht umbelegbar und nicht ueber die Action-Schicht
+        /// testbar.
+        /// </summary>
+        private bool ReadAttackPressed() =>
+            inputReader != null && inputReader.AttackPressedThisFrame;
 
-        private static bool ReadAttackReleased()
-        {
-            bool mouse = Mouse.current != null && Mouse.current.leftButton.wasReleasedThisFrame;
-            bool gamepad = Gamepad.current != null && Gamepad.current.rightTrigger.wasReleasedThisFrame;
-            return mouse || gamepad;
-        }
+        private bool ReadAttackReleased() =>
+            inputReader != null && inputReader.AttackReleasedThisFrame;
 
-        private static bool ReadBlockHeld()
-        {
-            bool keyboard = Keyboard.current != null && Keyboard.current.qKey.isPressed;
-            bool gamepad = Gamepad.current != null && Gamepad.current.leftTrigger.isPressed;
-            return keyboard || gamepad;
-        }
+        private bool ReadBlockHeld() =>
+            inputReader != null && inputReader.BlockHeld;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticEvents()

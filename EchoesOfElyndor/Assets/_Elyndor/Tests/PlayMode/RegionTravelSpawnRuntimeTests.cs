@@ -115,7 +115,7 @@ namespace Elyndor.Tests
                 "Das Rueckreise-Portal nennt keine Spawn-ID.");
 
             // Der reale Reiseweg: genau das, was RegionPortal.Interact aufruft.
-            int previousPlayerId = RequirePlayer().gameObject.GetInstanceID();
+            EntityId previousPlayerId = RequirePlayer().gameObject.GetEntityId();
             RegionTravel.TravelTo(
                 returnPortal.TargetSceneName, returnPortal.TargetSpawnId);
 
@@ -168,7 +168,7 @@ namespace Elyndor.Tests
         /// Bewusst ueber die Instanz-ID statt ueber eine feste Framezahl:
         /// RegionTravel laedt synchron erst zum Ende des Frames.
         /// </summary>
-        private static IEnumerator WaitForPlayerOfNewScene(int previousPlayerId)
+        private static IEnumerator WaitForPlayerOfNewScene(EntityId previousPlayerId)
         {
             for (int frame = 0; frame < 600; frame++)
             {
@@ -177,7 +177,7 @@ namespace Elyndor.Tests
                 GameObject player = GameObject.Find("Player");
 
                 if (player != null &&
-                    player.GetInstanceID() != previousPlayerId)
+                    player.GetEntityId() != previousPlayerId)
                 {
                     // Ein weiterer Frame, damit RegionSpawnPoint.Start lief.
                     yield return null;

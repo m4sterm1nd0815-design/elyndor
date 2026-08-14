@@ -114,18 +114,32 @@ namespace Elyndor.EditorTools
                 [typeof(EnemyHealth)] = new[] { "maxHealth", "currentHealth" },
                 [typeof(EnemyPerception)] = new[]
                 {
-                    "detectionRadius", "viewAngle", "loseTargetDelay",
-                    "requireLineOfSight"
+                    "detectionRadius", "viewAngle", "hearingRadius",
+                    "loseTargetDelay", "requireLineOfSight"
                 },
                 [typeof(EnemyMovement)] = new[]
                 {
-                    "moveSpeed", "stopDistance", "turnSpeedDegrees"
+                    "moveSpeed", "stopDistance", "turnSpeedDegrees",
+                    "strafeSpeed", "strafeInterval", "retreatSpeed"
                 },
                 [typeof(EnemyAttack)] = new[]
                 {
-                    "attackRange", "attackCooldown", "damage"
+                    "attackRange", "attackCooldown", "damage",
+                    "telegraphDuration", "recoveryDuration"
                 },
-                [typeof(EnemyHitReaction)] = new[] { "hurtDuration" }
+                [typeof(EnemyHitReaction)] = new[]
+                {
+                    "hurtDuration", "heavyStaggerDuration"
+                },
+                [typeof(EnemyRetreat)] = new[]
+                {
+                    "healthThreshold01", "retreatDuration", "onlyOnce"
+                },
+                [typeof(EnemyLeash)] = new[]
+                {
+                    "leashRadius", "returnTolerance"
+                },
+                [typeof(EnemyController)] = new[] { "suspicionDuration" }
             };
 
             int errors = 0;

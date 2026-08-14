@@ -40,16 +40,25 @@ namespace Elyndor.EditorTools
 
                 ValidateMissingScripts(scene);
 
-                CharacterController player = UnityEngine.Object
-                    .FindObjectsByType<CharacterController>(
+                // Der Spieler wird ueber PlayerMovement erkannt, nicht ueber
+                // den CharacterController. Der war nur so lange ein
+                // brauchbares Kennzeichen, wie Aren das einzige Objekt mit
+                // einem Koerper war — der erste Gegner mit eigenem
+                // CharacterController hat diese Annahme beendet.
+                PlayerMovement[] players = UnityEngine.Object
+                    .FindObjectsByType<PlayerMovement>(
                         FindObjectsInactive.Include)
-                    .SingleOrDefault(controller =>
-                        controller.gameObject.scene == scene &&
-                        controller.gameObject.activeInHierarchy);
+                    .Where(movement =>
+                        movement.gameObject.scene == scene &&
+                        movement.gameObject.activeInHierarchy)
+                    .ToArray();
 
-                if (player == null)
+                if (players.Length != 1)
                     throw new InvalidOperationException(
-                        $"{sceneName}: exactly one active CharacterController is required.");
+                        $"{sceneName}: exactly one active player is required, " +
+                        $"found {players.Length}.");
+
+                PlayerMovement player = players[0];
 
                 RegionSpawnPoint[] spawnPoints = UnityEngine.Object
                     .FindObjectsByType<RegionSpawnPoint>(

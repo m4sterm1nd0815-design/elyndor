@@ -16,6 +16,8 @@ namespace Elyndor.Enemies
     /// <item>Aus <see cref="EnemyFoundationState.Idle"/> heraus wird das Ziel
     /// erst bemerkt (<see cref="EnemyFoundationState.Alert"/>), bevor verfolgt
     /// oder angegriffen wird.</item>
+    /// <item><see cref="EnemyFoundationState.Retreat"/> ist aus jedem lebenden
+    /// Zustand erreichbar, fuehrt aber nie direkt in den Angriff zurueck.</item>
     /// </list>
     /// </summary>
     public static class EnemyStateRules
@@ -53,6 +55,16 @@ namespace Elyndor.Enemies
                 return true;
             }
 
+            // Der Rueckzug bricht jeden lebenden Zustand ab: er wird durch
+            // einen Lebenspunktstand ausgeloest, nicht durch die Wahrnehmung,
+            // und darf deshalb nicht davon abhaengen, was der Gegner gerade
+            // tut. Aus dem Rueckzug selbst heraus wird nicht erneut
+            // zurueckgezogen — das verhindert die Selbstwechselsperre oben.
+            if (to == EnemyFoundationState.Retreat)
+            {
+                return true;
+            }
+
             switch (from)
             {
                 case EnemyFoundationState.Idle:
@@ -74,6 +86,13 @@ namespace Elyndor.Enemies
                            to == EnemyFoundationState.Chase;
 
                 case EnemyFoundationState.Hurt:
+                    return to == EnemyFoundationState.Idle ||
+                           to == EnemyFoundationState.Alert ||
+                           to == EnemyFoundationState.Chase;
+
+                // Aus dem Rueckzug heraus wird nie direkt angegriffen: der
+                // Gegner muss erst wieder wahrnehmen und aufschliessen.
+                case EnemyFoundationState.Retreat:
                     return to == EnemyFoundationState.Idle ||
                            to == EnemyFoundationState.Alert ||
                            to == EnemyFoundationState.Chase;

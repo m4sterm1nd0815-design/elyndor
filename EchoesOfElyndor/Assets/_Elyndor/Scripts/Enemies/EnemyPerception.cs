@@ -32,6 +32,12 @@ namespace Elyndor.Enemies
         [Range(1f, 360f)] [SerializeField] private float viewAngle = 150f;
 
         [Min(0f)]
+        [Tooltip("Geraeuschradius. Innerhalb davon wird das Ziel ohne " +
+                 "Sichtwinkel und ohne Sichtlinie bemerkt — man hoert um die " +
+                 "Ecke. 0 schaltet das Gehoer ab.")]
+        [SerializeField] private float hearingRadius;
+
+        [Min(0f)]
         [Tooltip("So lange bleibt ein verlorenes Ziel noch bekannt.")]
         [SerializeField] private float loseTargetDelay = 2.5f;
 
@@ -50,8 +56,14 @@ namespace Elyndor.Enemies
         /// <summary>Das aktuell verwendete Ziel; kann null sein.</summary>
         public Transform Target => target;
 
-        /// <summary>Ist das Ziel in diesem Tick tatsaechlich wahrnehmbar?</summary>
+        /// <summary>Ist das Ziel in diesem Tick tatsaechlich zu sehen?</summary>
         public bool IsTargetVisible { get; private set; }
+
+        /// <summary>
+        /// Ist das Ziel in diesem Tick zu hoeren? Unabhaengig von Sichtwinkel
+        /// und Sichtlinie — sonst waere jeder Busch ein Versteck.
+        /// </summary>
+        public bool IsTargetHeard { get; private set; }
 
         /// <summary>
         /// Gilt das Ziel als bekannt? Bleibt nach dem Sichtverlust noch
@@ -63,6 +75,21 @@ namespace Elyndor.Enemies
         public float DistanceToTarget { get; private set; } = float.PositiveInfinity;
 
         public float DetectionRadius => detectionRadius;
+        public float HearingRadius => hearingRadius;
+        public float LoseTargetDelay => loseTargetDelay;
+
+        /// <summary>Setzt die Wahrnehmungswerte, etwa aus einem Gegnerprofil.</summary>
+        public void Configure(
+            float newDetectionRadius,
+            float newViewAngle,
+            float newHearingRadius,
+            float newLoseTargetDelay)
+        {
+            detectionRadius = Mathf.Max(0f, newDetectionRadius);
+            viewAngle = Mathf.Clamp(newViewAngle, 1f, 360f);
+            hearingRadius = Mathf.Max(0f, newHearingRadius);
+            loseTargetDelay = Mathf.Max(0f, newLoseTargetDelay);
+        }
 
         /// <summary>Setzt das Ziel ausdruecklich, etwa aus einem Spawner oder Test.</summary>
         public void SetTarget(Transform newTarget)
@@ -75,6 +102,7 @@ namespace Elyndor.Enemies
         public void ResetPerception()
         {
             IsTargetVisible = false;
+            IsTargetHeard = false;
             HasTarget = false;
             lostTimer = 0f;
             DistanceToTarget = float.PositiveInfinity;
@@ -96,8 +124,10 @@ namespace Elyndor.Enemies
 
             DistanceToTarget = PlanarDistanceTo(target.position);
             IsTargetVisible = EvaluateVisibility();
+            IsTargetHeard =
+                hearingRadius > 0f && DistanceToTarget <= hearingRadius;
 
-            if (IsTargetVisible)
+            if (IsTargetVisible || IsTargetHeard)
             {
                 HasTarget = true;
                 lostTimer = 0f;

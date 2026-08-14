@@ -114512,6 +114512,68 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a87d0e90e4f7a0f468fcd172aaf95ec5, type: 3}
   m_PrefabInstance: {fileID: 500500590}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &500697213
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 961071606}
+    m_Modifications:
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -26
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.24183273
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -17
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.00000004371139
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3891381347312564022, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+      propertyPath: m_Name
+      value: Wurzelstreifer_Lichtung
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+--- !u!4 &500697214 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3356645151913094871, guid: 28948c1f1b11c77439738e1b7f0c5766, type: 3}
+  m_PrefabInstance: {fileID: 500697213}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &500906416
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -167459,6 +167521,7 @@ MonoBehaviour:
   panelRoot: {fileID: 1184132959}
   equipmentText: {fileID: 973873430}
   bagText: {fileID: 819993493}
+  inputReader: {fileID: 0}
 --- !u!114 &745853511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217274,6 +217337,38 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a2e60e0cd5d830648a2c5485fc4ee060, type: 3}
   m_PrefabInstance: {fileID: 961032065}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &961071605
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 961071606}
+  m_Layer: 0
+  m_Name: Erste Begegnung
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &961071606
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 961071605}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 500697214}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &961784471
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -252792,6 +252887,7 @@ GameObject:
   - component: {fileID: 1117875257}
   - component: {fileID: 1117875258}
   - component: {fileID: 1117875259}
+  - component: {fileID: 1117875260}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -252922,6 +253018,7 @@ MonoBehaviour:
   groundedStickVelocity: -2
   playerVitals: {fileID: 0}
   sprintStaminaPerSecond: 18
+  rollStaminaCost: 20
   staminaRegenerationPerSecond: 22
   staminaRegenerationDelay: 1
 --- !u!143 &1117875252
@@ -252992,6 +253089,9 @@ MonoBehaviour:
   attackCooldown: 0.6
   attackRange: 1.4
   attackRadius: 1
+  lightAttackStaminaCost: 8
+  heavyAttackStaminaCost: 18
+  blockStaminaPerSecond: 10
 --- !u!114 &1117875256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253013,6 +253113,9 @@ MonoBehaviour:
   rollActionName: Roll
   legacyRollActionName: Crouch
   interactActionName: Interact
+  attackActionName: Attack
+  blockActionName: Block
+  inventoryActionName: Inventory
   quickslotPreviousActionName: QuickslotPrevious
   quickslotNextActionName: QuickslotNext
   quickslotUseActionName: QuickslotUse
@@ -253135,6 +253238,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.UIFoundation.QuickslotInputController
   inputReader: {fileID: 1117875256}
   presenter: {fileID: 1802081745}
+--- !u!114 &1117875260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117875246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 555e7699b13d7564983965daa6224d30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Combat.PlayerDamageReceiver
+  blockDamageReduction: 0.7
+  vitals: {fileID: 0}
 --- !u!1001 &1118215899
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -338881,6 +338998,7 @@ MonoBehaviour:
   promptText: {fileID: 382947680}
   requiredMoveSeconds: 1.5
   stepCompletedPause: 1.2
+  inputReader: {fileID: 0}
 --- !u!114 &1484646524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338897,6 +339015,7 @@ MonoBehaviour:
   lineText: {fileID: 1548209240}
   lineDuration: 3.2
   fadeOutDuration: 3
+  inputReader: {fileID: 0}
   lines:
   - Wind.
   - Ein fernes Kinderlachen.
@@ -499647,3 +499766,4 @@ SceneRoots:
   - {fileID: 1901678322}
   - {fileID: 867981695}
   - {fileID: 1484646527}
+  - {fileID: 961071606}

@@ -14,7 +14,7 @@ namespace Elyndor.Combat
     /// liegt. Trefferprüfung über eine Kugel vor dem Spieler —
     /// Animationen folgen in einem eigenen Pass mit Sichtprüfung.
     /// </summary>
-    public class PlayerCombat : MonoBehaviour
+    public class PlayerCombat : MonoBehaviour, IPlayerBlockState
     {
         [Header("Angriff")]
         [SerializeField] private float lightDamage = 10f;
@@ -65,7 +65,13 @@ namespace Elyndor.Combat
             }
         }
 
-        /// <summary>Blockt der Spieler gerade? (Für Gegner-Logik und Tutorial.)</summary>
+        /// <summary>
+        /// Blockt der Spieler gerade? (Für Gegner-Logik und Tutorial.)
+        ///
+        /// Zugleich die Umsetzung von <see cref="IPlayerBlockState"/>: der
+        /// <see cref="PlayerDamageReceiver"/> liest hier ab, ob ein
+        /// eingehender Treffer gemindert wird.
+        /// </summary>
         public bool IsBlocking { get; private set; }
 
         /// <summary>Wird nach jedem ausgeführten Angriff ausgelöst.</summary>

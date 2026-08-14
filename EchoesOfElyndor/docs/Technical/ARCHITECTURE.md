@@ -1,15 +1,17 @@
-# Technische Architektur
+# Technische Architektur — verschoben
 
-- Unity 6 und URP bleiben Basis.
-- Lose gekoppelte Systeme, Events und Interfaces.
-- ScriptableObjects für statische Definitionen.
-- Runtime-Modelle für veränderliche Zustände.
-- UI zeigt Modelle an; Gameplaylogik gehört nicht in Views.
-- Keine neue Singleton-Struktur ohne dokumentierte Begründung.
-- Stabile IDs sind Savegame-Verträge.
+Der Inhalt dieses Dokuments liegt jetzt vollständig unter:
 
-## Save-Bereiche
-`inventory`, `equipment`, `quickslots`, `narrative`, `settings`, `world`
+**`docs/ARCHITECTURE.md`**
 
-## Qualität
-Jedes neue System braucht Fehlerbehandlung, Null-Prüfungen, Validator oder Test und Integrationsdokumentation.
+Grund: Es gab drei konkurrierende technische Architekturdokumente
+(`docs/ARCHITECTURE.md`, dieses hier und `docs/10_Unity/Architecture.md`). Die
+verbindliche Hierarchie in `docs/README.md` kennt genau **eine** technische
+Wahrheit.
+
+Die hier zuvor exklusiv dokumentierten Punkte — Save-Bereiche, Singleton-Regel,
+stabile IDs als Savegame-Vertrag und die Qualitätsanforderung je System — stehen
+jetzt in `docs/ARCHITECTURE.md` unter *Verbindliche technische Grundsätze*.
+
+Diese Datei bleibt vorerst als Weiterleitung bestehen, damit vorhandene Verweise
+nicht ins Leere laufen.

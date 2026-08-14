@@ -263,6 +263,32 @@ aber eine Suche statt einer Referenz.
 
 ---
 
+## Verbindliche technische Grundsätze
+
+Aus `docs/Technical/ARCHITECTURE.md` hierher übernommen; jenes Dokument war eine
+zweite, konkurrierende technische Wahrheit und verweist jetzt nur noch hierauf.
+
+- Unity 6 und URP bleiben Basis.
+- Lose gekoppelte Systeme, Events und Interfaces statt harter Referenzen.
+- `ScriptableObject`s für statische Definitionen, Runtime-Modelle für
+  veränderliche Zustände.
+- UI zeigt Modelle an; Gameplaylogik gehört nicht in Views.
+- **Keine neue Singleton-Struktur ohne dokumentierte Begründung.**
+- **Stabile IDs sind Savegame-Verträge** und dürfen nicht beiläufig geändert
+  werden.
+
+### Save-Bereiche
+
+`inventory`, `equipment`, `quickslots`, `narrative`, `settings`, `world`
+
+Ein Save-System existiert noch nicht (siehe *Später geplant*); die Bereiche sind
+als Vertrag vorgemerkt.
+
+### Qualitätsanforderung je System
+
+Jedes neue System braucht Fehlerbehandlung, Null-Prüfungen, einen Validator oder
+Test und Integrationsdokumentation.
+
 ## Später geplant (noch NICHT vorhanden)
 
 - `GameStateManager` — Playing/Dialogue/MemoryVision/Paused (M5)

@@ -31,7 +31,8 @@ Basis der Bestandsaufnahme: `origin/developer` bei `cd7bc35`
 | Finsterwald Runtime Recovery | INTEGRIERT | PR #32 | Merge-Commit 6a1548d; interaktive Unity-Abnahme bestanden |
 | Region Experience Hardening | INTEGRIERT | PR #33 | Merge-Commit 0e40120 |
 | Input Unification | INTEGRIERT | PR #34 | Merge-Commit cf615ee |
-| Zero Warning / QA Hygiene | REVIEW | `feature/qa-warning-cleanup` | 27 CS0618 auf 0, Validator stellt aktive Szene wieder her |
+| Zero Warning / QA Hygiene | INTEGRIERT | PR #35 | Merge-Commit 372d380 |
+| Project Bible / Canon Consolidation | REVIEW | `feature/project-bible-consolidation` | Doku-Hierarchie hergestellt, Doppelstrukturen aufgeloest, nichts erfunden |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 

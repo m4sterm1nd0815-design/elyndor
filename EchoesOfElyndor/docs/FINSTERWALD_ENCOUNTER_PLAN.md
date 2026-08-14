@@ -17,6 +17,11 @@ geschuetzte Figur.
 Balancing-Werte sind vorlaeufig fuer 100 Spielerleben, 10 leichten und 25
 schweren Spielerschaden. Ziel ist Lesbarkeit, nicht hohe Lebenspunkte.
 
+**Blockregel (projektweit, entschieden am 15.08.2026):** Block reduziert
+eingehenden Gesundheitsschaden um 70 %; 30 % kommen durch. Er negiert
+bewusst nicht vollstaendig, damit Rolle, Block und Abstand unterschiedliche
+Kosten haben. Einzelheiten in `04_Gameplay/Combat.md`.
+
 ## Normaler Gegnertyp A: Wurzelstreifer
 
 | Aspekt | Definition |
@@ -29,7 +34,9 @@ schweren Spielerschaden. Ziel ist Lesbarkeit, nicht hohe Lebenspunkte.
 | Werte | 35-45 LP; 8-12 Schaden; maximal 2 aktive Angreifer. |
 | Spawn | Ein Exemplar auf der Lichtung; spaeter zwei am regenerierten Nordpfad, mit ausreichend Ausweichraum. |
 | Animation | Idle/Lauschen, Walk, Trot, Strafe, Telegraph, Sprungbiss, Hit L/R, Heavy Stagger, Rueckzug, Beruhigung/Niederlage. |
-| Modelle/VFX | `VORSCHLAG`: vorhandener Quaternius-Wolf nur als Blockout; finales eigenes Meshy-Modell. Tuerkise Rissglut, Rindenstaub, bodennahe Erinnerungsschliere. |
+| Modelle/VFX | `ENTSCHIEDEN` (15.08.2026): vorhandener Quaternius-Wolf (CC0) nur als Blockout — umgesetzt. Finales Modell noch nicht beauftragt; Vorgabe in `07_Enemies/WURZELSTREIFER_CONCEPT_BRIEF.md`. Tuerkise Rissglut und Rindenstaub umgesetzt; bodennahe Erinnerungsschliere offen. |
+| Bindung | `ENTSCHIEDEN`: 12 m um die Lichtung. Darueber kehrt er zurueck und nimmt bis dahin kein Ziel wahr. |
+| Stand | **Umgesetzt in P1.5.** Werte im Prefab `Prefabs/Enemies/Blockout/Wurzelstreifer_Blockout.prefab`, Profil im Code unter `Scripts/Enemies/Wurzelstreifer.cs`. |
 | Technik | Perception, State Machine, NavMesh/Steering, IDamageable-Erweiterung, PlayerVitals-Schaden, Hitstop/Feedback, Spawn- und Resetlogik. |
 
 ## Normaler Gegnertyp B: Echohueter
@@ -60,7 +67,7 @@ mit Loesung der feindlichen Resonanz.
 | Wahrnehmung | Scripted Awareness erst nach Betreten der Arena; klare Grenze, kein Angriff durch Geometrie. |
 | Phase 1 | Doppelhieb mit Geweih/Wurzelarmen, gerader Ansturm, lange Erholung nach Kollision oder Ausweichen. |
 | Phase 2 | Ab 55 % LP einmaliger Resonanzimpuls, dann eine langsame Echo-Kopie des letzten Ansturms. Original und Echo sind durch Form und Ton unterscheidbar; maximal ein Echo. |
-| Gegenfenster | Block reduziert, aber negiert Schaden nicht vollstaendig (`OFFEN`); Rolle vermeidet; schwerer Angriff nach Ansturm erzeugt grossen Stagger. |
+| Gegenfenster | Block reduziert Schaden um 70 % und negiert ihn nicht (`ENTSCHIEDEN` 15.08.2026, gilt projektweit); Rolle vermeidet; schwerer Angriff nach Ansturm erzeugt grossen Stagger. |
 | Trefferreaktion | Kleine Hit-Reaktion nur ausserhalb Super-Armor; schwerer Stagger 1,3 s; drei klar sichtbare Resonanz-Bruchstufen. |
 | Werte | 160-190 LP; Standard 16-20, Ansturm 24-30, Echo 10-14 Schaden. Keine Heilung oder zufaellige Phase. |
 | Ort | Forgotten Processional Gate mit Blick auf Root Gate/Aussicht; Arena 16-20 m, keine Kamera- oder Baumkronenblockade. |

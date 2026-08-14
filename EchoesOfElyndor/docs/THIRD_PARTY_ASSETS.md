@@ -10,6 +10,19 @@ Diese Datei ist der menschenlesbare Nachweis externer Assets. Die maschinenlesba
 |---|---|---|---|---|---|---|---|---|
 | _Keine_ | — | — | — | — | — | — | — | — |
 
+## Bestandsassets aus der Zeit vor der Pipeline
+
+Diese Assets lagen bereits vor Einführung der AssetFetcher-Pipeline im
+Projekt. Sie sind hier aufgeführt, wenn ihre Nutzung oder ihre
+Importeinstellungen sich geändert haben.
+
+| Pack | Lizenznachweis | Genutzt für | Änderung |
+|---|---|---|---|
+| Quaternius, *Ultimate Animated Animals - July 2021* | `License.txt` im Pack weist CC0 1.0 Universal aus; `ASSET_CATALOG.md` führt das Pack unabhängig davon als CC0 mit Quell-URL | `Wolf.fbx` als **Blockout** des Wurzelstreifers (Größe, Bewegung, Hitboxen, Telegraph, Kamera, Timing) | Am 15.08.2026 wurde in `Wolf.fbx.meta` ein Avatar erzeugt (`avatarSetup = CreateFromThisModel`). Ohne ihn sind die zwölf mitgelieferten Animationsclips nicht abspielbar. Die FBX-Datei selbst ist unverändert. |
+
+Der Blockout definiert **nicht** die Art Direction. Der finale Entwurf steht
+in `07_Enemies/WURZELSTREIFER_CONCEPT_BRIEF.md`.
+
 ## Pflichtangaben
 
 Jeder neue Eintrag enthält:

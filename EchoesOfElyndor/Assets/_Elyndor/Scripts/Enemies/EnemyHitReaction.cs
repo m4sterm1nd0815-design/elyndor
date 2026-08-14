@@ -1,3 +1,4 @@
+using Elyndor.Combat;
 using UnityEngine;
 
 namespace Elyndor.Enemies
@@ -15,7 +16,12 @@ namespace Elyndor.Enemies
     [DisallowMultipleComponent]
     public sealed class EnemyHitReaction : MonoBehaviour
     {
+        [Tooltip("Kurzes Zusammenzucken nach einem leichten Treffer.")]
         [Min(0f)] [SerializeField] private float hurtDuration = 0.45f;
+
+        [Tooltip("Laengeres Straucheln nach einem schweren Treffer. Dies ist " +
+                 "das Fenster, das ein schwerer Angriff kauft.")]
+        [Min(0f)] [SerializeField] private float heavyStaggerDuration = 0.45f;
 
         [SerializeField] private EnemyStateMachine stateMachine;
         [SerializeField] private EnemyHealth health;
@@ -28,6 +34,13 @@ namespace Elyndor.Enemies
         public bool IsRecovering => remaining > 0f;
 
         public float HurtDuration => hurtDuration;
+        public float HeavyStaggerDuration => heavyStaggerDuration;
+
+        /// <summary>Dauer, die ein Treffer dieser Art ausloest.</summary>
+        public float DurationFor(AttackType attackType) =>
+            attackType == AttackType.Heavy
+                ? heavyStaggerDuration
+                : hurtDuration;
 
         private void Awake()
         {
@@ -73,6 +86,15 @@ namespace Elyndor.Enemies
             hurtDuration = Mathf.Max(0f, newHurtDuration);
         }
 
+        /// <summary>Setzt Flinch und Stagger getrennt.</summary>
+        public void Configure(
+            float newHurtDuration, float newHeavyStaggerDuration)
+        {
+            Configure(newHurtDuration);
+
+            heavyStaggerDuration = Mathf.Max(0f, newHeavyStaggerDuration);
+        }
+
         /// <summary>Laesst die Trefferreaktion ablaufen; wird vom Controller getaktet.</summary>
         public void Tick(float deltaTime)
         {
@@ -113,16 +135,21 @@ namespace Elyndor.Enemies
                 return;
             }
 
+            // Ein schwerer Treffer straucheln laesst laenger als ein leichter.
+            // Genau darin liegt der Sinn des schweren Angriffs: er kauft Zeit,
+            // nicht nur Schaden.
+            float duration = DurationFor(info.AttackType);
+
             if (stateMachine.TrySetState(EnemyFoundationState.Hurt))
             {
-                remaining = hurtDuration;
+                remaining = duration;
                 return;
             }
 
             // Bereits in Hurt: die Dauer beginnt von vorn.
             if (stateMachine.Current == EnemyFoundationState.Hurt)
             {
-                remaining = hurtDuration;
+                remaining = duration;
             }
         }
 

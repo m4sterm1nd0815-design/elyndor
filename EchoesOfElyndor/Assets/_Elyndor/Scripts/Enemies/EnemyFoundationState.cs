@@ -23,6 +23,12 @@ namespace Elyndor.Enemies
         Hurt = 4,
 
         /// <summary>Endzustand. Wird nie wieder verlassen.</summary>
-        Dead = 5
+        Dead = 5,
+
+        /// <summary>
+        /// Loest sich bewusst vom Ziel. Bewegt sich, greift aber nicht an —
+        /// aus dem Rueckzug heraus muss erst wieder aufgeschlossen werden.
+        /// </summary>
+        Retreat = 6
     }
 }

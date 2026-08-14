@@ -10,6 +10,54 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Wurzelstreifer, der erste echte Gegner (P1.5)
+
+Der Punkt, an dem der Finsterwald-Slice aufhört, Infrastruktur zu sein.
+
+- **Neu — Damage Contract:** Jeder Treffer am Spieler läuft über einen
+  einzigen `PlayerDamageReceiver`, der den Kontext bestimmt (`Normal` /
+  `Blocked`). Der Angreifer weiß nicht, ob geblockt wird; das entscheidet der
+  Verteidiger. Vorher rief jeder Angreifer `PlayerVitals.TakeDamage` direkt
+  auf — die Blockregel hätte in jedem Gegner einzeln nachgebaut werden müssen.
+- **Neu — Blockregel:** Block reduziert Gesundheitsschaden um **70 %**; 30 %
+  kommen durch. Block negiert bewusst nicht vollständig, damit er eine gültige,
+  aber nicht die dominante Antwort ist.
+- **Neu — Wurzelstreifer:** 9 m Sicht, 5 m Gehör, 2 s Verdacht, verliert Aren
+  nach 4 s. Muster: beobachten → seitlicher Schritt → **0,7 s Telegraph** →
+  Sprungbiss → **1,2 s Erholung**. 40 LP, 10 Schaden, einmaliger Rückzug unter
+  30 %. Genau ein Exemplar auf der Lichtung.
+- **Neu — Lesbarkeit:** Der Schaden entsteht erst am **Ende** des Telegraphs
+  und nur, wenn das Ziel dann noch in Reichweite steht. Wer währenddessen aus
+  den 2,2 m rollt, wird nicht getroffen; der Gegner steht danach offen.
+- **Neu — Bindung an die Begegnung (`EnemyLeash`):** Jenseits von 12 m kehrt
+  der Gegner zur Lichtung zurück und nimmt bis dahin kein Ziel wahr. Ohne das
+  stand er nach einer Flucht des Spielers fünfzehn Meter neben der Lichtung —
+  die nächste Begegnung hätte nicht mehr dort stattgefunden, wo sie entworfen
+  wurde. **Von einem Abnahmetest gefunden, nicht vermutet.**
+- **Neu — Rückzug (`EnemyRetreat`):** einmalig pro Leben, damit der Kampf
+  lesbar bleibt statt zäh zu werden.
+- **Erweitert — Gegnergrundlage:** Gehörradius, Verdachtsphase, seitlicher
+  Schritt, Telegraph-/Erholungsfenster, getrennte Dauer für leichten Flinch
+  (0,18 s) und schweres Straucheln (0,8 s), Zustand `Retreat`. Alle neuen
+  Werte sind mit 0 vorbelegt — ein Gegner ohne eigenes Profil verhält sich
+  unverändert.
+- **Blockout, keine Art Direction:** Das Modell ist der vorhandene
+  Quaternius-Wolf aus `Ultimate Animated Animals` (CC0, `License.txt` im Pack,
+  im Asset-Katalog unabhängig bestätigt). Er dient nur Größe, Bewegung,
+  Hitboxen, Telegraph, Kamera und Timing. Keine Beschaffung, kein Download,
+  keine Meshy-Generierung. Der finale Entwurf steht in
+  `07_Enemies/WURZELSTREIFER_CONCEPT_BRIEF.md`.
+- **Geändert (Drittanbieter):** Für den Wolf wurde ein Avatar erzeugt
+  (Importeinstellung, `Wolf.fbx.meta`) — ohne ihn sind die zwölf
+  mitgelieferten Clips nicht abspielbar. Die Datei selbst bleibt unverändert.
+- **Szene:** Rein additiv — die Finsterwald-Szene wächst um den Knoten
+  `Erste Begegnung`; Spawn, Portal, Memory Site, Wege, IDs, Startführung und
+  Erlebnisschicht sind unverändert. 0 fehlende Skripte.
+- **Tests:** EditMode 29 → **37**, PlayMode 54 → **78**. Darunter eine Abnahme
+  im echten Finsterwald über die ausgelieferte Tastenbelegung, Tastatur und
+  Gamepad.
+- **Werte vorläufig** gemäß der Balancing-Konvention der Slice-Planung.
+
 ## [Unreleased] — Ausdauer an Rolle, Block und Angriff (P1.2)
 
 Erster Produktionsbaustein des freigegebenen Finsterwald Vertical Slice.

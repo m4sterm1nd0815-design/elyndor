@@ -30,6 +30,7 @@ namespace Elyndor.Enemies
         /// <summary>Darf der Gegner in diesem Zustand angreifen?</summary>
         public bool AllowsAttack =>
             Current != EnemyFoundationState.Hurt &&
+            Current != EnemyFoundationState.Retreat &&
             Current != EnemyFoundationState.Dead;
 
         /// <summary>

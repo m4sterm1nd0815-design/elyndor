@@ -29,6 +29,31 @@ Vorläufige Werte: Sprint 18/s, Rolle 20 einmalig, leichter Angriff 8, schwerer
 Angriff 18, Block 10/s. Regeneration 22/s nach 1 s ohne Verbrauch. Die Werte
 sind Balancing-Vorschläge und stehen unter Vorbehalt des Balancing-Pakets.
 
+## Block
+
+**Block reduziert eingehenden Gesundheitsschaden um 70 %.** Der Spieler nimmt
+also 30 % Chip Damage: 10 Schaden ungeblockt ergeben 3 Schaden geblockt.
+Zusätzlich läuft der Ausdauerverbrauch beim Blocken weiter. Bricht die Ausdauer
+zusammen, endet der Block, und der nächste Treffer verursacht vollen Schaden.
+
+Block negiert bewusst **nicht** vollständig. Damit haben die drei defensiven
+Antworten unterschiedliche Kosten:
+
+| Antwort | Kosten | Wirkung |
+|---|---|---|
+| Rolle | Ausdauer, hohes Timing-Risiko | vermeidet vollständig |
+| Block | Ausdauer **und** etwas Leben | leicht auszuführen, nie kostenlos |
+| Abstand | keine Ausdauer | gibt Position und Angriffsfenster auf |
+
+Noch **nicht** vorhanden und bewusst nicht vorgezogen: Perfect Parry, Perfect
+Block, Guard Counter, Poise- und Impact-Stamina-Systeme. Sie kommen nur, wenn
+das Kampfgefühl später einen klaren Bedarf zeigt.
+
+Technisch läuft jeder Treffer am Spieler über einen einzigen Empfänger
+(`PlayerDamageReceiver`), der den Kontext bestimmt. Der Angreifer weiß nicht,
+ob geblockt wird — das entscheidet der Verteidiger. Ohne diese Bündelung hätte
+die Blockregel in jedem Gegner einzeln nachgebaut werden müssen.
+
 ## Eingabe
 
 Controller First, Maus und Tastatur vollständig unterstützt. Die verbindliche
@@ -38,5 +63,6 @@ abgesichert.
 ## Offen
 
 - `NOCH ZU ENTSCHEIDEN`: Tod und Respawn, Heilungswirtschaft, Lock-on und
-  Parieren.
+  Parieren. Solange Tod und Respawn offen sind, ist der Schaden bei 0 Leben
+  folgenlos außer dass Aktionen blockieren.
 - `OFFEN`: finale Geschwindigkeiten und Roll-Unverwundbarkeit.

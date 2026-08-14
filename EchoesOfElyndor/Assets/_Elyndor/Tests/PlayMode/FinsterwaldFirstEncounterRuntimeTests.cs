@@ -313,6 +313,107 @@ namespace Elyndor.Tests
             AssertNoConsoleErrors();
         }
 
+        /// <summary>
+        /// Die Lebensanzeige muss am Gegner selbst hängen, nicht irgendwo in
+        /// einer Testszene. Geprüft wird deshalb am Exemplar auf der Lichtung.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator DieLebensanzeige_HaengtAmWurzelstreifer()
+        {
+            yield return EnterEncounter(distance: 6f);
+
+            var bars = enemy.GetComponentsInChildren<
+                Elyndor.Enemies.UI.EnemyHealthBar>(true);
+
+            Assert.That(
+                bars.Length,
+                Is.EqualTo(1),
+                "Der Wurzelstreifer braucht genau eine Lebensanzeige.");
+
+            var bar = bars[0];
+
+            Assert.That(
+                bar.HasHealthBinding,
+                Is.True,
+                "Die Anzeige ist an keine Lebensquelle gebunden.");
+            Assert.That(
+                bar.gameObject,
+                Is.Not.EqualTo(enemy.gameObject),
+                "Die Anzeige gehoert auf ein eigenes Kindobjekt — sonst " +
+                "wuerde sie den Gegner zur Kamera drehen.");
+
+            // Unberuehrt: verborgen.
+            bar.Tick(0f);
+
+            Assert.That(
+                bar.IsBarVisible,
+                Is.False,
+                "Bei voller unberuehrter Gesundheit bleibt die Anzeige " +
+                "verborgen.");
+
+            // Nach dem ersten Treffer: sichtbar und im richtigen Verhaeltnis.
+            enemy.Health.TakeDamage(
+                Wurzelstreifer.MaxHealth * 0.5f,
+                Elyndor.Combat.AttackType.Light,
+                Vector3.zero);
+
+            bar.Tick(0f);
+
+            Assert.That(bar.IsBarVisible, Is.True);
+            Assert.That(
+                bar.Fill01,
+                Is.EqualTo(0.5f).Within(0.001f),
+                "Das Lebensverhaeltnis stimmt nicht.");
+
+            // Nach dem Tod: wieder verborgen.
+            enemy.Health.TakeDamage(
+                999f, Elyndor.Combat.AttackType.Heavy, Vector3.zero);
+
+            bar.Tick(0f);
+
+            Assert.That(
+                bar.IsBarVisible,
+                Is.False,
+                "Ein besiegter Gegner zeigt keine Leiste mehr.");
+        }
+
+        /// <summary>
+        /// Die Anzeige bringt ihren eigenen World-Space-Canvas mit. Sie darf
+        /// dabei die HUD-Struktur der Szene nicht verdoppeln.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator DieLebensanzeige_VerdoppeltNichtDasHud()
+        {
+            yield return EnterEncounter(distance: 6f);
+
+            Canvas[] enemyCanvases =
+                enemy.GetComponentsInChildren<Canvas>(true);
+
+            Assert.That(
+                enemyCanvases.Length,
+                Is.EqualTo(1),
+                "Der Gegner darf genau einen eigenen Canvas mitbringen.");
+            Assert.That(
+                enemyCanvases[0].renderMode,
+                Is.EqualTo(RenderMode.WorldSpace),
+                "Die Leiste gehoert in die Welt, nicht ins HUD.");
+
+            foreach (Canvas canvas in
+                     UnityEngine.Object.FindObjectsByType<Canvas>(
+                         FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (canvas == enemyCanvases[0])
+                {
+                    continue;
+                }
+
+                Assert.That(
+                    canvas.transform.IsChildOf(enemy.transform),
+                    Is.False,
+                    $"Der Canvas '{canvas.name}' haengt unerwartet am Gegner.");
+            }
+        }
+
         [UnityTest]
         public IEnumerator GrosserAbstand_BeruhigtDenGegnerWieder()
         {

@@ -12,13 +12,18 @@ Last Updated: 22.07.2026
 
 ## [Unreleased] — Zero Warning / QA Hygiene
 
-- **Behoben:** Die 27 CS0618-Warnungen sind auf **0**. Betroffen waren 13
-  Aufrufstellen in sechs Dateien. Zwölf übergaben `FindObjectsSortMode.None`;
-  die parameterlosen Überladungen sind ebenfalls unsortiert, die Ersetzung ist
-  damit verhaltensgleich. Keine einzige Stelle übergab `InstanceID`, wo das
-  Weglassen die Reihenfolge geändert hätte. Die dreizehnte war
+- **Behoben:** Die 27 CS0618-Warnungen sind auf **0**, im Batchmode nachgemessen.
+  25 davon kamen aus 13 `FindObjects*`-Aufrufstellen in sechs Dateien: zwölf
+  übergaben `FindObjectsSortMode.None`, und die parameterlosen Überladungen sind
+  ebenfalls unsortiert — die Ersetzung ist damit verhaltensgleich. Keine
+  einzige Stelle übergab `InstanceID`, wo das Weglassen die Reihenfolge geändert
+  hätte, und keine wertet die Reihenfolge überhaupt aus. Die dreizehnte war
   `FindFirstObjectByType<EventSystem>(...) == null` — eine reine
   Existenzprüfung, für die `FindAnyObjectByType` der dokumentierte Ersatz ist.
+  Die letzten 2 stammten aus `Object.GetInstanceID()` in
+  `RegionTravelSpawnRuntimeTests`; beide vergleichen nur Identität (altes gegen
+  neues Spielerobjekt nach einem Regionswechsel), nutzen den Wert weder als
+  Sortierschlüssel noch persistent, und wurden auf `GetEntityId()` umgestellt.
 - **Abgesichert:** `RegionSceneIntegrityValidator` öffnet beim Prüfen Szenen und
   ließ die zuletzt geprüfte aktiv zurück. Genau daran ist bei der Abnahme von
   PR #32 ein Play-Mode-Test unbemerkt auf der falschen Region gestartet. Der

@@ -10,6 +10,51 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Region Experience Hardening
+
+- **Behoben:** Sonnenfelder und Nebelmoor trugen dieselbe Fehlerklasse wie
+  Finsterwald, nur noch nicht ausgelöst. `SfxLibrary` und die einzige
+  `AudioSource` hingen dort am UI-Canvas `PrototypeHUD`. Der Canvas war aktiv,
+  also fiel nichts auf — hätte ihn jemand deaktiviert, wäre wie in Finsterwald
+  der komplette Ton mitgegangen. Beide Regionen sind jetzt in
+  `ElyndorExperienceUI` (sichtbar) und `ElyndorExperience` (nicht-visuell)
+  getrennt.
+- **Behoben:** `Bootstrap` serialisierte keinen `PlayerInputReader`, obwohl
+  `PlayerMovement` ihn per `RequireComponent` fordert. Unity legte ihn bei jedem
+  Laden neu an und warnte dabei. Die Komponente ist jetzt Teil der Szene.
+- **Bewusst nicht gemacht:** Sonnenfelder und Nebelmoor haben weiterhin kein
+  HUD-Fundament, kein Intro und kein Tutorial. Diese Systeme wurden **nicht**
+  ergänzt — sie sind Designentscheidung der Region, kein Defekt.
+- **Neu:** `RegionSceneIntegrityProfiles` und `RegionSceneIntegrityValidator`.
+  Ein QA-Durchlauf prüft Finsterwald, Sonnenfelder, Nebelmoor und Bootstrap
+  gegen je ein eigenes Profil, lädt jede Szene selbst und ist batchmode-fähig.
+- **Neu:** `SceneIntegrityProfile.AllowOptionalActive` — regionsabhängige
+  Systeme dürfen fehlen, aber nicht wirkungslos vorhanden sein. Ohne diese
+  Stufe müsste man entweder drei Regionen künstlich angleichen oder die
+  Prüfung löchrig machen.
+- **Neu:** `RegionScenes` hält die Szenenpfade an einer Stelle, damit Migrator,
+  Prüfung und Tests nicht auseinanderlaufen.
+- **Neu:** `ElyndorTestRunner` startet EditMode- und PlayMode-Suite aus dem
+  Editor und schreibt das Ergebnis in eine Datei, die auch einen Domain-Reload
+  übersteht.
+- **Repariert:** `HudPolishValidator` war nicht batchmode-tauglich — er prüfte
+  die gerade offene Szene und hatte weder Scene-Argument noch Exit-Code. Im
+  Batchmode ist beim Start keine Szene geladen; er fand nichts und meldete
+  trotzdem Erfolg. Er lädt seine Szene jetzt selbst (`ValidateScene`,
+  `ValidateBatch`).
+- **Verbessert:** `ExperienceLayerMigrator` speichert nur noch, wenn er
+  tatsächlich etwas verändert hat. Vorher schrieb jeder Lauf auch eine längst
+  migrierte Szene neu und erzeugte einen aussagelosen Diff. Zusätzlich gibt es
+  Einstiegspunkte je Region und über alle Regionen.
+- **Tests:** EditMode 8 → 22, PlayMode unverändert 37. Neu sind unter anderem
+  je Szene ein Profiltest, der Nachweis dass `SfxLibrary` in keiner Region am
+  Canvas hängt, dass kein `PrototypeHUD` mehr existiert, sowie die Gegenprobe,
+  dass das Finsterwald-Profil gegen Nebelmoor korrekt durchfällt.
+- **Offen, nicht blockierend:** Das Interaktions-Prompt-Panel überlappt in
+  Finsterwald am unteren Rand mit der Quickslot-Leiste (Text bleibt lesbar).
+  `InventoryUI` liest Gamepad `buttonNorth` direkt, worauf auch die
+  `Interact`-Action liegt — am Gamepad lösen beide gleichzeitig aus.
+
 ## [Unreleased] — Finsterwald Runtime Recovery
 
 - **Behoben:** Die Erlebnisschicht in Finsterwald war wirkungslos. Der Canvas

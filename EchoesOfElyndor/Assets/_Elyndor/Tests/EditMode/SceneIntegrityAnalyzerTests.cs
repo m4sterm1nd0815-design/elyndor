@@ -165,12 +165,62 @@ namespace Elyndor.Tests.EditMode
                 "Ein Profil, das nicht mehr zum Code passt, muss auffallen.");
         }
 
+        [Test]
+        public void FehlendesOptionalesSystem_IstKeinBefund()
+        {
+            GameObject root = CreateRoot("Systems");
+            root.AddComponent<TestRuntimeSystem>()
+                .AssignRequiredTarget(root.transform);
+
+            // Genau der Regionsfall: Nebelmoor fuehrt kein Intro. Fehlt das
+            // System, darf die Pruefung nicht meckern — sonst wuerden drei
+            // Regionen kuenstlich gleich gemacht.
+            List<SceneIntegrityIssue> issues =
+                SceneIntegrityAnalyzer.Analyze(scene, CreateProfileWithOptional());
+
+            Assert.That(
+                issues,
+                Is.Empty,
+                $"Ein fehlendes optionales System ist kein Befund: {Describe(issues)}");
+        }
+
+        [Test]
+        public void OptionalesSystemUnterDeaktiviertemParent_WirdGemeldet()
+        {
+            GameObject root = CreateRoot("Systems");
+            root.AddComponent<TestRuntimeSystem>()
+                .AssignRequiredTarget(root.transform);
+
+            GameObject optionalRoot = CreateRoot("OptionalSystems");
+            optionalRoot.AddComponent<TestOptionalSystem>();
+
+            // Vorhanden, aber wirkungslos. Das ist die Fehlerklasse aus
+            // Finsterwald und muss auch bei optionalen Systemen auffallen.
+            optionalRoot.SetActive(false);
+
+            List<SceneIntegrityIssue> issues =
+                SceneIntegrityAnalyzer.Analyze(scene, CreateProfileWithOptional());
+
+            Assert.That(
+                issues.Select(issue => issue.Code),
+                Does.Contain(SceneIntegrityIssueCode.RequiredComponentInactive),
+                $"Befunde: {Describe(issues)}");
+        }
+
         private static SceneIntegrityProfile CreateProfile()
         {
             return new SceneIntegrityProfile("Test")
                 .RequireActive(typeof(TestRuntimeSystem))
                 .RequireSingleInstance(typeof(TestRuntimeSystem))
                 .RequireNonZeroScale("UiRoot")
+                .RequireReferences(typeof(TestRuntimeSystem), "requiredTarget");
+        }
+
+        private static SceneIntegrityProfile CreateProfileWithOptional()
+        {
+            return new SceneIntegrityProfile("Test mit optionalem System")
+                .RequireActive(typeof(TestRuntimeSystem))
+                .AllowOptionalActive(typeof(TestOptionalSystem))
                 .RequireReferences(typeof(TestRuntimeSystem), "requiredTarget");
         }
 
@@ -192,5 +242,13 @@ namespace Elyndor.Tests.EditMode
 
         public void AssignRequiredTarget(Transform target) =>
             requiredTarget = target;
+    }
+
+    /// <summary>
+    /// Testkomponente fuer regionsabhaengige Systeme: darf fehlen, darf aber
+    /// nicht wirkungslos vorhanden sein.
+    /// </summary>
+    public sealed class TestOptionalSystem : MonoBehaviour
+    {
     }
 }

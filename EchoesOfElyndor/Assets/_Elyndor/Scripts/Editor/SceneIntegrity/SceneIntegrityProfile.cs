@@ -28,6 +28,18 @@ namespace Elyndor.EditorTools.SceneIntegrity
         public List<Type> RequiredActiveTypes { get; } = new List<Type>();
 
         /// <summary>
+        /// Komponenten, die eine Region besitzen darf, aber nicht besitzen
+        /// muss. Fehlen ist ausdruecklich in Ordnung — vorhanden und wirkungslos
+        /// ist es nicht.
+        ///
+        /// Damit prueft der Validator echte Designanforderungen, statt drei
+        /// Regionen kuenstlich gleich zu machen: Nebelmoor braucht kein Intro,
+        /// aber wenn dort eines liegt, darf es nicht unter einem deaktivierten
+        /// Vorfahren verhungern.
+        /// </summary>
+        public List<Type> OptionalActiveTypes { get; } = new List<Type>();
+
+        /// <summary>
         /// Komponenten, von denen es hoechstens eine geben darf. Schuetzt vor
         /// doppelten HUDs, doppelten Event-Abos und mehrfach laufenden
         /// Tutorial-Sequenzen.
@@ -52,6 +64,16 @@ namespace Elyndor.EditorTools.SceneIntegrity
         public SceneIntegrityProfile RequireActive(params Type[] types)
         {
             RequiredActiveTypes.AddRange(types);
+            return this;
+        }
+
+        /// <summary>
+        /// Meldet den Typ als optional: fehlt er, ist das kein Befund. Ist er
+        /// vorhanden, muss er wirksam sein.
+        /// </summary>
+        public SceneIntegrityProfile AllowOptionalActive(params Type[] types)
+        {
+            OptionalActiveTypes.AddRange(types);
             return this;
         }
 

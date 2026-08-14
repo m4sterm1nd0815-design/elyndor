@@ -270,8 +270,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   target: {fileID: 1117875250}
-  offset: {x: 0, y: 10, z: -8}
-  followSpeed: 5
+  inputReader: {fileID: 0}
+  focusHeight: 1.2
+  startYaw: 0
+  startPitch: 52
+  minPitch: 6
+  maxPitch: 72
+  mouseSensitivity: 0.22
+  gamepadRotationSpeed: 140
+  distance: 12
+  minDistance: 6
+  maxDistance: 18
+  zoomSensitivity: 0.012
+  focusSmoothTime: 0.06
+  followSmoothTime: 0.12
+  occlusionLayers:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  collisionRadius: 0.3
+  collisionPadding: 0.15
+  occlusionRecoverySmoothTime: 0.18
+  terrainClearance: 0.5
 --- !u!1 &372014537
 GameObject:
   m_ObjectHideFlags: 0
@@ -612,6 +631,7 @@ GameObject:
   - component: {fileID: 1117875247}
   - component: {fileID: 1117875252}
   - component: {fileID: 1117875251}
+  - component: {fileID: 1117875253}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -730,11 +750,20 @@ MonoBehaviour:
   walkSpeed: 3.5
   sprintSpeed: 7
   rotationSpeed: 10
+  acceleration: 28
+  deceleration: 36
   animator: {fileID: 0}
   animationDampTime: 0.1
   rollSpeed: 12
   rollDuration: 0.35
   rollCooldown: 0.5
+  jumpVelocity: 8
+  gravity: -25
+  groundedStickVelocity: -2
+  playerVitals: {fileID: 0}
+  sprintStaminaPerSecond: 18
+  staminaRegenerationPerSecond: 22
+  staminaRegenerationDelay: 1
 --- !u!143 &1117875252
 CharacterController:
   m_ObjectHideFlags: 0
@@ -760,6 +789,39 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1117875253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117875246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c883f58db44755a812c4ee1caa9ea7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Player.PlayerInputReader
+  inputActions: {fileID: 0}
+  gameplayMapName: Player
+  moveActionName: Move
+  lookActionName: Look
+  sprintActionName: Sprint
+  jumpActionName: Jump
+  rollActionName: Roll
+  legacyRollActionName: Crouch
+  interactActionName: Interact
+  quickslotPreviousActionName: QuickslotPrevious
+  quickslotNextActionName: QuickslotNext
+  quickslotUseActionName: QuickslotUse
+  directQuickslotActionNames:
+  - Quickslot1
+  - Quickslot2
+  - Quickslot3
+  - Quickslot4
+  - Quickslot5
+  - Quickslot6
+  - Quickslot7
+  - Quickslot8
 --- !u!1001 &1219226785
 PrefabInstance:
   m_ObjectHideFlags: 0

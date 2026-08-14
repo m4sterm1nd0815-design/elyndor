@@ -48,6 +48,7 @@ namespace Elyndor.EditorTools.SceneIntegrity
 
             CheckMissingScripts(allObjects, issues);
             CheckRequiredActive(allObjects, profile, issues);
+            CheckOptionalActive(allObjects, profile, issues);
             CheckSingleInstances(allObjects, profile, issues);
             CheckRootScales(scene, profile, issues);
             CheckRequiredReferences(allObjects, profile, issues);
@@ -138,6 +139,54 @@ namespace Elyndor.EditorTools.SceneIntegrity
                     GetPath(first.gameObject),
                     $"Pflichtsystem '{type.Name}' ist vorhanden, laeuft aber nicht: " +
                     $"'{blocker}' ist deaktiviert. Awake und Update werden nie aufgerufen."));
+            }
+        }
+
+        /// <summary>
+        /// Prueft Systeme, die eine Region haben darf, aber nicht haben muss.
+        /// Ein fehlendes System ist hier kein Befund — ein vorhandenes, das
+        /// unter einem deaktivierten Vorfahren haengt, sehr wohl. Genau so
+        /// bleibt der Validator regionsspezifisch, ohne Luecken zu lassen.
+        /// </summary>
+        private static void CheckOptionalActive(
+            List<GameObject> objects,
+            SceneIntegrityProfile profile,
+            List<SceneIntegrityIssue> issues)
+        {
+            foreach (Type type in profile.OptionalActiveTypes)
+            {
+                List<Component> found = FindComponents(objects, type);
+
+                if (found.Count == 0)
+                {
+                    continue;
+                }
+
+                bool anyActive = false;
+
+                foreach (Component component in found)
+                {
+                    if (component.gameObject.activeInHierarchy)
+                    {
+                        anyActive = true;
+                        break;
+                    }
+                }
+
+                if (anyActive)
+                {
+                    continue;
+                }
+
+                Component first = found[0];
+                string blocker = FindInactiveAncestorName(first.gameObject);
+
+                issues.Add(new SceneIntegrityIssue(
+                    SceneIntegrityIssueCode.RequiredComponentInactive,
+                    GetPath(first.gameObject),
+                    $"Optionales System '{type.Name}' ist in dieser Szene vorhanden, " +
+                    $"laeuft aber nicht: '{blocker}' ist deaktiviert. " +
+                    "Entweder wirksam machen oder aus der Szene entfernen."));
             }
         }
 

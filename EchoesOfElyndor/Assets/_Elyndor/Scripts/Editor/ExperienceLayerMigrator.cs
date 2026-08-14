@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Elyndor.Core;
 using Elyndor.UI;
 using UnityEditor;
@@ -38,8 +39,7 @@ namespace Elyndor.EditorTools
         public const string ExperienceUiName = "ElyndorExperienceUI";
         public const string ExperienceRootName = "ElyndorExperience";
 
-        private const string FinsterwaldScenePath =
-            "Assets/_Elyndor/Scenes/Finsterwald.unity";
+        private const string FinsterwaldScenePath = RegionScenes.Finsterwald;
 
         /// <summary>
         /// Nicht-visuelle Systeme. Reihenfolge ist bewusst gewaehlt:
@@ -75,6 +75,26 @@ namespace Elyndor.EditorTools
             Debug.Log(result.ToReport());
         }
 
+        [MenuItem("Elyndor/Repair/Erlebnisschicht in Sonnenfelder migrieren")]
+        public static void MigrateSonnenfelderFromMenu()
+        {
+            MigrationResult result = MigrateScene(RegionScenes.Sonnenfelder);
+            Debug.Log(result.ToReport());
+        }
+
+        [MenuItem("Elyndor/Repair/Erlebnisschicht in Nebelmoor migrieren")]
+        public static void MigrateNebelmoorFromMenu()
+        {
+            MigrationResult result = MigrateScene(RegionScenes.Nebelmoor);
+            Debug.Log(result.ToReport());
+        }
+
+        [MenuItem("Elyndor/Repair/Erlebnisschicht in allen Regionen migrieren")]
+        public static void MigrateAllRegionsFromMenu()
+        {
+            Debug.Log(MigrateAllRegions(out bool _));
+        }
+
         /// <summary>
         /// Einstiegspunkt fuer den Batchmode.
         /// </summary>
@@ -90,6 +110,41 @@ namespace Elyndor.EditorTools
             }
 
             EditorApplication.Exit(0);
+        }
+
+        /// <summary>
+        /// Batchmode ueber alle Regionen. Migriert wird nur, was tatsaechlich
+        /// noch auf dem alten Sammel-Canvas liegt; eine bereits getrennte Szene
+        /// meldet lediglich, dass nichts zu tun war.
+        /// </summary>
+        public static void MigrateAllRegionsBatch()
+        {
+            string report = MigrateAllRegions(out bool success);
+            Debug.Log(report);
+            EditorApplication.Exit(success ? 0 : 1);
+        }
+
+        /// <summary>
+        /// Migriert alle Regionsszenen und fasst das Ergebnis zusammen.
+        /// </summary>
+        public static string MigrateAllRegions(out bool success)
+        {
+            success = true;
+            StringBuilder report = new StringBuilder();
+            report.AppendLine("Erlebnisschicht-Migration ueber alle Regionen:");
+
+            foreach (string scenePath in RegionScenes.All)
+            {
+                MigrationResult result = MigrateScene(scenePath);
+                report.AppendLine(result.ToReport());
+
+                if (!result.Success)
+                {
+                    success = false;
+                }
+            }
+
+            return report.ToString();
         }
 
         public static MigrationResult MigrateScene(string scenePath)
@@ -128,12 +183,14 @@ namespace Elyndor.EditorTools
             {
                 uiRoot.name = ExperienceUiName;
                 result.Note($"Canvas umbenannt: {LegacyCanvasName} -> {ExperienceUiName}.");
+                result.MarkChanged();
             }
 
             if (!uiRoot.activeSelf)
             {
                 uiRoot.SetActive(true);
                 result.Note("UI-Canvas war deaktiviert und wurde aktiviert.");
+                result.MarkChanged();
             }
 
             GameObject runtimeRoot = FindRoot(scene, ExperienceRootName);
@@ -146,17 +203,24 @@ namespace Elyndor.EditorTools
                     runtimeRoot,
                     "Create Experience Runtime Root");
                 result.Note($"Runtime-Root '{ExperienceRootName}' angelegt.");
+                result.MarkChanged();
             }
 
             if (!runtimeRoot.activeSelf)
             {
                 runtimeRoot.SetActive(true);
                 result.Note("Runtime-Root war deaktiviert und wurde aktiviert.");
+                result.MarkChanged();
             }
 
             MoveRuntimeSystems(uiRoot, runtimeRoot, result);
             RewireTutorialIntro(runtimeRoot, result);
             RemoveSupersededLegacyComponents(scene, uiRoot, result);
+
+            if (!result.Changed)
+            {
+                return result;
+            }
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -206,6 +270,11 @@ namespace Elyndor.EditorTools
                 movedSources.Add(origin);
             }
 
+            if (movedSources.Count > 0)
+            {
+                result.MarkChanged();
+            }
+
             // Rueckwaerts entfernen: SfxLibrary muss vor der AudioSource
             // verschwinden, sonst blockiert RequireComponent das Loeschen.
             for (int index = movedSources.Count - 1; index >= 0; index--)
@@ -251,6 +320,7 @@ namespace Elyndor.EditorTools
             introProperty.objectReferenceValue = intro;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             result.Note("TutorialSequence.intro auf die migrierte IntroSequence gesetzt.");
+            result.MarkChanged();
         }
 
         /// <summary>
@@ -287,6 +357,7 @@ namespace Elyndor.EditorTools
                 result.Note(
                     $"Doppelte {type.Name} auf '{uiRoot.name}' entfernt. " +
                     $"Aktiv bleibt die Instanz auf '{replacement.gameObject.name}'.");
+                result.MarkChanged();
             }
         }
 
@@ -338,12 +409,23 @@ namespace Elyndor.EditorTools
             public string Error { get; private set; }
             public IReadOnlyList<string> MigratedComponents => migratedComponents;
 
+            /// <summary>
+            /// True, sobald tatsaechlich etwas an der Szene veraendert wurde.
+            /// Nur dann wird gespeichert. Ohne diese Unterscheidung wuerde jeder
+            /// Lauf auch eine laengst migrierte Szene neu serialisieren und
+            /// einen Diff erzeugen, der nichts aussagt.
+            /// </summary>
+            public bool Changed { get; private set; }
+
+            public void MarkChanged() => Changed = true;
+
             public void Note(string message) => notes.Add(message);
 
             public void Migrated(string componentName)
             {
                 migratedComponents.Add(componentName);
                 notes.Add($"{componentName} nach Runtime-Root verschoben.");
+                Changed = true;
             }
 
             public void Fail(string message)

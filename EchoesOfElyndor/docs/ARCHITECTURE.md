@@ -144,10 +144,49 @@ komplette Soundausgabe — MonoBehaviours auf einem deaktivierten GameObject
 erhalten weder `Awake` noch `Update`. Ein abgeschaltetes UI-Panel darf nie
 wieder den Ton mitnehmen.
 
-Abgesichert wird die Struktur durch `SceneIntegrityAnalyzer` (Editor) mit dem
-Profil aus `FinsterwaldSceneIntegrityValidator`. Geprüft werden Pflichtsysteme
-unter deaktivierten Vorfahren, doppelte Einzelsysteme, UI-Wurzeln mit Scale 0,
-fehlende Scripts und nicht gesetzte Pflichtreferenzen.
+### Was welche Region tatsächlich führt
+
+Die Trennung gilt in allen Regionen, der Umfang aber nicht. Regionen werden
+bewusst **nicht** künstlich angeglichen:
+
+| System | Finsterwald | Sonnenfelder | Nebelmoor |
+|--------|-------------|--------------|-----------|
+| `ElyndorExperienceUI` mit Prompt, Narration, Memory Watch, Kompass, Inventar | ja | ja | ja |
+| `ElyndorExperience` mit `SfxLibrary` + `AudioSource` | ja | ja | ja |
+| `ElyndorUI` / `ElyndorHudFoundation` (Vitals, Quickslots) | ja | nein | nein |
+| `IntroSequence`, `TutorialSequence`, `CombatTutorial` | ja | nein | nein |
+
+Finsterwald ist der Vertical Slice und trägt deshalb als einzige Region das
+HUD-Fundament sowie Intro und Tutorial. Sonnenfelder und Nebelmoor führen diese
+Systeme nicht — das ist Designentscheidung, kein Defekt.
+
+`Bootstrap` ist eine Sandbox ohne Erlebnisschicht: keine UI, kein Ton, keine
+Erinnerungsorte.
+
+### Absicherung
+
+Abgesichert wird die Struktur durch `SceneIntegrityAnalyzer` (Editor) mit einem
+Profil je Szene. Geprüft werden Pflichtsysteme unter deaktivierten Vorfahren,
+doppelte Einzelsysteme, UI-Wurzeln mit Scale 0, fehlende Scripts und nicht
+gesetzte Pflichtreferenzen.
+
+Damit die Regionsspezifik nicht zur Lücke wird, kennt ein Profil zwei Stufen:
+
+- `RequireActive` — muss vorhanden **und** wirksam sein.
+- `AllowOptionalActive` — darf fehlen; ist es vorhanden, muss es wirksam sein.
+  Nebelmoor braucht kein Intro. Läge dort trotzdem eines unter einem
+  deaktivierten Vorfahren, wäre das genau die Finsterwald-Fehlerklasse.
+
+| Einstiegspunkt | Zweck |
+|----------------|-------|
+| `RegionSceneIntegrityProfiles` | die Profile je Szene |
+| `RegionSceneIntegrityValidator` | ein QA-Durchlauf über alle Szenen, lädt jede Szene selbst, batchmode-tauglich |
+| `FinsterwaldSceneIntegrityValidator` | unverändert die Einzelprüfung der Referenzregion |
+| `ExperienceLayerMigrator` | idempotente Trennung je Szene, einzeln oder über alle Regionen |
+
+`RegionScenes` hält die Szenenpfade an genau einer Stelle, damit Migrator,
+Prüfung und Tests nicht auseinanderlaufen und keine Region still aus der
+Prüfung fällt.
 
 **Offene technische Schuld:** `PlayerCombat`, `IntroSequence`,
 `TutorialSequence` und `InventoryUI` lesen weiterhin direkt

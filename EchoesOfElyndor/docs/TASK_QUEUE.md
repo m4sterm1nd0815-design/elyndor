@@ -28,6 +28,8 @@ Basis der Bestandsaufnahme: `origin/developer` bei `cd7bc35`
 | PR #5 Developer | REVIEW | developer nach main | nach Gate 0 neu bewerten; kein automatischer Merge |
 | Produktionsbibel | INTEGRIERT | PR #10 | Merge-Commit 65e84e2 |
 | Root-Gate-Materialkorrektur | INTEGRIERT | PR #13 | Merge-Commit a8b96ca; manuell bestanden |
+| Finsterwald Runtime Recovery | INTEGRIERT | PR #32 | Merge-Commit 6a1548d; interaktive Unity-Abnahme bestanden |
+| Region Experience Hardening | REVIEW | `feature/region-experience-hardening` | Sonnenfelder und Nebelmoor getrennt, Integritaetspruefung ueber alle Szenen |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 

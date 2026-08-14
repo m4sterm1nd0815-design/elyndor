@@ -119,6 +119,16 @@ namespace Elyndor.Player
                 ? Mouse.current.scroll.ReadValue().y
                 : 0f;
 
+        /// <summary>
+        /// True, wenn die Gameplay-Map tatsaechlich aktiv ist. Bewusst nicht
+        /// identisch mit <c>gameplayInputEnabled</c>: Dieses Flag beschreibt
+        /// die Absicht, diese Eigenschaft den realen Zustand des Input-Systems.
+        /// Tests und Szenenvalidatoren pruefen darueber, ob die Eingabe
+        /// wirklich angekommen ist.
+        /// </summary>
+        public bool GameplayMapEnabled =>
+            gameplayMap != null && gameplayMap.enabled;
+
         public bool SprintHeld =>
             sprintAction != null && sprintAction.IsPressed();
 

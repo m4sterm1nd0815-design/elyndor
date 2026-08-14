@@ -10,6 +10,36 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Finsterwald Runtime Recovery
+
+- **Behoben:** Die Erlebnisschicht in Finsterwald war wirkungslos. Der Canvas
+  `PrototypeHUD` stand auf inaktiv und trug zehn Komponenten — darunter das
+  Erinnerungsuhr-Overlay, Narration, Kompass, Intro, Tutorial und die
+  komplette `SfxLibrary`. Auf einem deaktivierten GameObject läuft weder
+  `Awake` noch `Update`; in der Szene gab es dadurch weder Interaktions-Prompts
+  noch Ton.
+- **Ursache:** Beim HUD-Umbau entstand ein neuer `InteractionPromptController`,
+  der weiterhin das *alte* Panel unter `PrototypeHUD` steuert. Anschließend
+  wurde dessen Container deaktiviert — der neue Controller zeigte seitdem auf
+  ein totes Panel.
+- **Neue Struktur:** `ElyndorExperienceUI` (Canvas, sichtbare Systeme) und
+  `ElyndorExperience` (Runtime-Root, nicht-visuelle Systeme) sind getrennt und
+  unabhängig aktiv. Ein abgeschaltetes UI-Panel kann den Ton nicht mehr
+  mitnehmen. Die doppelte `InteractionPromptUI` wurde entfernt.
+- **Neu:** `SceneIntegrityAnalyzer` mit datengetriebenem Profil findet genau
+  diese Fehlerklasse: Pflichtsysteme unter deaktivierten Vorfahren, doppelte
+  Einzelsysteme, UI-Wurzeln mit Scale 0, fehlende Scripts und nicht gesetzte
+  Pflichtreferenzen. Er hat die doppelte `InteractionPromptUI` selbst gefunden.
+- **Neu:** `ExperienceLayerMigrator` (idempotent, batchmode-fähig) und die
+  erste EditMode-Testsuite des Projekts.
+- **Neu:** Sechs Regressionstests für `PlayerInputReader`. Der bestehende
+  Test-Helper ließ die `Look`-Aktion weg und erreichte dadurch nie den
+  Asset-Pfad, sondern immer nur die Fallback-Belegung.
+- **Korrektur zu Report 0:** Der dort als P0 gemeldete Input-Runtime-Fehler ist
+  **kein** Funktionsausfall. Die vier `Debug.Assert`-Meldungen traten nur beim
+  ersten Play-Start einer Sitzung auf; `Debug.Assert` loggt, wirft aber nicht.
+  Die Eingabe ist nachweislich funktionsfähig. Kein Fix vorgenommen.
+
 ## [Unreleased] — World Visual Overhaul Foundation
 
 - Additiver, idempotenter Visual-Layer für Finsterwald, Sonnenfelder und

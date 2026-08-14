@@ -10,6 +10,48 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Die geteilte Brücke (P1.7)
+
+Das erste Memory-Watch-Rätsel. Nach dem ersten Kampf bewusst ein anderes
+Gameplay: Kampf → Erkundung → Rätsel.
+
+- **Neu — Rätselkern:** Zustandstabelle und Lösung liegen in
+  `BridgePuzzleRules` ohne Unity-Abhängigkeit und sind damit vollständig
+  prüfbar, ohne eine Szene zu laden.
+- **Neu — Ablauf:** Resonanzzone → Echo sehen → drei Anker drehen → Seilbock
+  prüfen → Stamm freigeben → zwei Bohlen legen → Brücke trägt.
+- **Regel:** Die Watch zeigt nur Beziehungen. Die Anker wissen selbst nicht,
+  ob sie richtig stehen, und der Seilbock meldet nur, **dass** etwas nicht
+  trägt — nie **welcher** Anker falsch steht. Ein Hinweis, der den falschen
+  Anker benennt, wäre die Lösung in Raten.
+- **Lösung (Prototyp):** Süd-Tiefanker 1 Kerbe, Seitenanker 2, Nordanker 3 —
+  dem Lastverlauf des Echos folgend, nicht der Zahlenreihe. Wer stumpf 1-2-3
+  in Leserichtung einstellt, liegt falsch; genau dieser Irrtum ist vorgesehen.
+- **Jeder Fehlversuch ist umkehrbar.** Alle 26 falschen Kombinationen sind
+  einzeln geprüft: der Stamm verkantet, 1,2 s Sperre, zurück in die
+  Konfiguration. Kein Softlock, kein Verlust.
+- **Furt (`OFFEN` → `ENTSCHIEDEN`):** schadensloses Zurücksetzen. Kein Tod,
+  kein Health-Penalty, kein unsichtbarer Todesrand. Tod und Respawn sind noch
+  nicht kanonisch entschieden — dieses Rätsel darf das nicht nebenbei tun.
+- **Erst die Bohlen machen die Brücke begehbar.** Die Lauffläche bleibt
+  abgeschaltet, bis beide liegen; sonst wären die Bohlen Zierde.
+- **Kein globaler Save-Manager.** Der Stand hält über Szenenwechsel innerhalb
+  der Sitzung (`PuzzleSessionState`, nach dem Vorbild von
+  `MemorySessionState`). Übergangszustände fallen dabei immer auf ihren
+  letzten stabilen Stand zurück — ein Laden mitten in der Stammbewegung darf
+  niemals Zwischengeometrie herstellen. Persistenz über das Programmende
+  hinaus wartet auf das Save-System.
+- **Szene:** Neuer Knoten `Environment/Brueckenraetsel` plus ein
+  Strömungsvolumen unter der vorhandenen `Furt`. Objektbilanz gegen den
+  Vorstand geprüft: nichts verloren, 19 neue Objekte, 0 fehlende Skripte.
+- **Tests:** EditMode 37 → **51**, PlayMode 78 → **97**. Darunter eine Abnahme
+  im echten Finsterwald, die das Rätsel von Anfang bis Ende löst, und der
+  Nachweis, dass die Memory Site innerhalb der Resonanzzone liegt — läge sie
+  außerhalb, käme der Spieler nie über den ersten Schritt hinaus.
+
+**Offen:** ob Spieler die Lösung herleiten oder die 27 Kombinationen
+durchprobieren. Das entscheidet der Usability-Test.
+
 ## [Unreleased] — Wurzelstreifer, der erste echte Gegner (P1.5)
 
 Der Punkt, an dem der Finsterwald-Slice aufhört, Infrastruktur zu sein.

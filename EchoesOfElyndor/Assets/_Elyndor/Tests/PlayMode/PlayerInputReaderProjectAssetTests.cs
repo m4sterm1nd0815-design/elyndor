@@ -34,7 +34,11 @@ namespace Elyndor.Tests
         [UnityTest]
         public IEnumerator ProjektweitesAsset_GameplayMapWirdAktiv()
         {
-            InputActionAsset projectActions = InputSystem.actions;
+            // Ueber den Snapshot, nicht ueber InputSystem.actions: Eine
+            // vorher gelaufene InputTestFixture haette die Referenz sonst
+            // geloescht und dieser Regressionstest wuerde sich still
+            // ueberspringen.
+            InputActionAsset projectActions = ProjectInputActions.Current;
 
             if (projectActions == null)
             {

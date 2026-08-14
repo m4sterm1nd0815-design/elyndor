@@ -1,6 +1,6 @@
 using System.Collections;
+using Elyndor.Player;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Elyndor.Core
@@ -11,6 +11,10 @@ namespace Elyndor.Core
     /// öffnet Aren die Augen zwischen den Farnen. Läuft einmal pro
     /// Sitzung, ist mit jeder Taste überspringbar und besteht nur aus
     /// UI-Einblendungen (Audio folgt, sobald Assets existieren).
+    ///
+    /// Uebersprungen wird ueber die Action-Schicht (Sprung, Interagieren oder
+    /// Angriff), nicht mehr ueber <c>Keyboard.anyKey</c>. "Beliebige Taste"
+    /// reagierte auch auf Tasten, die im Spiel etwas voellig anderes tun.
     /// </summary>
     public class IntroSequence : MonoBehaviour
     {
@@ -18,6 +22,10 @@ namespace Elyndor.Core
         [SerializeField] private Text lineText;
         [SerializeField] private float lineDuration = 3.2f;
         [SerializeField] private float fadeOutDuration = 3f;
+
+        [Tooltip("Optional. Bleibt das Feld leer, wird der Reader zur Laufzeit " +
+                 "in der geladenen Szene gesucht.")]
+        [SerializeField] private PlayerInputReader inputReader;
 
         [SerializeField, TextArea(1, 3)]
         private string[] lines =
@@ -55,17 +63,20 @@ namespace Elyndor.Core
 
         private void Update()
         {
-            if (blackScreen != null && blackScreen.gameObject.activeSelf && AnyKeyPressed())
+            if (blackScreen != null && blackScreen.gameObject.activeSelf && SkipRequested())
             {
                 skipRequested = true;
             }
         }
 
-        private static bool AnyKeyPressed()
+        private bool SkipRequested()
         {
-            bool keyboard = Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame;
-            bool gamepad = Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame;
-            return keyboard || gamepad;
+            if (inputReader == null)
+            {
+                inputReader = PlayerInputReader.FindInLoadedScenes();
+            }
+
+            return inputReader != null && inputReader.SkipRequestedThisFrame;
         }
 
         private IEnumerator RunSequence()

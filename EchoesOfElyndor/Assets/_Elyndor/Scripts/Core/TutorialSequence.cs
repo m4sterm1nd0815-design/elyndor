@@ -1,6 +1,6 @@
 using System.Collections;
+using Elyndor.Player;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Elyndor.Core
@@ -11,6 +11,11 @@ namespace Elyndor.Core
     /// schaltet erst weiter, wenn der Spieler ihn ausgeführt hat
     /// (Lore-Regel: Tutorials knapp und nur, wenn die Handlung sie braucht).
     /// Läuft einmal pro Sitzung, nur im Finsterwald.
+    ///
+    /// Die Fortschrittserkennung liest die Action-Schicht, nicht mehr einzelne
+    /// Tasten. Vorher pruefte der Rollen-Schritt <c>leftCtrl</c>, waehrend das
+    /// Actions-Asset die Rolle auf <c>C</c> legt — wer die Rolle wie vorgesehen
+    /// ausloeste, kam im Tutorial nicht weiter.
     /// </summary>
     public class TutorialSequence : MonoBehaviour
     {
@@ -19,6 +24,10 @@ namespace Elyndor.Core
         [SerializeField] private Text promptText;
         [SerializeField] private float requiredMoveSeconds = 1.5f;
         [SerializeField] private float stepCompletedPause = 1.2f;
+
+        [Tooltip("Optional. Bleibt das Feld leer, wird der Reader zur Laufzeit " +
+                 "in der geladenen Szene gesucht.")]
+        [SerializeField] private PlayerInputReader inputReader;
 
         private static bool hasPlayedThisSession;
 
@@ -109,50 +118,30 @@ namespace Elyndor.Core
             }
         }
 
-        private static bool IsMoving()
+        private PlayerInputReader Reader
         {
-            bool keyboard = Keyboard.current != null && (
-                Keyboard.current.wKey.isPressed || Keyboard.current.aKey.isPressed ||
-                Keyboard.current.sKey.isPressed || Keyboard.current.dKey.isPressed);
+            get
+            {
+                if (inputReader == null)
+                {
+                    inputReader = PlayerInputReader.FindInLoadedScenes();
+                }
 
-            bool gamepad = Gamepad.current != null &&
-                Gamepad.current.leftStick.ReadValue().sqrMagnitude > 0.04f;
-
-            return keyboard || gamepad;
+                return inputReader;
+            }
         }
 
-        private static bool IsSprinting()
-        {
-            bool keyboard = Keyboard.current != null &&
-                Keyboard.current.leftShiftKey.isPressed;
+        private bool IsMoving() =>
+            Reader != null && Reader.Move.sqrMagnitude > 0.04f;
 
-            bool gamepad = Gamepad.current != null &&
-                Gamepad.current.leftStickButton.isPressed;
+        private bool IsSprinting() =>
+            IsMoving() && Reader != null && Reader.SprintHeld;
 
-            return IsMoving() && (keyboard || gamepad);
-        }
+        private bool IsRollPressed() =>
+            Reader != null && Reader.RollPressedThisFrame;
 
-        private static bool IsRollPressed()
-        {
-            bool keyboard = Keyboard.current != null &&
-                Keyboard.current.leftCtrlKey.wasPressedThisFrame;
-
-            bool gamepad = Gamepad.current != null &&
-                Gamepad.current.buttonEast.wasPressedThisFrame;
-
-            return keyboard || gamepad;
-        }
-
-        private static bool IsJumpPressed()
-        {
-            bool keyboard = Keyboard.current != null &&
-                Keyboard.current.spaceKey.wasPressedThisFrame;
-
-            bool gamepad = Gamepad.current != null &&
-                Gamepad.current.buttonSouth.wasPressedThisFrame;
-
-            return keyboard || gamepad;
-        }
+        private bool IsJumpPressed() =>
+            Reader != null && Reader.JumpPressedThisFrame;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetForNewSession()

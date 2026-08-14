@@ -1,13 +1,13 @@
 using System.Text;
 using Elyndor.Inventory;
+using Elyndor.Player;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Elyndor.UI
 {
     /// <summary>
-    /// Inventar-Panel (Taste I / Gamepad Nord): zeigt die neun
+    /// Inventar-Panel (Taste I / Gamepad Select): zeigt die neun
     /// Körperplätze und den Tascheninhalt als Textliste. Bewusst
     /// minimal — Icons, Drag-und-Drop und Tooltips folgen mit dem
     /// UI-Ausbau; die Datenschicht (PlayerInventory) bleibt dieselbe.
@@ -17,6 +17,10 @@ namespace Elyndor.UI
         [SerializeField] private GameObject panelRoot;
         [SerializeField] private Text equipmentText;
         [SerializeField] private Text bagText;
+
+        [Tooltip("Optional. Bleibt das Feld leer, wird der Reader zur Laufzeit " +
+                 "in der geladenen Szene gesucht.")]
+        [SerializeField] private PlayerInputReader inputReader;
 
         private static readonly (EquipmentSlot slot, string label)[] SlotLabels =
         {
@@ -30,6 +34,14 @@ namespace Elyndor.UI
             (EquipmentSlot.Legs, "Hose"),
             (EquipmentSlot.Feet, "Schuhe")
         };
+
+        private void Awake()
+        {
+            if (inputReader == null)
+            {
+                inputReader = PlayerInputReader.FindInLoadedScenes();
+            }
+        }
 
         private void OnEnable()
         {
@@ -65,15 +77,18 @@ namespace Elyndor.UI
             Toggled = null;
         }
 
-        private static bool ToggleRequested()
+        /// <summary>
+        /// Eingabe ueber die eigene Inventory-Action statt direkt am Geraet.
+        ///
+        /// Vorher las diese Klasse <c>Gamepad.buttonNorth</c> selbst — genau die
+        /// Taste, auf der auch <c>Interact</c> liegt. Am Controller oeffnete
+        /// sich dadurch das Inventar, waehrend gleichzeitig das Objekt vor dem
+        /// Spieler untersucht wurde.
+        /// </summary>
+        private bool ToggleRequested()
         {
-            bool keyboard = Keyboard.current != null &&
-                Keyboard.current.iKey.wasPressedThisFrame;
-
-            bool gamepad = Gamepad.current != null &&
-                Gamepad.current.buttonNorth.wasPressedThisFrame;
-
-            return keyboard || gamepad;
+            return inputReader != null &&
+                inputReader.InventoryTogglePressedThisFrame;
         }
 
         private void Refresh()

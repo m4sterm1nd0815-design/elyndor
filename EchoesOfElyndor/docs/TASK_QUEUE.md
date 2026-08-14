@@ -33,7 +33,8 @@ Basis der Bestandsaufnahme: `origin/developer` bei `cd7bc35`
 | Input Unification | INTEGRIERT | PR #34 | Merge-Commit cf615ee |
 | Zero Warning / QA Hygiene | INTEGRIERT | PR #35 | Merge-Commit 372d380 |
 | Project Bible / Canon Consolidation | INTEGRIERT | PR #36 | Merge-Commit 1beb257 |
-| Finsterwald Vertical Slice Plan | REVIEW | `feature/finsterwald-slice-plan-recovery` | sechs Planungsdokumente aus 58692ee8 uebernommen und aktualisiert; Stand je Paket in FINSTERWALD_VERTICAL_SLICE_STATUS.md |
+| Finsterwald Vertical Slice Plan | INTEGRIERT | PR #37 | Merge-Commit b7281b0 |
+| P1.2 Ausdauer-Anbindung | REVIEW | `feature/finsterwald-stamina-binding` | Rolle, Angriff und Block verbrauchen Ausdauer; kein Selbst-Merge, nicht auf der Freigabeliste |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 

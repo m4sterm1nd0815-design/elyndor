@@ -10,6 +10,27 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Ausdauer an Rolle, Block und Angriff (P1.2)
+
+Erster Produktionsbaustein des freigegebenen Finsterwald Vertical Slice.
+
+- **Neu:** Rolle (20), leichter Angriff (8), schwerer Angriff (18) und Blocken
+  (10/s) verbrauchen Ausdauer. Bisher tat das nur der Sprint.
+- **Verhalten:** Reicht die Ausdauer nicht, unterbleibt die Aktion vollständig.
+  Eine halb bezahlte Rolle oder ein halber Schlag existiert nicht. Blocken
+  bricht bei Erschöpfung zusammen — sonst wäre Halten die dominante Antwort auf
+  jeden Angriff.
+- **Geändert:** Der Zeitpunkt des letzten Ausdauerverbrauchs liegt jetzt in
+  `PlayerVitals` statt in `PlayerMovement`. Mit mehreren verbrauchenden Systemen
+  hätte ein eigener Zähler je System dazu geführt, dass die Regeneration schon
+  wieder anläuft, während ein anderes System gerade zahlt.
+- **Belegt im Spiel:** Rolle bei Spielzeit 26.565 ausgelöst, Messung bei 28.355.
+  100 − 20 + (0.79 s × 22/s) = **97.4** — gemessen 97.40, HUD-Balken 0.972.
+- **Tests:** EditMode 22 → 29. Neu: Abbuchung, Ablehnung ohne Teilabbuchung,
+  exakt ausreichende Ausdauer, Verbrauchszeitpunkt gesetzt beziehungsweise
+  nicht gesetzt bei Ablehnung und bei Nullverbrauch.
+- **Werte vorläufig** gemäß der Balancing-Konvention der Slice-Planung.
+
 ## [Unreleased] — Project Bible / Canon Consolidation
 
 - **Struktur:** Die verbindliche Dokumentenhierarchie steht jetzt in

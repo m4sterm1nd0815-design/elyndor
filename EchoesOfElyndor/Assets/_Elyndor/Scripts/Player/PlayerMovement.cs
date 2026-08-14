@@ -43,6 +43,10 @@ namespace Elyndor.Player
         [Tooltip("Ausdauerverbrauch pro Sekunde beim Sprinten.")]
         [SerializeField] private float sprintStaminaPerSecond = 18f;
 
+        [Tooltip("Einmaliger Ausdauerverbrauch pro Rolle. Vorlaeufiger " +
+                 "Balancingwert.")]
+        [Min(0f)] [SerializeField] private float rollStaminaCost = 20f;
+
         [Tooltip("Regeneration pro Sekunde.")]
         [SerializeField] private float staminaRegenerationPerSecond = 22f;
 
@@ -63,7 +67,6 @@ namespace Elyndor.Player
 
         private float nextRollTime;
         private float verticalVelocity;
-        private float lastStaminaUseTime = float.NegativeInfinity;
 
         private void Awake()
         {
@@ -105,7 +108,8 @@ namespace Elyndor.Player
             }
 
             if (inputReader.RollPressedThisFrame &&
-                Time.time >= nextRollTime)
+                Time.time >= nextRollTime &&
+                TrySpendRollStamina())
             {
                 StartRoll(moveDirection);
                 return;
@@ -173,8 +177,21 @@ namespace Elyndor.Player
                 return false;
             }
 
-            lastStaminaUseTime = Time.time;
             return true;
+        }
+
+        /// <summary>
+        /// Die Rolle kostet einmalig Ausdauer. Reicht sie nicht, unterbleibt
+        /// die Rolle vollstaendig — es gibt keine halbe Ausweichbewegung.
+        /// </summary>
+        private bool TrySpendRollStamina()
+        {
+            if (playerVitals == null)
+            {
+                return true;
+            }
+
+            return playerVitals.TrySpendStamina(rollStaminaCost);
         }
 
         private void RegenerateStamina(bool isSprinting)
@@ -184,8 +201,10 @@ namespace Elyndor.Player
                 return;
             }
 
+            // Zentraler Zeitpunkt aus PlayerVitals: So verzoegern auch
+            // Angriff und Block die Regeneration, nicht nur Sprint und Rolle.
             if (Time.time <
-                lastStaminaUseTime + staminaRegenerationDelay)
+                playerVitals.LastStaminaSpendTime + staminaRegenerationDelay)
             {
                 return;
             }

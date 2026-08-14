@@ -68,6 +68,18 @@ namespace Elyndor.UIFoundation
             SetMemory(memory + delta);
         }
 
+        /// <summary>
+        /// Zeitpunkt des letzten erfolgreichen Ausdauerverbrauchs.
+        ///
+        /// Liegt hier und nicht in <see cref="Elyndor.Player.PlayerMovement"/>,
+        /// weil inzwischen mehrere Systeme Ausdauer verbrauchen: Sprint und
+        /// Rolle aus der Bewegung, Angriff und Block aus dem Kampf. Haette
+        /// jedes seinen eigenen Zaehler, wuerde die Regeneration schon wieder
+        /// anlaufen, waehrend ein anderes System gerade verbraucht.
+        /// </summary>
+        public float LastStaminaSpendTime { get; private set; } =
+            float.NegativeInfinity;
+
         public bool TrySpendStamina(float amount)
         {
             amount = Mathf.Max(0f, amount);
@@ -75,6 +87,12 @@ namespace Elyndor.UIFoundation
                 return false;
 
             SetStamina(stamina - amount);
+
+            if (amount > 0f)
+            {
+                LastStaminaSpendTime = Time.time;
+            }
+
             return true;
         }
 

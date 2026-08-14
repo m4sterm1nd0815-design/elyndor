@@ -32,7 +32,8 @@ Basis der Bestandsaufnahme: `origin/developer` bei `cd7bc35`
 | Region Experience Hardening | INTEGRIERT | PR #33 | Merge-Commit 0e40120 |
 | Input Unification | INTEGRIERT | PR #34 | Merge-Commit cf615ee |
 | Zero Warning / QA Hygiene | INTEGRIERT | PR #35 | Merge-Commit 372d380 |
-| Project Bible / Canon Consolidation | REVIEW | `feature/project-bible-consolidation` | Doku-Hierarchie hergestellt, Doppelstrukturen aufgeloest, nichts erfunden |
+| Project Bible / Canon Consolidation | INTEGRIERT | PR #36 | Merge-Commit 1beb257 |
+| Finsterwald Vertical Slice Plan | REVIEW | `feature/finsterwald-slice-plan-recovery` | sechs Planungsdokumente aus 58692ee8 uebernommen und aktualisiert; Stand je Paket in FINSTERWALD_VERTICAL_SLICE_STATUS.md |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 

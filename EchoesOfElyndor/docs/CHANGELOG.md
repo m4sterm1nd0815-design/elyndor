@@ -10,6 +10,53 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Project Bible / Canon Consolidation
+
+- **Struktur:** Die verbindliche Dokumentenhierarchie steht jetzt in
+  `docs/README.md` und ist in jedem betroffenen Dokument benannt:
+  Project Bible → Game Design Document → World → Story Bible → Characters →
+  Gameplay → Architecture.
+- **Aufgelöst:** Drei Doppelstrukturen. Das Game Design lag doppelt vor
+  (inhaltlich im Root, als leeres Gerüst unter `00_Project/`); die technische
+  Architektur dreifach (`ARCHITECTURE.md`, `Technical/ARCHITECTURE.md`,
+  `10_Unity/Architecture.md`); der Erzählkanon verteilt auf `GAME_BIBLE.md` und
+  `LORE_BIBLE.md`.
+- **Migriert, nicht gelöscht:** Inhalte wurden zuerst vollständig in die
+  Hierarchie überführt, erst danach wurden die alten Pfade zu Weiterleitungen.
+  Jede Weiterleitung nennt, wohin welcher Abschnitt gegangen ist.
+- **Gefüllt aus vorhandenen Quellen:** `02_Story/StoryBible.md`,
+  `01_World/WorldBible.md`, `01_World/Lore.md`, `03_Characters/Hero.md`,
+  `03_Characters/NPCs.md`, `03_Characters/Enemies.md`,
+  `04_Gameplay/Combat.md`, `Puzzles.md`, `Weapons.md`, `Items.md`. Diese
+  Dateien enthielten zuvor nur eine Überschrift.
+- **Ergänzt:** `04_Gameplay/MEMORY_WATCH.md` um die achtstufige
+  Fähigkeitsprogression und die verbindlichen Präzisierungen; diese standen
+  bisher nur in den beiden Bibeln.
+- **Ergänzt:** `docs/ARCHITECTURE.md` um Save-Bereiche, Singleton-Regel, stabile
+  IDs als Savegame-Vertrag und die Qualitätsanforderung je System — die
+  einzigen Inhalte, die es nur in `Technical/ARCHITECTURE.md` gab.
+- **Nichts erfunden.** Ungeklärtes ist als `OFFEN` oder `NOCH ZU ENTSCHEIDEN`
+  markiert, Widersprüche sind dokumentiert statt still aufgelöst.
+- **Belegt:** Ein Abdeckungsvergleich gegen die Originalfassungen aus
+  `372d380` zeigt, dass jeder inhaltstragende Begriff der vier Quelldokumente
+  im neuen Bestand weiterhin vorkommt. Sieben Formulierungsabweichungen wurden
+  einzeln geprüft und begründet.
+
+### Dokumentierte Widersprüche
+
+- **Zwölftes Kapitel:** `GAME_BIBLE.md` nennt zwölf Gebiete namentlich, die
+  aktuelle Vorgabe bezeichnet den zwölften Eintrag als nicht eindeutig
+  bestätigt. Bleibt offen.
+- **Kapitelreihenfolge:** Erzähl- und Produktionsreihenfolge widersprechen sich
+  beim Nebelmoor. Bleibt offen.
+- **Kartograf-Prämisse:** von `GAME_BIBLE.md` als ersetzt geführt, durch die
+  spätere Entscheidung wieder bestätigt. Story Bible ist maßgeblich.
+- **Ersetzter Kanon:** Wunschring und „Großes Vergessen" bleiben ersetzt; beide
+  sind festgehalten, damit sie nicht versehentlich zurückkehren.
+- **Externe Quelle:** `GAME_BIBLE.md` erklärte eine `.docx` zur maßgeblichen
+  Quelle, die **nicht im Repository liegt** und damit weder versioniert noch
+  überprüfbar ist. Als `OFFEN` vermerkt.
+
 ## [Unreleased] — Zero Warning / QA Hygiene
 
 - **Behoben:** Die 27 CS0618-Warnungen sind auf **0**, im Batchmode nachgemessen.

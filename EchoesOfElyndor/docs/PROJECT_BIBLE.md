@@ -1,6 +1,13 @@
 # Echoes of Elyndor
 Version 1.0
 
+> **Rolle:** kreative Verfassung und oberste Ebene der Dokumentenhierarchie
+> (siehe `docs/README.md`). Bei Widersprüchen schlägt dieses Dokument alle
+> anderen — mit einer Ausnahme: Wo ein tieferes Dokument *präzisiert* statt
+> widerspricht, gilt die Präzisierung. Der Erzählkanon steht in
+> `docs/02_Story/StoryBible.md`, die technische Wahrheit in
+> `docs/ARCHITECTURE.md`.
+
 ## Vision
 
 Echoes of Elyndor soll sich anfühlen wie eine Mischung aus

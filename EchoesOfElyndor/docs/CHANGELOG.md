@@ -10,6 +10,35 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Zero Warning / QA Hygiene
+
+- **Behoben:** Die 27 CS0618-Warnungen sind auf **0**, im Batchmode nachgemessen.
+  25 davon kamen aus 13 `FindObjects*`-Aufrufstellen in sechs Dateien: zwölf
+  übergaben `FindObjectsSortMode.None`, und die parameterlosen Überladungen sind
+  ebenfalls unsortiert — die Ersetzung ist damit verhaltensgleich. Keine
+  einzige Stelle übergab `InstanceID`, wo das Weglassen die Reihenfolge geändert
+  hätte, und keine wertet die Reihenfolge überhaupt aus. Die dreizehnte war
+  `FindFirstObjectByType<EventSystem>(...) == null` — eine reine
+  Existenzprüfung, für die `FindAnyObjectByType` der dokumentierte Ersatz ist.
+  Die letzten 2 stammten aus `Object.GetInstanceID()` in
+  `RegionTravelSpawnRuntimeTests`; beide vergleichen nur Identität (altes gegen
+  neues Spielerobjekt nach einem Regionswechsel), nutzen den Wert weder als
+  Sortierschlüssel noch persistent, und wurden auf `GetEntityId()` umgestellt.
+- **Abgesichert:** `RegionSceneIntegrityValidator` öffnet beim Prüfen Szenen und
+  ließ die zuletzt geprüfte aktiv zurück. Genau daran ist bei der Abnahme von
+  PR #32 ein Play-Mode-Test unbemerkt auf der falschen Region gestartet. Der
+  Validator stellt die ursprünglich offene Szene jetzt wieder her und meldet das
+  im Report. Hat die offene Szene ungespeicherte Änderungen, bricht er ab,
+  statt sie zu verwerfen.
+- **Neu:** `.gitattributes` nimmt Unity-YAML-Assets gezielt aus der
+  Trailing-Space-Prüfung. Unity serialisiert leere Strings als `key: ` mit
+  Leerzeichen am Zeilenende; ein einziger Szenendiff erzeugte darüber 1646
+  Meldungen und machte `git diff --check` als Gate wertlos.
+  **Gegenprobe dokumentiert:** Mit der Regel meldet `git diff --check` weiterhin
+  Trailing Whitespace in `.cs` und `.md`, und in `.unity` weiterhin
+  `space before tab` — abgeschaltet ist ausschließlich die eine Prüfung, die der
+  Serializer auslöst, nicht die Whitespace-Prüfung insgesamt.
+
 ## [Unreleased] — Input Unification
 
 - **Behoben:** `Interact` und das Inventar lagen am Controller beide auf

@@ -117,8 +117,7 @@ namespace Elyndor.EditorTools
         {
             T[] components = UnityEngine.Object
                 .FindObjectsByType<T>(
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.None)
+                    FindObjectsInactive.Include)
                 .Where(component =>
                     component.gameObject.scene == scene &&
                     component.gameObject.activeInHierarchy &&

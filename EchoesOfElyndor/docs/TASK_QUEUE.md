@@ -30,7 +30,8 @@ Basis der Bestandsaufnahme: `origin/developer` bei `cd7bc35`
 | Root-Gate-Materialkorrektur | INTEGRIERT | PR #13 | Merge-Commit a8b96ca; manuell bestanden |
 | Finsterwald Runtime Recovery | INTEGRIERT | PR #32 | Merge-Commit 6a1548d; interaktive Unity-Abnahme bestanden |
 | Region Experience Hardening | INTEGRIERT | PR #33 | Merge-Commit 0e40120 |
-| Input Unification | REVIEW | `feature/input-unification` | PlayerInputReader als einzige Eingabequelle, eigene Inventory-Action |
+| Input Unification | INTEGRIERT | PR #34 | Merge-Commit cf615ee |
+| Zero Warning / QA Hygiene | REVIEW | `feature/qa-warning-cleanup` | 27 CS0618 auf 0, Validator stellt aktive Szene wieder her |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 

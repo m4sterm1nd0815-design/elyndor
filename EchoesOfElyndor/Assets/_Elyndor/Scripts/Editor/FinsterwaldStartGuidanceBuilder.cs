@@ -475,14 +475,14 @@ namespace Elyndor.EditorTools
         private static Transform Find(string name)
         {
             return Object
-                .FindObjectsByType<Transform>(FindObjectsSortMode.None)
+                .FindObjectsByType<Transform>()
                 .FirstOrDefault(t => t.name == name);
         }
 
         private static Transform FindByPath(string path)
         {
             return Object
-                .FindObjectsByType<Transform>(FindObjectsSortMode.None)
+                .FindObjectsByType<Transform>()
                 .FirstOrDefault(t => HierarchyPath(t) == path);
         }
 

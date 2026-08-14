@@ -42,8 +42,7 @@ namespace Elyndor.EditorTools
 
                 CharacterController player = UnityEngine.Object
                     .FindObjectsByType<CharacterController>(
-                        FindObjectsInactive.Include,
-                        FindObjectsSortMode.None)
+                        FindObjectsInactive.Include)
                     .SingleOrDefault(controller =>
                         controller.gameObject.scene == scene &&
                         controller.gameObject.activeInHierarchy);
@@ -54,8 +53,7 @@ namespace Elyndor.EditorTools
 
                 RegionSpawnPoint[] spawnPoints = UnityEngine.Object
                     .FindObjectsByType<RegionSpawnPoint>(
-                        FindObjectsInactive.Include,
-                        FindObjectsSortMode.None)
+                        FindObjectsInactive.Include)
                     .Where(spawn => spawn.gameObject.scene == scene &&
                         spawn.gameObject.activeInHierarchy && spawn.enabled)
                     .ToArray();
@@ -74,8 +72,7 @@ namespace Elyndor.EditorTools
 
                 RegionPortal[] scenePortals = UnityEngine.Object
                     .FindObjectsByType<RegionPortal>(
-                        FindObjectsInactive.Include,
-                        FindObjectsSortMode.None)
+                        FindObjectsInactive.Include)
                     .Where(portal => portal.gameObject.scene == scene)
                     .ToArray();
 

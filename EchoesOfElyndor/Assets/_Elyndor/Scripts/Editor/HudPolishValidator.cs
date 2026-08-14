@@ -78,8 +78,7 @@ namespace Elyndor.EditorTools
             StringBuilder report = new StringBuilder();
 
             HudFoundationMarker[] huds = Object.FindObjectsByType<HudFoundationMarker>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
             if (huds.Length == 0)
             {
@@ -89,8 +88,7 @@ namespace Elyndor.EditorTools
 
             QuickslotFocusVisual[] focusVisuals =
                 Object.FindObjectsByType<QuickslotFocusVisual>(
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Include);
 
             if (focusVisuals.Length != 8)
             {
@@ -98,7 +96,7 @@ namespace Elyndor.EditorTools
                     $"Erwartet waren 8 Quickslot-Fokusvisuals, gefunden {focusVisuals.Length}.");
             }
 
-            if (Object.FindFirstObjectByType<EventSystem>(FindObjectsInactive.Include) == null)
+            if (Object.FindAnyObjectByType<EventSystem>(FindObjectsInactive.Include) == null)
             {
                 report.AppendLine("Kein EventSystem in der Szene.");
                 errors++;

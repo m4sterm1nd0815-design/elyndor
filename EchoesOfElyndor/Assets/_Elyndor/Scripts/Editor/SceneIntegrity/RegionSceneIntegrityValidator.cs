@@ -72,10 +72,32 @@ namespace Elyndor.EditorTools.SceneIntegrity
         /// <summary>
         /// Prueft alle Bindings und liefert einen zusammengefassten Report.
         /// Laedt jede Szene selbst und ist damit batchmode-tauglich.
+        ///
+        /// <b>Nebenwirkung:</b> Die Pruefung oeffnet Szenen und veraendert damit
+        /// die aktive Szene. Genau daran ist schon einmal ein Play-Mode-Test
+        /// auf der falschen Region gestartet. Deshalb wird die urspruenglich
+        /// offene Szene am Ende wiederhergestellt — und wenn sie ungespeicherte
+        /// Aenderungen hat, laeuft die Pruefung gar nicht erst los, statt sie zu
+        /// verwerfen.
         /// </summary>
         public static string Validate(out bool clean)
         {
             StringBuilder report = new StringBuilder();
+
+            Scene originalScene = EditorSceneManager.GetActiveScene();
+            string originalPath = originalScene.path;
+
+            if (originalScene.isDirty)
+            {
+                clean = false;
+                report.AppendLine(
+                    "Szenenintegritaet abgebrochen: Die offene Szene " +
+                    $"'{originalScene.name}' hat ungespeicherte Aenderungen. " +
+                    "Die Pruefung oeffnet andere Szenen und wuerde diese " +
+                    "Aenderungen verwerfen. Bitte erst speichern.");
+                return report.ToString();
+            }
+
             report.AppendLine("Szenenintegritaet ueber alle Szenen:");
 
             int total = 0;
@@ -99,9 +121,37 @@ namespace Elyndor.EditorTools.SceneIntegrity
                 }
             }
 
+            RestoreOriginalScene(originalPath, report);
+
             clean = total == 0;
             report.AppendLine($"Summe: {total} Befund(e).");
             return report.ToString();
+        }
+
+        /// <summary>
+        /// Stellt die Szene wieder her, die vor der Pruefung offen war. Ohne das
+        /// bleibt die zuletzt gepruefte Szene aktiv, und der naechste Schritt —
+        /// etwa ein Play-Mode-Test — laeuft unbemerkt auf der falschen Region.
+        /// </summary>
+        private static void RestoreOriginalScene(
+            string originalPath,
+            StringBuilder report)
+        {
+            if (string.IsNullOrEmpty(originalPath))
+            {
+                // Vor der Pruefung war keine gespeicherte Szene offen, etwa im
+                // Batchmode. Dann gibt es nichts wiederherzustellen.
+                return;
+            }
+
+            if (EditorSceneManager.GetActiveScene().path == originalPath)
+            {
+                return;
+            }
+
+            EditorSceneManager.OpenScene(originalPath, OpenSceneMode.Single);
+            report.AppendLine(
+                $"Aktive Szene wiederhergestellt: '{originalPath}'.");
         }
 
         /// <summary>

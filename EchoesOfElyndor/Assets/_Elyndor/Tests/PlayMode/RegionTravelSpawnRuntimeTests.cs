@@ -237,7 +237,7 @@ namespace Elyndor.Tests
         private static RegionPortal FindPortalTo(string sceneName)
         {
             foreach (RegionPortal portal in Object.FindObjectsByType<RegionPortal>(
-                         FindObjectsInactive.Include, FindObjectsSortMode.None))
+                         FindObjectsInactive.Include))
             {
                 if (portal.TargetSceneName == sceneName)
                     return portal;
@@ -263,7 +263,7 @@ namespace Elyndor.Tests
 
             foreach (RegionSpawnPoint spawn in
                      Object.FindObjectsByType<RegionSpawnPoint>(
-                         FindObjectsInactive.Include, FindObjectsSortMode.None))
+                         FindObjectsInactive.Include))
             {
                 if ((string)field.GetValue(spawn) == spawnId)
                     return spawn.transform;

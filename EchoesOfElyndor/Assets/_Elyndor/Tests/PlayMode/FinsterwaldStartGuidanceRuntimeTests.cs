@@ -167,8 +167,7 @@ namespace Elyndor.Tests
         [UnityTest]
         public IEnumerator NoLargeFoliageCrowdsTheStartCamera()
         {
-            foreach (Renderer renderer in Object.FindObjectsByType<Renderer>(
-                         FindObjectsSortMode.None))
+            foreach (Renderer renderer in Object.FindObjectsByType<Renderer>())
             {
                 if (renderer is ParticleSystemRenderer)
                     continue;
@@ -289,8 +288,7 @@ namespace Elyndor.Tests
 
         private static Transform FindSignpost()
         {
-            foreach (Transform candidate in Object.FindObjectsByType<Transform>(
-                         FindObjectsSortMode.None))
+            foreach (Transform candidate in Object.FindObjectsByType<Transform>())
             {
                 if (candidate.name == "Wegschild" &&
                     candidate.parent != null &&

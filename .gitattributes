@@ -1,0 +1,16 @@
+# Unity serialisiert leere String-Felder als "key: " mit einem Leerzeichen am
+# Zeilenende. In einem einzigen Szenendiff sind das schnell über tausend
+# Meldungen aus `git diff --check` — alle aus dem Serializer, keine einzige von
+# Hand geschrieben. Damit wird das Gate wertlos: Man gewöhnt sich an, die
+# Meldungen zu überfliegen, und übersieht irgendwann die eine echte.
+#
+# Deshalb wird für Unity-YAML-Assets gezielt NUR die Trailing-Space-Prüfung
+# abgeschaltet. Alle übrigen Whitespace-Prüfungen (etwa space-before-tab)
+# bleiben aktiv, und in Code, Doku und allen anderen Dateien meldet
+# `git diff --check` unverändert jeden Fehler.
+*.unity      whitespace=-trailing-space
+*.prefab     whitespace=-trailing-space
+*.asset      whitespace=-trailing-space
+*.mat        whitespace=-trailing-space
+*.controller whitespace=-trailing-space
+*.anim       whitespace=-trailing-space

@@ -188,6 +188,25 @@ Damit die Regionsspezifik nicht zur Lücke wird, kennt ein Profil zwei Stufen:
 Prüfung und Tests nicht auseinanderlaufen und keine Region still aus der
 Prüfung fällt.
 
+**Nebenwirkung, bewusst abgesichert:** Die Prüfung öffnet Szenen. Sie stellt die
+ursprünglich offene Szene danach wieder her und schreibt das in den Report — ohne
+das blieb die zuletzt geprüfte Szene aktiv, und ein anschließender Play-Mode-Test
+lief unbemerkt auf der falschen Region. Hat die offene Szene ungespeicherte
+Änderungen, bricht die Prüfung ab, statt sie zu verwerfen.
+
+Die übrigen Validatoren (`RegionPortalValidator`, `MovementCameraValidator`)
+öffnen ebenfalls Szenen und stellen bisher nichts wieder her. Vor einem
+Play-Mode-Test bleibt daher die Regel: aktive Szene erneut prüfen.
+
+### Whitespace-Gate
+
+`git diff --check` ist Pflicht vor jedem Paket. Unity serialisiert leere
+String-Felder als `key: ` mit Leerzeichen am Zeilenende, was in einem einzigen
+Szenendiff über tausend Meldungen erzeugt — das Gate wäre damit praktisch
+wertlos. `.gitattributes` nimmt Unity-YAML-Assets deshalb gezielt **nur** aus
+der Trailing-Space-Prüfung. In Code und Doku meldet `git diff --check`
+unverändert alles, und selbst in `.unity` bleibt etwa `space before tab` aktiv.
+
 ---
 
 ## Eingabe

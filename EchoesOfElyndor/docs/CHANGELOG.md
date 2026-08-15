@@ -10,6 +10,47 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Der Fortschritt überlebt das Beenden (P1.13A)
+
+Erinnerungen, Rätselstand und die Antwort des Waldes halten jetzt über einen
+Programmstart hinaus.
+
+- **Keine Szene wurde dafür angefasst.** Der Kernbogen ist menschlich
+  abgenommen; Persistenz nachzurüsten darf ihn nicht verändern. Das
+  Speichersystem startet über `RuntimeInitializeOnLoadMethod` — kein neues
+  Objekt in einer Szene, keine neue Referenz, die jemand lösen könnte.
+- **Niemand kennt das Speichersystem.** Die drei Sitzungszustände melden nur,
+  *dass* sich etwas geändert hat. Der `SaveService` weiß umgekehrt nichts über
+  Dateien; das ist Sache des `ISaveStore`. An dieser Naht hängen die Tests
+  ihren temporären Speicher ein.
+- **Der Vertrag aus P1.10 wird endlich bedient.** `IRegionStateStore` wurde
+  seinerzeit für genau diesen Tag angelegt.
+- **Wiederherstellen ist kein Nacherleben.** Es wird Zustand gesetzt, sonst
+  nichts: kein Regenerationsereignis, kein Ton, keine doppelten Pflanzen,
+  keine erzwungene Lösungsanimation. Möglich, weil `FinsterwaldRegeneration`
+  ihr `Apply` von ihrem `Regenerate` trennt.
+- **Atomar geschrieben.** Erst vollständig daneben, dann die bisherige Fassung
+  zur Sicherung, dann tauschen. In die Zieldatei hinein zu schreiben hieße,
+  den einzigen gültigen Stand als Erstes zu zerstören.
+- **Beschädigte Stände** werden nie stillschweigend als gültig behandelt: erst
+  die Sicherung, sonst ein leerer Start mit Warnung — und die kaputten Dateien
+  bleiben zur Untersuchung liegen. Ein Stand aus einer **neueren** Fassung
+  wird weder geladen noch überschrieben; ihn zu überschreiben wäre
+  Datenverlust für den, der zurückwechselt.
+- **Nicht lebensnotwendig.** Fällt das Speichern aus, läuft das Spiel weiter
+  und verliert nur Fortschritt. Ein Speichersystem, ohne das sich das Spiel
+  nicht mehr starten lässt, wäre ein schlechterer Zustand als gar keines.
+- **Echter Neustart-Nachweis.** `Save()` gefolgt von `Load()` im selben Prozess
+  beweist wenig — ein statisches Feld könnte die Daten halten, ohne dass die
+  Datei je gelesen wird. `SaveRestartProof` läuft deshalb in **zwei getrennten
+  Unity-Prozessen**; dazwischen existiert nichts als die Datei.
+- **Nicht gespeichert:** Position, Ausdauer, Leben, Gegnerzustand, Cooldowns,
+  Audiozustände. Tod, Respawn und Heilung bleiben Creative Gates — das
+  Speichersystem trifft diese Entscheidungen nicht nebenbei.
+- **Offen für P1.13B:** `spawnId` steht im Format bereit, bleibt aber leer. Wo
+  ein Laden den Spieler absetzt, ist eine Leveldesign-Entscheidung; ein
+  geratener Startpunkt wäre schlechter als gar keiner.
+
 ## [Unreleased] — Der Bogen als ein Stück (P1.14)
 
 Zum ersten Mal läuft der Kernbogen als zusammenhängender Test: Begegnung →

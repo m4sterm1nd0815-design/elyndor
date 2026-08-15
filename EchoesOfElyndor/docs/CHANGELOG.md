@@ -10,6 +10,37 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Der Bogen als ein Stück (P1.14)
+
+Zum ersten Mal läuft der Kernbogen als zusammenhängender Test: Begegnung →
+Resonanzzone → Erinnerung → Rätsel → Antwort des Waldes, im echten
+Finsterwald.
+
+- **Echte Wege statt gesetzter Zustände.** Der Kampf läuft über simulierte
+  Geräte und die ausgelieferte Tastenbelegung. Jede Interaktion läuft über den
+  `InteractionDetector`: Aren wird an das Objekt gestellt, es muss von selbst
+  zum aktiven Ziel werden, und erst dann fällt der Tastendruck. Kein Test ruft
+  `Interact` direkt auf, keiner setzt einen Rätselzustand von Hand, und die
+  Lösung wird bei `BridgePuzzleRules` erfragt statt abgeschrieben.
+- **Die Reihenfolge ist echt erzwungen.** Die Memory Site schaltet über
+  `AnyActivationCompleted` das Rätsel frei — vor der Erinnerung lässt sich
+  kein Anker drehen. Das war vorher nirgends geprüft; jetzt ist es die
+  tragende Zusicherung des Bogens.
+- **Was der erste Lauf zutage förderte.** Fünf Fehlschläge, keiner davon ein
+  Produktfehler: drei kamen daher, dass `MemorySessionState`,
+  `PuzzleSessionState` und `RegionRegenerationState` einen Szenenwechsel
+  bewusst überleben — in einer Testreihe prüfte damit jeder Test auf dem
+  Ergebnis seines Vorgängers, und der Wald hatte geantwortet, bevor der Bogen
+  begann. Einer war ein Fehler im Testgerüst selbst (`null == null` galt als
+  „Ziel erreicht" und drückte danach ins Leere). Der fünfte war lehrreich:
+  eine „falsche" Ankerstellung, die zufällig keinen Anker bewegt, lässt das
+  Rätsel vor `Configuring` stehen — der Stamm ist dann gar nicht freigebbar.
+- **`MemorySessionState.Forget`** ergänzt, symmetrisch zu den beiden
+  Geschwistern, die es schon hatten. Im Spiel wird es nicht aufgerufen.
+- **Nicht enthalten:** die Wegöffnung. `blockedPath` bleibt unverdrahtet;
+  welcher Weg sich öffnet, entscheidet das Leveldesign nach der menschlichen
+  Abnahme.
+
 ## [Unreleased] — Nachtregression: zwei blinde Flecken in der Prüfung
 
 Kein Spielinhalt. Diese Runde hat die Prüfung selbst geprüft — und zweimal

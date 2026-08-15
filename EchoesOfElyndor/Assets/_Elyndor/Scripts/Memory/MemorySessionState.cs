@@ -29,6 +29,26 @@ namespace Elyndor.Memory
             activatedSiteIds.Add(siteId);
         }
 
+        /// <summary>
+        /// Vergisst einen Ort wieder.
+        ///
+        /// Gegenstueck zu <c>PuzzleSessionState.Forget</c> und
+        /// <c>RegionRegenerationState.Forget</c>, die es beide schon
+        /// gab. Im Spiel wird es nicht aufgerufen: der Integrationstest
+        /// braucht es, um den Zustand „Erinnerung noch nicht gesehen"
+        /// herzustellen, ohne den die Bedingung der Regeneration nicht
+        /// pruefbar waere.
+        /// </summary>
+        public static void Forget(string siteId)
+        {
+            if (string.IsNullOrEmpty(siteId))
+            {
+                return;
+            }
+
+            activatedSiteIds.Remove(siteId);
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetForNewSession()
         {

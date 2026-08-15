@@ -10,6 +10,44 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Der Wald antwortet (P1.10)
+
+Zum ersten Mal verändert Arens Verstehen etwas in der Welt.
+
+- **Zwei Bedingungen, nicht eine.** Rätsel gelöst **und** Memory Site gesehen.
+  Rätsel und Erinnerung laufen im Code getrennt, also werden beide verlangt.
+  „Trigger betreten" genügt ausdrücklich nicht — sonst reagierte der Wald auf
+  einen Schritt statt auf ein Verstehen.
+- **Leise.** Ein paar Triebe erscheinen, wenige Pflanzen bekommen Farbe, das
+  Wasser wird klarer, das Licht etwas wärmer. Kein Blitz, keine Welle. Der
+  Spieler soll zuerst „Moment — hier ist etwas anders" denken und erst danach
+  „der Wald reagiert".
+- **Nur um die Brücke herum,** Radius 13 m, höchstens zwölf Pflanzen. Der Wald
+  wird nicht grün, er ist an einer Stelle anders.
+- **Idempotent.** Mehrfaches Auslösen, Szenenwechsel und Wiederherstellung
+  führen zu demselben Ergebnis; das Ereignis feuert genau einmal, und eine
+  Wiederherstellung feuert es gar nicht — sonst klänge der Ton bei jedem
+  Betreten erneut.
+- **Kein Collider wird verändert.** Die Wegöffnung ist vorbereitet, aber
+  **bewusst nicht verdrahtet**: welcher Weg sich öffnen soll, ist eine
+  Level-Entscheidung, und ein geratener Eingriff beschädigt handgebaute
+  Wegführung.
+- **Färbung über `MaterialPropertyBlock`** — direkt aufs Material zu schreiben
+  hätte jede andere Pflanze im Wald mitgefärbt.
+- **Vertrag für P1.13:** `IRegionStateStore` mit zwei Methoden. Bis das
+  Speichersystem existiert, läuft alles über die Sitzung; wer P1.13 baut,
+  hängt sich ein, ohne P1.10 anzufassen. Keine Slots, keine Cloud, kein
+  Profilmanager.
+- **Audio über die vorhandene `SfxLibrary`**, ein neuer Hinweis, Lautstärke
+  0,55 — leiser als alles andere.
+- **Tests:** PlayMode 151 → **157**. Darunter: nur eine Bedingung reicht nicht,
+  mehrfaches Auslösen bleibt folgenlos, Wiederherstellung ohne neues Ereignis,
+  der Speichervertrag wird benutzt, und Portale, Spawns und Memory Sites
+  bleiben unangetastet.
+
+**Neu:** `AUDIO_AUDITION.md` — die Hörprobenliste. Alle Töne sind nach
+Benennung und Länge gewählt; gehört hat sie niemand. Bleibt **HUMAN QA OPEN**.
+
 ## [Unreleased] — Lore und Narration (P1.9)
 
 Nur der bestätigte Kanon. Kein Name fällt, keine Herkunft wird erklärt.

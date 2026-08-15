@@ -512,9 +512,7 @@ namespace Elyndor.EditorTools
             // zweiter, versehentlich liegengebliebener Wurzelstreifer waere
             // sonst erst im Spiel aufgefallen.
             foreach (EnemyController stray in UnityEngine.Object
-                         .FindObjectsByType<EnemyController>(
-                             FindObjectsInactive.Include,
-                             FindObjectsSortMode.None))
+                         .FindObjectsByType<EnemyController>(FindObjectsInactive.Include))
             {
                 UnityEngine.Object.DestroyImmediate(stray.gameObject);
             }

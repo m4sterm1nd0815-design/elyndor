@@ -399,8 +399,7 @@ namespace Elyndor.Tests
                 "Die Leiste gehoert in die Welt, nicht ins HUD.");
 
             foreach (Canvas canvas in
-                     UnityEngine.Object.FindObjectsByType<Canvas>(
-                         FindObjectsInactive.Include, FindObjectsSortMode.None))
+                     UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include))
             {
                 if (canvas == enemyCanvases[0])
                 {
@@ -491,8 +490,7 @@ namespace Elyndor.Tests
                 "Auf der Lichtung steht kein Wurzelstreifer.");
 
             Assert.That(
-                UnityEngine.Object.FindObjectsByType<EnemyController>(
-                    FindObjectsInactive.Include, FindObjectsSortMode.None).Length,
+                UnityEngine.Object.FindObjectsByType<EnemyController>(FindObjectsInactive.Include).Length,
                 Is.EqualTo(1),
                 "Der erste Kampf ist Unterricht: genau ein Gegner.");
 

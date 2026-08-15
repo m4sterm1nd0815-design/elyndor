@@ -1,7 +1,12 @@
 # Task Queue
 
-Stand: 2. August 2026
-Basis der Bestandsaufnahme: `origin/developer` bei `cd7bc35`
+Stand: 15. August 2026
+Basis der Bestandsaufnahme: `origin/developer` bei `b5536ee`
+
+Die Tabelle war bis zum 15.08.2026 bei PR #37 stehengeblieben, während die
+Pakete P1.2 bis P1.10 bereits gemergt waren. Die Zeilen bis #47 sind
+nachgetragen; maßgeblich für den Paketstand bleibt
+`FINSTERWALD_VERTICAL_SLICE_STATUS.md`.
 
 ## Statusregeln
 
@@ -34,7 +39,16 @@ Basis der Bestandsaufnahme: `origin/developer` bei `cd7bc35`
 | Zero Warning / QA Hygiene | INTEGRIERT | PR #35 | Merge-Commit 372d380 |
 | Project Bible / Canon Consolidation | INTEGRIERT | PR #36 | Merge-Commit 1beb257 |
 | Finsterwald Vertical Slice Plan | INTEGRIERT | PR #37 | Merge-Commit b7281b0 |
-| P1.2 Ausdauer-Anbindung | REVIEW | `feature/finsterwald-stamina-binding` | Rolle, Angriff und Block verbrauchen Ausdauer; kein Selbst-Merge, nicht auf der Freigabeliste |
+| P1.2 Ausdauerbindung | INTEGRIERT | PR #38 | Merge-Commit 14dba67; Rolle, Angriff und Block kosten Ausdauer |
+| P1.5 Wurzelstreifer | INTEGRIERT | PR #39 | Merge-Commit 07d1e07; ein Exemplar auf der Lichtung, Blockout-Modell |
+| P1.7 Brueckenraetsel | INTEGRIERT | PR #40 | Merge-Commit 098214d; Furt setzt schadenslos zurueck |
+| P1.11A Audio-Lesbarkeit | INTEGRIERT | PR #41 | Merge-Commit e343153; kein Ton verraet, welcher Anker falsch steht |
+| Gegner-Lebensanzeige | INTEGRIERT | PR #42 | Merge-Commit ef715fd; loest PR #30 ab, dieser wurde als ueberholt geschlossen |
+| Brueckenlesbarkeit | INTEGRIERT | PR #43 | Merge-Commit 81357cb; Kerben zaehlbar |
+| P1.8 Link-Begleiter | INTEGRIERT | PR #44 | Merge-Commit 6c83cca; kein Bezug auf Raetsel oder Anker im Code |
+| P1.9 Lore und Narration | INTEGRIERT | PR #45 | Merge-Commit 831d643; SOREN und ELIAN kommen nicht vor |
+| P1.10 Regionsregeneration | INTEGRIERT | PR #46 | Merge-Commit 8a4fa87; Wegoeffnung bewusst nicht verdrahtet |
+| Menschliche Abnahmeanleitung | INTEGRIERT | PR #47 | Merge-Commit b5536ee; zwoelf Stationen, ohne Raetsellosung |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 
@@ -140,14 +154,24 @@ Nicht blockierende Phase-1-Prioritäten:
    verbessern.
 4. Nebelmoor-Nebeldichte für bessere Lesbarkeit abstimmen.
 
-## Phase 1 — aktives Arbeitspaket
+## Phase 1 — Paketverlauf (historisch)
 
-### P1.2 — Movement, Kamera und Spielgefuehl
+Diese Abschnitte halten fest, wie die Phase-1-Pakete abgenommen wurden. Sie
+beschreiben **kein** laufendes Arbeitspaket. Was gerade offen ist, steht in
+`FINSTERWALD_VERTICAL_SLICE_STATUS.md`.
 
-- Status: `REVIEW`
+### HISTORISCH — „P1.2 Movement, Kamera und Spielgefuehl"
+
+> **Achtung, alte Nummerierung.** Dieser Abschnitt stammt aus der Zeit vor dem
+> Slice-Plan und meint mit `P1.2` die Bewegung und Kamera. In der heute
+> gueltigen Zaehlung ist das **P1.1**, und `P1.2` ist die Ausdauerbindung
+> (PR #38). Der Abschnitt bleibt als Beleg der damaligen Abnahme stehen;
+> maszgeblich fuer den Paketstand ist `FINSTERWALD_VERTICAL_SLICE_STATUS.md`.
+
+- Status: `INTEGRIERT` über PR #19, Merge-Commit `3408ce5` (02.08.2026)
 - Branch: `feature/movement-camera`
 - Implementierungscommit: `4b12c57`
-- Draft-PR: `#19` gegen `developer`
+- PR: `#19` gegen `developer`
 - Scope: Beschleunigung, Abbremsung, Sprint-Zuverlaessigkeit,
   framerate-stabile Drehung, Kamera-Fokus und Kamera-Occlusion.
 - Bewahrt: vorhandene Animationen, zentrale Input-Struktur, Rolle und Sprung.

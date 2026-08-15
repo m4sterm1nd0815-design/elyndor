@@ -33,7 +33,17 @@ namespace Elyndor.Tests
     public sealed class FinsterwaldFirstEncounterRuntimeTests : InputTestFixture
     {
         private const string SceneName = "Finsterwald";
-        private const int MaxWaitFrames = 900;
+        /// <summary>
+        /// Zeitschranke fuer <see cref="WaitUntil"/>. Entspricht dem, was die
+        /// fruehere Frameschranke im Editor faktisch bedeutete.
+        /// </summary>
+        private const float MaxWaitSeconds = 15f;
+
+        /// <summary>
+        /// Reine Notbremse gegen eine stehende Uhr. Bewusst so hoch, dass sie
+        /// im Batchmode nicht vor <see cref="MaxWaitSeconds"/> greift.
+        /// </summary>
+        private const int MaxWaitFrames = 100000;
 
         private readonly List<string> consoleErrors = new List<string>();
 
@@ -550,19 +560,47 @@ namespace Elyndor.Tests
             }
         }
 
+        /// <summary>
+        /// Wartet auf eine Bedingung — in <b>Sekunden</b>, nicht in Frames.
+        ///
+        /// Alles, worauf hier gewartet wird, ist zeitgesteuert: die
+        /// Verdachtsphase dauert 2 s, der Telegraph 0,7 s, das Vergessen des
+        /// Ziels 2,5 s. Eine Frameschranke misst davon nichts. Im Editor fiel
+        /// das nicht auf, weil dort rund 60 Frames auf eine Sekunde kommen und
+        /// die alte Schranke von 900 Frames zufaellig etwa 15 s entsprach. Im
+        /// Batchmode laufen Frames ohne Bildsynchronisation um ein Vielfaches
+        /// schneller — dieselben 900 Frames waren dann weniger als die
+        /// Verdachtsphase, und fuenf Tests meldeten einen Gegner, der in
+        /// Wahrheit nur noch nicht an der Reihe war.
+        ///
+        /// <see cref="MaxWaitFrames"/> bleibt als Notbremse, falls die Zeit
+        /// stehen sollte; im normalen Lauf greift sie nie.
+        /// </summary>
         private IEnumerator WaitUntil(Func<bool> condition, string message)
         {
-            for (int frame = 0; frame < MaxWaitFrames; frame++)
+            float deadline = Time.time + MaxWaitSeconds;
+            int frames = 0;
+
+            while (Time.time < deadline && frames < MaxWaitFrames)
             {
                 if (condition())
                 {
                     yield break;
                 }
 
+                frames++;
                 yield return null;
             }
 
-            Assert.Fail(message);
+            if (condition())
+            {
+                yield break;
+            }
+
+            Assert.Fail(
+                frames >= MaxWaitFrames
+                    ? message + $" (Notbremse nach {frames} Frames — steht die Zeit?)"
+                    : message + $" (nach {MaxWaitSeconds:F0} s)");
         }
 
         private void AssertNoConsoleErrors()

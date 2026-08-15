@@ -1,7 +1,7 @@
 # Finsterwald Vertical Slice – aktueller Stand
 
 Stand: 15. August 2026
-Basis: `origin/developer` bei `81357cb` (nach PR #43)
+Basis: `origin/developer` bei `b5536ee` (nach PR #47)
 
 Dieses Dokument gleicht die Planung vom 2. August 2026 gegen den heutigen Code
 ab. **Es geht den älteren Planungsdokumenten vor**, wo sie sich widersprechen.
@@ -42,8 +42,8 @@ Planung noch als offen galt:
 | **P1.6** Echohüter und Namenloser Hüter | **offen** | — |
 | **P1.7** Memory-Watch-Rätsel | **umgesetzt** | Die geteilte Brücke ist von Anfang bis Ende spielbar. Drei Anker, Seilbock, Stammfreigabe, zwei Bohlen, Furt mit schadensloser Rücksetzung. Kerben seit dem Lesbarkeitsdurchgang zählbar |
 | **P1.8** Link-Begleiter | **umgesetzt** | `LinkCompanion` und `LinkPerch`, fünf Sitzpunkte. Kein Collider, keine Sprache, keine Lösungsanzeige. Primitiv-Blockout; finale Kunst offen |
-| **P1.9** Lore und Narration | **teilweise** | `NarrationUI` und `ExaminableObject` funktionieren. **Offen:** die Slice-Texte und Memory-Fragmente |
-| **P1.10** Regionsregeneration | **offen** | keine Region-State-Komponente vorhanden |
+| **P1.9** Lore und Narration | **umgesetzt** | `NarrationCatalog` mit freigegebenen Kurztexten, Gravur (zweimal), Rastplatz, Bachsteine, Brückenrest, Erinnerungsfragment und die Stimme ohne Namen. SOREN und ELIAN kommen nicht vor; `NarrationCanonTests` prüft das |
+| **P1.10** Regionsregeneration | **umgesetzt** | `FinsterwaldRegeneration` antwortet erst, wenn Rätsel **und** Erinnerung erledigt sind. Idempotent über `RegionRegenerationState`; Wiederherstellung löst kein Ereignis aus. Kein Save-System, aber `IRegionStateStore` als Vertrag für P1.13. **Bewusst offen:** welcher Weg sich öffnet (`blockedPath` ist nicht verdrahtet) — das ist eine Leveldesign-Entscheidung |
 | **P1.11** Audio und VFX | **teilweise** | **P1.11A umgesetzt:** Telegraph, Treffer, Block, Niederlage und die beiden Spannungstöne des Rätsels laufen über die vorhandene `SfxLibrary`. **Offen:** Hörprobe durch einen Menschen (`AUDIO_AUDITION.md`), Ambience, türkise Bruchlinien am finalen Modell |
 | **P1.12** Level- und Art-Polishing | **teilweise** | World Visual Overhaul und Startbereich-Führung integriert |
 | **P1.13** Save und Checkpoints | **offen** | kein Save-System; Save-Bereiche sind in `ARCHITECTURE.md` nur als Vertrag vorgemerkt |
@@ -51,19 +51,21 @@ Planung noch als offen galt:
 
 ## Nächste sinnvolle Schritte
 
-Der Kernbogen steht bis zum Rätsel: Bewegung → Begegnung → Memory Watch →
-Rätsel. Was fehlt, ist die sichtbare Antwort der Welt darauf.
+Der Kernbogen steht jetzt vollständig: Bewegung → Begegnung → Memory Watch →
+Rätsel → Antwort der Welt. Was fehlt, ist nicht mehr Mechanik, sondern Urteil.
 
-1. **P1.9 Lore und Narration** — die freigegebenen Kurztexte, ohne neue
-   kanonische Fakten.
-2. **P1.10 Regionsregeneration** — der Moment, in dem der Wald auf Arens
-   Verstehen reagiert.
+1. **Menschliche Abnahme** — `FINSTERWALD_HUMAN_ACCEPTANCE.md` und
+   `AUDIO_AUDITION.md`. Der Slice ist an mehreren Stellen bewusst nicht
+   entschieden, weil nur ein Mensch entscheiden kann: ob das Rätsel hergeleitet
+   oder geraten wird, ob die Töne tragen, ob die Regeneration leise genug ist.
+2. **P1.14 Integrationstest** — der durchgehende Lauf als Test, nicht als
+   Handarbeit.
 3. Erst danach **P1.6** (weitere Gegnertypen), **P1.12** (Art) und **P1.13**
    (Save).
 
-**Keine erledigte Arbeit erneut bauen:** P1.2, P1.5, P1.7 und P1.8 sind
-umgesetzt und gemergt. Ältere Planungsdokumente, die sie als offen führen, sind
-in diesem Punkt überholt.
+**Keine erledigte Arbeit erneut bauen:** P1.2, P1.5, P1.7, P1.8, P1.9, P1.10
+und P1.11A sind umgesetzt und gemergt. Ältere Planungsdokumente, die sie als
+offen führen, sind in diesem Punkt überholt.
 
 ## Offene Punkte aus der Planung, die weiterhin gelten
 

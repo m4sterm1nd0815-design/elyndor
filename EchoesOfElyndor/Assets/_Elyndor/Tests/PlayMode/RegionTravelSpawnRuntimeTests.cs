@@ -34,6 +34,26 @@ namespace Elyndor.Tests
         /// <summary>Mindestabstand, der Spawn und Startpose unterscheidbar macht.</summary>
         private const float DistinctPoseDistance = 5f;
 
+        /// <summary>
+        /// Zeitschranke fuers Warten auf einen Szenenwechsel. Ein Ladevorgang
+        /// dauert Zeit, keine Frames — im Batchmode laufen Frames ohne
+        /// Bildsynchronisation um ein Vielfaches schneller, und eine
+        /// Frameschranke waere dort ein Bruchteil dessen, was sie im Editor
+        /// bedeutet.
+        /// </summary>
+        private const float SceneLoadTimeout = 20f;
+
+        /// <summary>
+        /// Zeitschranke fuers Zurruhekommen. Die Ruheerkennung selbst zaehlt
+        /// weiterhin Frames, und das zu Recht: gemessen wird die Bewegung
+        /// zwischen zwei aufeinanderfolgenden Bildern. Nur das Budget ist
+        /// Zeit.
+        /// </summary>
+        private const float SettleTimeout = 4f;
+
+        /// <summary>Notbremse gegen eine stehende Uhr; greift im Normalfall nie.</summary>
+        private const int FrameBrake = 100000;
+
         private readonly List<string> consoleErrors = new List<string>();
 
         private Vector3 regularStartPose;
@@ -170,9 +190,13 @@ namespace Elyndor.Tests
         /// </summary>
         private static IEnumerator WaitForPlayerOfNewScene(EntityId previousPlayerId)
         {
-            for (int frame = 0; frame < 600; frame++)
+            float deadline = Time.time + SceneLoadTimeout;
+            int frames = 0;
+
+            while (Time.time < deadline && frames < FrameBrake)
             {
                 yield return null;
+                frames++;
 
                 GameObject player = GameObject.Find("Player");
 
@@ -185,7 +209,9 @@ namespace Elyndor.Tests
                 }
             }
 
-            Assert.Fail("Die Zielszene hat keinen eigenen Spieler geladen.");
+            Assert.Fail(
+                "Die Zielszene hat keinen eigenen Spieler geladen " +
+                $"(nach {SceneLoadTimeout:F0} s).");
         }
 
         /// <summary>
@@ -199,9 +225,13 @@ namespace Elyndor.Tests
             Vector3 lastPlayer = player.position;
             Vector3 lastCamera = CameraPosition();
 
-            for (int frame = 0; frame < 240; frame++)
+            float deadline = Time.time + SettleTimeout;
+            int frame = 0;
+
+            while (Time.time < deadline && frame < FrameBrake)
             {
                 yield return null;
+                frame++;
 
                 Vector3 currentCamera = CameraPosition();
 

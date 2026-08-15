@@ -27,6 +27,18 @@ namespace Elyndor.Tests
         /// <summary>Freie Strecke, die Aren vor sich sehen koennen muss.</summary>
         private const float RequiredClearSight = 20f;
 
+        /// <summary>
+        /// Zeitschranke fuers Zurruhekommen. Die Ruheerkennung zaehlt
+        /// weiterhin Frames, und das zu Recht: gemessen wird die Bewegung
+        /// zwischen zwei aufeinanderfolgenden Bildern. Nur das Budget ist
+        /// Zeit — die alten 240 Frames waren als „eine Sekunde" gemeint, sind
+        /// das aber nur im Editor.
+        /// </summary>
+        private const float SettleTimeout = 4f;
+
+        /// <summary>Notbremse gegen eine stehende Uhr; greift im Normalfall nie.</summary>
+        private const int FrameBrake = 100000;
+
         private readonly List<string> consoleErrors = new List<string>();
 
         private Transform player;
@@ -87,7 +99,7 @@ namespace Elyndor.Tests
 
         /// <summary>
         /// Wartet, bis Aren und die Kamera zur Ruhe gekommen sind, hoechstens
-        /// aber eine Sekunde Spielzeit.
+        /// aber <see cref="SettleTimeout"/> Sekunden Spielzeit.
         /// </summary>
         private IEnumerator WaitUntilSettled()
         {
@@ -96,9 +108,13 @@ namespace Elyndor.Tests
                 ? Vector3.zero
                 : Camera.main.transform.position;
 
-            for (int frame = 0; frame < 240; frame++)
+            float deadline = Time.time + SettleTimeout;
+            int frame = 0;
+
+            while (Time.time < deadline && frame < FrameBrake)
             {
                 yield return null;
+                frame++;
 
                 Vector3 currentCamera = Camera.main == null
                     ? Vector3.zero
@@ -277,6 +293,12 @@ namespace Elyndor.Tests
         {
             // Der Szenenaufbau lief bereits im Setup; hier wird nur noch
             // ausdruecklich festgehalten, dass dabei nichts rot war.
+            //
+            // Hier sind Frames die richtige Einheit und bleiben es: gewartet
+            // wird nicht auf einen zeitgesteuerten Spielzustand, sondern
+            // darauf, dass Unity ein paar Bilder durchlaeuft und die
+            // Start-Rueckrufe abarbeitet. Fuenf Frames sind fuenf Frames,
+            // egal wie schnell die Uhr laeuft.
             for (int frame = 0; frame < 5; frame++)
                 yield return null;
 

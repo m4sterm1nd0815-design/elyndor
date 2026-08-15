@@ -49,7 +49,6 @@ nachgetragen; maßgeblich für den Paketstand bleibt
 | P1.9 Lore und Narration | INTEGRIERT | PR #45 | Merge-Commit 831d643; SOREN und ELIAN kommen nicht vor |
 | P1.10 Regionsregeneration | INTEGRIERT | PR #46 | Merge-Commit 8a4fa87; Wegoeffnung bewusst nicht verdrahtet |
 | Menschliche Abnahmeanleitung | INTEGRIERT | PR #47 | Merge-Commit b5536ee; zwoelf Stationen, ohne Raetsellosung |
-| P1.2 Ausdauer-Anbindung | REVIEW | `feature/finsterwald-stamina-binding` | Rolle, Angriff und Block verbrauchen Ausdauer; kein Selbst-Merge, nicht auf der Freigabeliste |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 
@@ -155,14 +154,24 @@ Nicht blockierende Phase-1-Prioritäten:
    verbessern.
 4. Nebelmoor-Nebeldichte für bessere Lesbarkeit abstimmen.
 
-## Phase 1 — aktives Arbeitspaket
+## Phase 1 — Paketverlauf (historisch)
 
-### P1.2 — Movement, Kamera und Spielgefuehl
+Diese Abschnitte halten fest, wie die Phase-1-Pakete abgenommen wurden. Sie
+beschreiben **kein** laufendes Arbeitspaket. Was gerade offen ist, steht in
+`FINSTERWALD_VERTICAL_SLICE_STATUS.md`.
 
-- Status: `REVIEW`
+### HISTORISCH — „P1.2 Movement, Kamera und Spielgefuehl"
+
+> **Achtung, alte Nummerierung.** Dieser Abschnitt stammt aus der Zeit vor dem
+> Slice-Plan und meint mit `P1.2` die Bewegung und Kamera. In der heute
+> gueltigen Zaehlung ist das **P1.1**, und `P1.2` ist die Ausdauerbindung
+> (PR #38). Der Abschnitt bleibt als Beleg der damaligen Abnahme stehen;
+> maszgeblich fuer den Paketstand ist `FINSTERWALD_VERTICAL_SLICE_STATUS.md`.
+
+- Status: `INTEGRIERT` über PR #19, Merge-Commit `3408ce5` (02.08.2026)
 - Branch: `feature/movement-camera`
 - Implementierungscommit: `4b12c57`
-- Draft-PR: `#19` gegen `developer`
+- PR: `#19` gegen `developer`
 - Scope: Beschleunigung, Abbremsung, Sprint-Zuverlaessigkeit,
   framerate-stabile Drehung, Kamera-Fokus und Kamera-Occlusion.
 - Bewahrt: vorhandene Animationen, zentrale Input-Struktur, Rolle und Sprung.

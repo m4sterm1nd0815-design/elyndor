@@ -48,7 +48,10 @@ namespace Elyndor.Core
         BridgeTensionHolds = 17,
 
         /// <summary>Die Ankerstellung traegt nicht.</summary>
-        BridgeTensionSlack = 18
+        BridgeTensionSlack = 18,
+
+        /// <summary>Der Wald antwortet auf Arens Verstehen.</summary>
+        RegionRegenerated = 19
     }
 
     /// <summary>
@@ -100,6 +103,10 @@ namespace Elyndor.Core
                  "Sagt nie, WELCHER Anker falsch steht.")]
         [SerializeField] private AudioClip bridgeTensionSlackClip;
 
+        [Header("Regeneration")]
+        [Tooltip("Leise. Der Wald antwortet, er kuendigt sich nicht an.")]
+        [SerializeField] private AudioClip regionRegeneratedClip;
+
         [Header("Inventar")]
         [SerializeField] private AudioClip inventoryOpenClip;
         [SerializeField] private AudioClip inventoryCloseClip;
@@ -147,6 +154,8 @@ namespace Elyndor.Core
             EnemyHealth.AnyDied += HandleEnemyDefeated;
             PlayerDamageReceiver.AnyDamageTaken += HandlePlayerDamaged;
             BridgePuzzle.AnyTensionEvaluated += HandleBridgeTension;
+            Elyndor.World.FinsterwaldRegeneration.AnyRegionRegenerated +=
+                HandleRegionRegenerated;
         }
 
         private void OnDisable()
@@ -163,6 +172,8 @@ namespace Elyndor.Core
             EnemyHealth.AnyDied -= HandleEnemyDefeated;
             PlayerDamageReceiver.AnyDamageTaken -= HandlePlayerDamaged;
             BridgePuzzle.AnyTensionEvaluated -= HandleBridgeTension;
+            Elyndor.World.FinsterwaldRegeneration.AnyRegionRegenerated -=
+                HandleRegionRegenerated;
         }
 
         private void Update()
@@ -296,6 +307,13 @@ namespace Elyndor.Core
                 holds ? bridgeTensionHoldsClip : bridgeTensionSlackClip,
                 0.85f);
         }
+
+        /// <summary>
+        /// Leiser als alles andere: der Wald antwortet, er kuendigt sich nicht
+        /// an. Ein lauter Ton machte aus einer Beobachtung eine Belohnung.
+        /// </summary>
+        private void HandleRegionRegenerated() =>
+            Play(SfxCue.RegionRegenerated, regionRegeneratedClip, 0.55f);
 
         /// <summary>
         /// Der Hinweis wird auch dann gezaehlt, wenn ihm noch kein Clip

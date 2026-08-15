@@ -1,9 +1,14 @@
 using System.Collections.Generic;
 using System.Text;
+using Elyndor.Companion;
 using Elyndor.Core;
+using Elyndor.Enemies;
+using Elyndor.Narration;
 using Elyndor.Player;
+using Elyndor.Puzzles;
 using Elyndor.UI;
 using Elyndor.UIFoundation;
+using Elyndor.World;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -46,7 +51,18 @@ namespace Elyndor.EditorTools.SceneIntegrity
                     typeof(IntroSequence),
                     typeof(TutorialSequence),
                     typeof(CombatTutorial),
-                    typeof(SfxLibrary))
+                    typeof(SfxLibrary),
+                    // Slice-Systeme. Bis hierhin beschrieb das Profil nur den
+                    // Stand vor P1.5. Dass genau ein Wurzelstreifer, ein Link,
+                    // ein Raetsel und eine Regeneration in der Szene stehen,
+                    // war danach nur noch durch Handarbeit und einzelne
+                    // PlayMode-Tests gedeckt — ein Baumeisterlauf, der etwas
+                    // doppelt anlegt, waere hier gruen durchgekommen.
+                    typeof(EnemyController),
+                    typeof(LinkCompanion),
+                    typeof(BridgePuzzle),
+                    typeof(WatchResonanceZone),
+                    typeof(FinsterwaldRegeneration))
                 .RequireSingleInstance(
                     typeof(PlayerInputReader),
                     typeof(HudVitalsPresenter),
@@ -59,7 +75,20 @@ namespace Elyndor.EditorTools.SceneIntegrity
                     typeof(IntroSequence),
                     typeof(TutorialSequence),
                     typeof(CombatTutorial),
-                    typeof(SfxLibrary))
+                    typeof(SfxLibrary),
+                    // Der erste Kampf ist Unterricht: genau ein Gegner. Link
+                    // ist ein Begleiter, kein Schwarm. Raetsel, Resonanzzone
+                    // und Regeneration halten je einen Zustand — doppelt
+                    // liefen sie gegeneinander.
+                    //
+                    // Bewusst nicht aufgefuehrt: BridgeAnchor (drei) und
+                    // LinkPerch (fuenf). Die sind absichtlich mehrfach.
+                    typeof(EnemyController),
+                    typeof(LinkCompanion),
+                    typeof(BridgePuzzle),
+                    typeof(WatchResonanceZone),
+                    typeof(FinsterwaldRegeneration),
+                    typeof(MemoryEchoNarration))
                 .RequireNonZeroScale(
                     "ElyndorUI",
                     ExperienceLayerMigrator.ExperienceUiName)

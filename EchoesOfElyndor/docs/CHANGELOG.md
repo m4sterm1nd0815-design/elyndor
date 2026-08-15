@@ -10,6 +10,34 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Nachtregression: zwei blinde Flecken in der Prüfung
+
+Kein Spielinhalt. Diese Runde hat die Prüfung selbst geprüft — und zweimal
+festgestellt, dass sie weniger belegt hat, als sie behauptet hat.
+
+- **Der Kampftest hat in Frames gewartet, aber Sekunden gemeint.**
+  `FinsterwaldFirstEncounterRuntimeTests.WaitUntil` zählte 900 Frames. Im
+  Editor sind das bei rund 60 Bildern je Sekunde zufällig etwa 15 s, und alles
+  lief grün. Im Batchmode laufen Frames ohne Bildsynchronisation um ein
+  Vielfaches schneller — dieselben 900 Frames waren dort kürzer als die 2 s
+  lange Verdachtsphase des Gegners. Fünf Tests meldeten daraufhin einen
+  Gegner, der nicht reagiert; in Wahrheit war er nur noch nicht an der Reihe.
+  Die Wartezeit ist jetzt zeitbasiert; die Frameschranke bleibt als Notbremse
+  gegen eine stehende Uhr. **Kein Defekt am Spiel** — ein Defekt an der
+  Messung, und einer, der die Suite außerhalb des Editors unbrauchbar machte.
+- **Das Szenenprofil war älter als der halbe Slice.** Die Integritätsprüfung
+  forderte Einmaligkeit für HUD, Eingabe und Erlebnisschicht, aber für nichts
+  aus P1.5 bis P1.10. Ein Baumeisterlauf, der einen zweiten Wurzelstreifer,
+  einen zweiten Link oder eine zweite Regeneration angelegt hätte, wäre grün
+  durchgekommen — gedeckt war das bisher nur durch Handarbeit und einzelne
+  PlayMode-Tests. Gegner, Link, Rätsel, Resonanzzone und Regeneration stehen
+  jetzt im Profil; die drei Anker und die fünf Sitzpunkte bewusst nicht, die
+  sind absichtlich mehrfach.
+- **Alle Validatoren in einem Lauf.** `NightRegressionRunner` ruft die
+  vorhandenen neun Einstiegspunkte nacheinander auf und zählt, was sie melden.
+  Er fügt keine Prüfung hinzu; er spart acht Unity-Starts und legt das
+  Ergebnis in ein Log statt in neun.
+
 ## [Unreleased] — Der Wald antwortet (P1.10)
 
 Zum ersten Mal verändert Arens Verstehen etwas in der Welt.

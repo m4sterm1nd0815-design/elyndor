@@ -47,25 +47,30 @@ Planung noch als offen galt:
 | **P1.11** Audio und VFX | **teilweise** | **P1.11A umgesetzt:** Telegraph, Treffer, Block, Niederlage und die beiden Spannungstöne des Rätsels laufen über die vorhandene `SfxLibrary`. **Offen:** Hörprobe durch einen Menschen (`AUDIO_AUDITION.md`), Ambience, türkise Bruchlinien am finalen Modell |
 | **P1.12** Level- und Art-Polishing | **teilweise** | World Visual Overhaul und Startbereich-Führung integriert |
 | **P1.13** Save und Checkpoints | **offen** | kein Save-System; Save-Bereiche sind in `ARCHITECTURE.md` nur als Vertrag vorgemerkt |
-| **P1.14** Integrationstest | **offen** | — |
+| **P1.14** Integrationstest | **umgesetzt** | `FinsterwaldSliceIntegrationRuntimeTests`: zehn Tests fahren den Kernbogen im echten Finsterwald — Begegnung, Resonanzzone, Erinnerung, Rätsel, Antwort des Waldes. Kampf über simulierte Geräte, jede Interaktion über den `InteractionDetector`. Belegt Reihenfolge, Softlock-Freiheit, Umkehrbarkeit und die Doppelbedingung der Regeneration |
 
 ## Nächste sinnvolle Schritte
 
 Der Kernbogen steht jetzt vollständig: Bewegung → Begegnung → Memory Watch →
 Rätsel → Antwort der Welt. Was fehlt, ist nicht mehr Mechanik, sondern Urteil.
 
+Seit P1.14 läuft der Bogen auch als Test durch, nicht nur von Hand.
+
 1. **Menschliche Abnahme** — `FINSTERWALD_HUMAN_ACCEPTANCE.md` und
    `AUDIO_AUDITION.md`. Der Slice ist an mehreren Stellen bewusst nicht
    entschieden, weil nur ein Mensch entscheiden kann: ob das Rätsel hergeleitet
    oder geraten wird, ob die Töne tragen, ob die Regeneration leise genug ist.
-2. **P1.14 Integrationstest** — der durchgehende Lauf als Test, nicht als
-   Handarbeit.
+   **Das ist der nächste Schritt** — alles Weitere baut auf Antworten, die
+   noch fehlen.
+2. **Wegöffnung der Regeneration** — welcher Weg sich öffnet, ist eine
+   Leveldesign-Entscheidung nach der Abnahme. `blockedPath` bleibt bis dahin
+   unverdrahtet.
 3. Erst danach **P1.6** (weitere Gegnertypen), **P1.12** (Art) und **P1.13**
    (Save).
 
-**Keine erledigte Arbeit erneut bauen:** P1.2, P1.5, P1.7, P1.8, P1.9, P1.10
-und P1.11A sind umgesetzt und gemergt. Ältere Planungsdokumente, die sie als
-offen führen, sind in diesem Punkt überholt.
+**Keine erledigte Arbeit erneut bauen:** P1.2, P1.5, P1.7, P1.8, P1.9, P1.10,
+P1.11A und P1.14 sind umgesetzt. Ältere Planungsdokumente, die sie als offen
+führen, sind in diesem Punkt überholt.
 
 ## Offene Punkte aus der Planung, die weiterhin gelten
 

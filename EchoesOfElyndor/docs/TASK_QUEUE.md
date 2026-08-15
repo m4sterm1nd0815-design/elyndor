@@ -49,6 +49,8 @@ nachgetragen; maßgeblich für den Paketstand bleibt
 | P1.9 Lore und Narration | INTEGRIERT | PR #45 | Merge-Commit 831d643; SOREN und ELIAN kommen nicht vor |
 | P1.10 Regionsregeneration | INTEGRIERT | PR #46 | Merge-Commit 8a4fa87; Wegoeffnung bewusst nicht verdrahtet |
 | Menschliche Abnahmeanleitung | INTEGRIERT | PR #47 | Merge-Commit b5536ee; zwoelf Stationen, ohne Raetsellosung |
+| QA-Haertung und Compiler-Gate | INTEGRIERT | PR #48 | Merge-Commit 40b3a53; Frames-statt-Sekunden behoben, Szenenprofil erweitert, Compiler-Gate mit Neubau-Nachweis |
+| P1.14 Integrationstest | REVIEW | `feature/finsterwald-slice-integration` | Kernbogen als ein Ablauf; kein Selbst-Merge, Game-Director-Review-Punkt |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 

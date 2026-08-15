@@ -1,8 +1,13 @@
 # Finsterwald — Human Vertical Slice Acceptance
 
 Stand: 15. August 2026
-Basis: `origin/developer` bei `8a4fa87`
+Basis: `origin/developer` bei `d5af354` (nach PR #49)
 Dauer: **10–15 Minuten**
+
+> Die Szenendatei ist seit dem Schreiben dieser Anleitung **unverändert**
+> (byte-identisch gegenüber `8a4fa87`). Alle Koordinaten und Stationen unten
+> gelten weiterhin. Seither kamen nur Tests, QA-Werkzeug und Dokumentation
+> dazu — nichts, was das Spielgefühl berührt.
 
 Diese Anleitung ist für **eine** Sitzung gedacht: einmal durch den Kernbogen,
 mit gezielten Fragen an den Stellen, die nur ein Mensch beantworten kann.
@@ -32,6 +37,12 @@ Geh vom Startbereich nach Norden los. Probier Gehen, Sprinten und die Rolle.
 2. Bleibt die Kamera in engen Stellen brauchbar?
 3. Merkst du, dass Sprint und Rolle Ausdauer kosten — ohne auf die Leiste zu
    schauen?
+4. **Sind die Stationen zu Fuß gut erreichbar** — oder sind die Wege zwischen
+   Lichtung, Brücke und Startbereich zu lang, zu unklar oder verbaut?
+
+> **HUMAN QA OPEN** · Der Integrationstest (P1.14) versetzt Aren zwischen den
+> Stationen, statt ihn laufen zu lassen. Ob der Weg **zu Fuß** trägt, ist
+> damit die einzige Stelle des Kernbogens, die keine Maschine geprüft hat.
 
 `PASS / FAIL / ANMERKUNG:`
 

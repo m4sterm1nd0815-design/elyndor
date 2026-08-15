@@ -99,6 +99,36 @@ if (-not (Test-Path $UnityExe)) {
 $assemblyDir = Join-Path $ProjectPath 'Library\ScriptAssemblies'
 $buildCacheDir = Join-Path $ProjectPath 'Library\Bee'
 
+# Erst nachsehen, ob das Projekt offen ist — dann erst loeschen.
+#
+# Die erste Fassung hat in umgekehrter Reihenfolge gearbeitet: Assemblies und
+# Build-Cache weg, dann Unity starten, dann feststellen, dass eine andere
+# Instanz das Projekt haelt. Ergebnis war ein sauberer Abbruch mit Code 2 —
+# und ein geoeffneter Editor, dem gerade unter den Haenden die Assemblies
+# entfernt worden waren. Ein Pruefwerkzeug darf die Arbeit eines Menschen
+# nicht beschaedigen, nur weil es selbst nicht laufen kann.
+$lockFile = Join-Path $ProjectPath 'Temp\UnityLockfile'
+
+if (Test-Path $lockFile) {
+    $locked = $false
+
+    try {
+        $stream = [System.IO.File]::Open(
+            $lockFile, 'Open', 'ReadWrite', 'None')
+        $stream.Close()
+    } catch {
+        $locked = $true
+    }
+
+    if ($locked) {
+        Write-Output ''
+        Write-Output 'GATE ABBRUCH — das Projekt ist in Unity geoeffnet.'
+        Write-Output 'Es wurde nichts geloescht und nichts veraendert.'
+        Write-Output 'Bitte den Editor schliessen und erneut starten.'
+        exit 3
+    }
+}
+
 # Beides muss weg. Nur die Assemblies zu loeschen genuegt nicht: Unity stellt
 # sie dann aus dem Build-Cache wieder her, ohne den Compiler laufen zu lassen.
 # Die Dateien sind danach frisch datiert, im Log steht aber keine einzige

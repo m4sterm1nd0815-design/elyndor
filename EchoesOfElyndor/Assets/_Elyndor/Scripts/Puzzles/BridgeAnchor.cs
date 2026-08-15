@@ -33,6 +33,11 @@ namespace Elyndor.Puzzles
         [Tooltip("Wie schnell sich der Stein in seine Stellung dreht.")]
         [Min(1f)] [SerializeField] private float turnSpeedDegrees = 220f;
 
+        [Tooltip("Kerbengruppen, Index gleich Stellung. Sichtbar ist immer " +
+                 "nur die zur aktuellen Stellung gehoerende.")]
+        [SerializeField] private GameObject[] notchGroups =
+            Array.Empty<GameObject>();
+
         [SerializeField] private BridgePuzzle puzzle;
 
         private Quaternion baseRotation;
@@ -47,6 +52,12 @@ namespace Elyndor.Puzzles
 
         /// <summary>Kerbenzahl der aktuellen Stellung, 1 bis 3.</summary>
         public int Notches => BridgePuzzleRules.NotchesForSetting(setting);
+
+        /// <summary>Die gerade sichtbare Kerbengruppe; kann fehlen.</summary>
+        public GameObject VisibleNotchGroup =>
+            setting >= 0 && setting < notchGroups.Length
+                ? notchGroups[setting]
+                : null;
 
         public override string InteractionPrompt =>
             $"Anker drehen ({Notches} Kerben)";
@@ -99,6 +110,7 @@ namespace Elyndor.Puzzles
         public void Turn()
         {
             setting = (setting + 1) % BridgePuzzleRules.SettingsPerAnchor;
+            ApplyNotchGroups();
             Turned?.Invoke(this);
         }
 
@@ -127,6 +139,28 @@ namespace Elyndor.Puzzles
             if (rotatingPart != null)
             {
                 rotatingPart.localRotation = TargetRotation();
+            }
+
+            ApplyNotchGroups();
+        }
+
+        /// <summary>
+        /// Zeigt genau die Kerbengruppe der aktuellen Stellung.
+        ///
+        /// Zuerst trugen alle drei Gruppen gleichzeitig ihre Kerben am Stein.
+        /// Aus jedem Blickwinkel waren dann Teile von zwei oder drei Gruppen zu
+        /// sehen, und der Stein wirkte umwickelt statt gekerbt — zaehlen liess
+        /// sich daran nichts. Sichtbar ist deshalb immer nur eine Gruppe; die
+        /// Drehung des Steins bleibt als spuerbare Rueckmeldung erhalten.
+        /// </summary>
+        private void ApplyNotchGroups()
+        {
+            for (int i = 0; i < notchGroups.Length; i++)
+            {
+                if (notchGroups[i] != null)
+                {
+                    notchGroups[i].SetActive(i == setting);
+                }
             }
         }
     }

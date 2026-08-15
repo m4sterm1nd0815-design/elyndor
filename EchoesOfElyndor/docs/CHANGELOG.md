@@ -10,6 +10,40 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Link, die Eule (P1.8)
+
+Arens Begleiter ist zum ersten Mal im Finsterwald anwesend.
+
+- **Link spricht nicht, zeigt nicht und führt nicht.** Er sitzt, sieht hin,
+  wechselt gelegentlich den Platz und ruft manchmal. Kein Questmarker, kein
+  Pfeil, keine Lösungsanzeige, keine menschliche Sprache, kein Untertitel für
+  seinen Ruf.
+- **Die Platzwahl kann die Lösung gar nicht verraten.** `LinkCompanion` hat
+  keinen Verweis auf Rätsel oder Anker — die Information liegt dort schlicht
+  nicht vor. Ein Test fährt alle 27 Ankerstellungen durch und verlangt
+  dieselbe Wahl.
+- **Kein Collider.** Link kann Aren nicht im Weg stehen.
+- **Fünf Sitzpunkte** an Startbereich, Rastplatz, Lichtung und Brücke. Der
+  Sitzpunkt an der Brücke schaut auf die Mitte der Lücke — auf den räumlichen
+  Zusammenhang, nicht auf einen Anker.
+- **Rückfall:** ohne brauchbaren Sitzpunkt hält Link sich in Arens Nähe, statt
+  zu verschwinden oder hängenzubleiben.
+- **Modell ist ein Primitiv-Platzhalter.** Im Bestand gibt es keinen Vogel —
+  das Tierpack kennt Wolf, Hirsch, Fuchs und Vieh. Nichts beschafft, keine
+  Meshy-Ausgabe. Finale Link-Kunst kommt später.
+- **Tests:** PlayMode 132 → **141**. Darunter: Sitzpunktwechsel, Rückfall, kein
+  Softlock bei nur einem Sitzpunkt, kein Collider, genau eine Instanz in der
+  Szene, und das Rätsel bleibt ohne Link vollständig lösbar.
+
+### Nebenbefund: 120 Compilerwarnungen, die niemand gesehen hat
+
+Beim Gate-Lauf zeigte das Editor-Log **120 Warnungen** (alle CS0618, veraltete
+`FindObjectsSortMode`-Überladung) in sechs Dateien — drei davon längst auf
+`developer`. Die Unity-Console über MCP hatte sie nie ausgegeben, und frühere
+Berichte haben deshalb „0 Warnungen" gemeldet, obwohl es keine null waren.
+Alle sind jetzt behoben; die Warnungsfreiheit ist erstmals gegen das Editor-Log
+belegt statt gegen die Console.
+
 ## [Unreleased] — Lesbarkeit am Brückenrätsel
 
 Noch keine finale Kunst. Nur: man muss sehen können, was man tut.

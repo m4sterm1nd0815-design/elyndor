@@ -53,8 +53,7 @@ namespace Elyndor.Tests
             yield return LoadScene();
 
             BridgePuzzle[] puzzles =
-                UnityEngine.Object.FindObjectsByType<BridgePuzzle>(
-                    FindObjectsInactive.Include, FindObjectsSortMode.None);
+                UnityEngine.Object.FindObjectsByType<BridgePuzzle>(FindObjectsInactive.Include);
 
             Assert.That(
                 puzzles.Length,
@@ -64,8 +63,7 @@ namespace Elyndor.Tests
             puzzle = puzzles[0];
 
             BridgeAnchor[] anchors =
-                UnityEngine.Object.FindObjectsByType<BridgeAnchor>(
-                    FindObjectsInactive.Include, FindObjectsSortMode.None);
+                UnityEngine.Object.FindObjectsByType<BridgeAnchor>(FindObjectsInactive.Include);
 
             Assert.That(
                 anchors.Length,
@@ -249,8 +247,7 @@ namespace Elyndor.Tests
             yield return LoadScene();
 
             BridgeAnchor[] anchors =
-                UnityEngine.Object.FindObjectsByType<BridgeAnchor>(
-                    FindObjectsInactive.Include, FindObjectsSortMode.None);
+                UnityEngine.Object.FindObjectsByType<BridgeAnchor>(FindObjectsInactive.Include);
 
             Assert.That(
                 anchors.Length,
@@ -307,8 +304,7 @@ namespace Elyndor.Tests
             yield return LoadScene();
 
             BridgeAnchor[] anchors =
-                UnityEngine.Object.FindObjectsByType<BridgeAnchor>(
-                    FindObjectsInactive.Include, FindObjectsSortMode.None);
+                UnityEngine.Object.FindObjectsByType<BridgeAnchor>(FindObjectsInactive.Include);
 
             for (int a = 0; a < anchors.Length; a++)
             {
@@ -376,8 +372,7 @@ namespace Elyndor.Tests
         private void SetAnchors(int south, int side, int north)
         {
             foreach (BridgeAnchor anchor in
-                     UnityEngine.Object.FindObjectsByType<BridgeAnchor>(
-                         FindObjectsInactive.Include, FindObjectsSortMode.None))
+                     UnityEngine.Object.FindObjectsByType<BridgeAnchor>(FindObjectsInactive.Include))
             {
                 int notches = anchor.AnchorId switch
                 {

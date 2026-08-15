@@ -10,6 +10,29 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Lore und Narration (P1.9)
+
+Nur der bestätigte Kanon. Kein Name fällt, keine Herkunft wird erklärt.
+
+- **Alle Texte hinter Lokalisierungsschlüsseln** in einem `NarrationCatalog`.
+  Kein Text im Code, keiner in einem Inspectorfeld einer Szene — sonst müsste
+  eine Übersetzung die Szene durchsuchen, und ein Text in einem Prefab wird
+  zuverlässig übersehen.
+- **Die Stimme bleibt unbekannt.** Die freigegebene Zeile „Du suchst immer nach
+  dem Weg, Aren." fällt nach der Erinnerung, mit dem Sprecher **„Unbekannte
+  Stimme"**. Kein Name.
+- **Aus der Erinnerung nimmt Aren einen Satz mit: „Ich war hier."** Nicht wer
+  bei ihm war, nicht warum, nicht wann, nicht wer seine Erinnerungen genommen
+  hat. Ein Test verlangt den Satz und verbietet die Erklärungen.
+- **Ein wiederkehrendes Zeichen** — drei Linien, die sich nicht kreuzen — an
+  zwei Orten, ausdrücklich unerklärt.
+- **Drei optionale Umgebungstexte.** Klein, freiwillig, ohne neue Eigennamen.
+- **Verbotene Begriffe sind testgesichert.** Kanon, der nur in einem Dokument
+  steht, überlebt den ersten beiläufigen Textnachtrag nicht.
+- **Gameplay ohne Lore:** ein Test entfernt jedes Loreobjekt und löst das
+  Rätsel trotzdem vollständig.
+- **Tests:** PlayMode 141 → **151**.
+
 ## [Unreleased] — Link, die Eule (P1.8)
 
 Arens Begleiter ist zum ersten Mal im Finsterwald anwesend.

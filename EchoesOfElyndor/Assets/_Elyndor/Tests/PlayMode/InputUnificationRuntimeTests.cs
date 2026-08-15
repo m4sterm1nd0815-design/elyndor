@@ -142,6 +142,12 @@ namespace Elyndor.Tests
             yield return null;
         }
 
+        // Hinweis: Ob die Rolle im ausgelieferten Asset auf Strg liegt, kann
+        // diese Suite nicht pruefen — sie baut sich ihr Actions-Asset selbst
+        // (siehe CreatePlayer). Genau daran ist der Strg-Fehler so lange
+        // vorbeigelaufen. Die Belegung des Projekt-Assets prueft
+        // InputBindingCollisionTests.
+
         [UnityTest]
         public IEnumerator Block_ReagiertAufTastaturUndGamepad()
         {

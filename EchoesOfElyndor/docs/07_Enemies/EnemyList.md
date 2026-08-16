@@ -1,6 +1,6 @@
 # Enemy List
 
-Stand: 15. August 2026
+Stand: 16. August 2026
 
 Übersicht der Gegner. Die Rolle im Encounter steht in
 `FINSTERWALD_ENCOUNTER_PLAN.md`, die gemeinsame Technik in
@@ -8,7 +8,7 @@ Stand: 15. August 2026
 
 | Gegner | Rolle | Stand | Entwurf |
 |---|---|---|---|
-| **Wurzelstreifer** | Mobiler Nahkampf-Lehrer; erster echter Gegner | **Umgesetzt (P1.5)** — Blockout in der Szene, finales Asset offen | [Konzeptentwurf](WURZELSTREIFER_CONCEPT_BRIEF.md) |
+| **Wurzelstreifer** | Mobiler Nahkampf-Lehrer; erster echter Gegner | **Umgesetzt (P1.5)** — finales Asset in der Szene, künstlerisch freigegeben (16.08.2026, für den Vertical-Slice-Stand) | [Konzeptentwurf](WURZELSTREIFER_CONCEPT_BRIEF.md) |
 | Echohüter | Langsamer Raumkontrolleur | Geplant (P1.6) | — |
 | Namenloser Hüter | Abschlussprüfung des Slice | Geplant | — |
 
@@ -36,5 +36,9 @@ Alle Werte sind vorläufige Balancingwerte. Sie liegen als Konstanten in
 Gegnergrundlage gelegt — nicht nur im Prefab, damit sie ohne Unity nachlesbar
 und testbar bleiben.
 
-**Modell:** derzeit der vorhandene Quaternius-Wolf (CC0) als reiner Blockout.
-Er definiert **nicht** die Art Direction; siehe Konzeptentwurf.
+**Modell:** seit dem 16.08.2026 das eigene Asset
+`ELY_Enemy_Wurzelstreifer` aus Blender (PR #53, Merge-Commit `08beca9`); der
+technische Stand steht in `../Technical/WURZELSTREIFER_ASSET.md`. Der
+Quaternius-Wolf (CC0) war der Blockout davor und hat **nie** die Art Direction
+definiert; siehe Konzeptentwurf. Die künstlerische Freigabe für den
+gegenwärtigen Vertical-Slice-Stand liegt vor.

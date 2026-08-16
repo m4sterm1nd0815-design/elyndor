@@ -297,8 +297,10 @@ Erinnerung gesehen. Schau dich danach an der Brücke um.
 
 Alles davon ist bekannt und keine Rückmeldung wert:
 
-- **Blockout-Optik** bei Wurzelstreifer, Link, Ankern, Seilbock, Bohlen und
-  Trieben.
+- **Blockout-Optik** bei Link, Ankern, Seilbock, Bohlen und Trieben. Der
+  Wurzelstreifer hat seit dem 16.08.2026 sein finales Modell; seine Darstellung
+  ist für diesen Stand künstlerisch freigegeben und braucht ebenfalls keine
+  Rückmeldung.
 - **Keine Ambience** — kein Wald-, Wasser- oder Nachtklang.
 - **Link ruft nicht hörbar** — der Ruf ist im Code vorgesehen, hat aber
   bewusst noch keinen Clip.

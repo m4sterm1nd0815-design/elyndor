@@ -52,6 +52,7 @@ nachgetragen; maßgeblich für den Paketstand bleibt
 | QA-Haertung und Compiler-Gate | INTEGRIERT | PR #48 | Merge-Commit 40b3a53; Frames-statt-Sekunden behoben, Szenenprofil erweitert, Compiler-Gate mit Neubau-Nachweis |
 | P1.14 Integrationstest | INTEGRIERT | PR #49 | Merge-Commit d5af354; Kernbogen als ein Ablauf |
 | Human Vertical Slice Acceptance | ABGESCHLOSSEN | — | 15.08.2026, **PASS**. Dabei gefunden: Rolle reagierte nicht auf Strg. Station 8 fuer diesen Pruefer nicht mehr beurteilbar |
+| Wurzelstreifer Art-Freigabe | ABGESCHLOSSEN | — | 16.08.2026, Game Director: „passt erstmal so". Kuenstlerische Freigabe der In-Game-Darstellung fuer den Vertical-Slice-Stand auf Merge-Commit `08beca9`; Detailgrad, Materialfarben und Tuerkiston brauchen dafuer keine Aenderung. Erinnerungsschliere, Audio, Texturstandard, LOD und der ungenutzte `Trab` bleiben offen |
 | Rollen-Belegung und Gate-Haertung | REVIEW | PR #50 | Roll-Action auf Strg; Compiler-Gate fasst offene Editoren nicht mehr an |
 | P1.13A Save/Persistence Foundation | REVIEW | `feature/save-persistence-foundation`, PR #51 | Fortschritt ueberlebt Programmstart; kein Selbst-Merge, Game-Director-Review-Punkt |
 | Blender-Asset-Pipeline (Nachweis) | REVIEW | PR #51 | Kette Blender → Unity an `ELY_Test_Rock_A` gemessen; `ModelImportValidator` kennt genau dieses Asset |

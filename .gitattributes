@@ -24,3 +24,48 @@
 *.fbx        binary
 *.glb        binary
 *.gltf       binary
+
+# Unity schreibt seine Textdateien grundsaetzlich mit LF. Ausgecheckt werden sie
+# hier wegen `core.autocrlf=true` mit CRLF. Sobald der Editor eine solche Datei
+# anfasst, stehen dort wieder LF — die Datei hat damit eine andere Groesse als
+# der Eintrag im Index, und `git status` meldet sie als geaendert. `git diff`
+# zeigt dann nichts, weil der Inhalt nach der Normalisierung identisch ist.
+#
+# Nachgemessen an ProjectSettings/TimeManager.asset: 211 Bytes ausgecheckt
+# (CRLF) gegen 202 Bytes nach einem LF-Schreibvorgang, Status ` M`, Diff leer.
+#
+# Diese Phantomeintraege kosten mehr, als sie aussehen: `git status` ist nicht
+# mehr lesbar, ohne jede gemeldete Datei einzeln nachzuschlagen — und irgendwann
+# wandert eine echte Aenderung mit in einen Commit, weil sie in der Liste
+# unterging.
+#
+# Deshalb bekommen genau die von Unity geschriebenen Textdateien auch im
+# Arbeitsverzeichnis LF. Der Auscheckzustand entspricht damit dem, was der
+# Editor ohnehin schreibt, und zwar unabhaengig davon, wie `core.autocrlf` auf
+# dem jeweiligen Rechner steht.
+#
+# `text=auto` und nicht `text`: Die drei TerrainData-Assets (Finsterwald,
+# Nebelmoor, Sonnenfelder) liegen binaer vor, obwohl sie auf `.asset` enden.
+# Ein erzwungenes `text` wuerde sie bei jedem Auschecken durch die
+# Zeilenendenumwandlung schicken und damit zerstoeren. `auto` erkennt sie als
+# binaer und laesst sie unberuehrt.
+*.unity        text=auto eol=lf
+*.prefab       text=auto eol=lf
+*.asset        text=auto eol=lf
+*.mat          text=auto eol=lf
+*.controller   text=auto eol=lf
+*.anim         text=auto eol=lf
+*.meta         text=auto eol=lf
+*.terrainlayer text=auto eol=lf
+*.asmdef       text=auto eol=lf
+*.inputactions text=auto eol=lf
+
+# Dieselbe Ursache, nur ausserhalb des YAML-Formats: Auch die Projekt- und
+# Paketkonfiguration schreibt Unity mit LF. `git diff` hat dort zuletzt genau
+# dieselbe Meldung ausgegeben ("LF will be replaced by CRLF") wie bei den
+# Assets. Die Regel bleibt bewusst auf diese beiden Verzeichnisse begrenzt,
+# damit sie kein JSON in `tools/` oder `docs/` erfasst, das niemand aus Unity
+# heraus schreibt.
+EchoesOfElyndor/ProjectSettings/*.json    text=auto eol=lf
+EchoesOfElyndor/ProjectSettings/*.txt     text=auto eol=lf
+EchoesOfElyndor/Packages/*.json           text=auto eol=lf

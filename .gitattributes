@@ -14,3 +14,13 @@
 *.mat        whitespace=-trailing-space
 *.controller whitespace=-trailing-space
 *.anim       whitespace=-trailing-space
+*.meta       whitespace=-trailing-space
+
+# 3D-Quell- und Austauschdateien sind binär. Git erkennt das zwar meist selbst,
+# aber eine FBX-Datei kann auch als Text vorliegen — und eine als Text
+# behandelte Binärdatei überlebt eine Zeilenendenumwandlung nicht. Der Schaden
+# fiele erst beim Import auf, nicht beim Commit.
+*.blend      binary
+*.fbx        binary
+*.glb        binary
+*.gltf       binary

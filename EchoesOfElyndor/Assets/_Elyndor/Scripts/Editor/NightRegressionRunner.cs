@@ -65,6 +65,8 @@ namespace Elyndor.EditorTools
                 SceneIntegrity.FinsterwaldSceneIntegrityValidator.ValidateFromMenu),
             new Check("SceneIntegrityAlleSzenen",
                 SceneIntegrity.RegionSceneIntegrityValidator.ValidateFromMenu),
+            new Check("ModelImports",
+                ModelImportValidator.Validate),
         };
 
         [MenuItem("Elyndor/QA/Alle Validatoren durchlaufen")]

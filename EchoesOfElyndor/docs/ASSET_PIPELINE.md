@@ -43,6 +43,13 @@ Importfreigabe.
 - Das Finsterwald Root Gate ist ein bestehendes Meshy-Hero-Asset auf
   `feature/world-visual-overhaul`; es darf nicht erneut generiert werden.
 
+## Herstellung eigener 3D-Assets
+
+Wie ein Asset in Blender entsteht, exportiert, importiert und geprueft wird,
+steht in `Technical/BLENDER_ASSET_PIPELINE.md`. Dieses Dokument hier regelt
+Beschaffung, jenes Herstellung. Wo beide etwas zum selben Punkt sagen, gilt der
+strengere Wert.
+
 ## Unity-Importstandard
 
 - Modelle: FBX bevorzugt, konsistente Meter-Skalierung und aufrechte Achsen.

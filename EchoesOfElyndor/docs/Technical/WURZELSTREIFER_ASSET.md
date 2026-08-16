@@ -11,10 +11,17 @@ Die gestalterische Vorgabe steht in `../07_Enemies/WURZELSTREIFER_CONCEPT_BRIEF.
 von beiden, ist dieses Dokument falsch.
 
 > **Freigabestand:** Das Asset ist **technisch integriert**. Die finale
-> künstlerische Abnahme steht **aus** und ist ein menschliches Gate. Kein Wert
-> in diesem Dokument und kein grünes Gate im Projekt behauptet etwas über die
-> gestalterische Qualität — sie ist nicht automatisch prüfbar und wurde nicht
-> geprüft.
+> künstlerische Abnahme ist am **16. August 2026 erteilt**: Der Game Director
+> hat die In-Game-Darstellung mit „passt erstmal so" für den gegenwärtigen
+> Vertical-Slice-Stand freigegeben. Detailgrad, Materialfarben und der
+> Türkiston brauchen für diesen Stand **keine Änderung**.
+>
+> Die Freigabe gilt der Darstellung, die mit Merge-Commit
+> `08beca9a97136aaf3f9a3c634b06839b018bd123` in `developer` steht, und deren
+> unverändertem Assetstand. Sie ist eine menschliche Entscheidung — kein Wert
+> in diesem Dokument und kein grünes Gate im Projekt hat sie belegt oder
+> ersetzt. Sie sagt nichts über spätere Produktionsstände und stellt keine
+> neuen visuellen Anforderungen auf.
 
 ---
 
@@ -141,7 +148,8 @@ niedrigste Dreieckszahl, bei der die Silhouette noch liest — nicht die höchst
 die das Budget hergibt." Ein handgebautes Modell fängt unten an. Der Validator
 führt die 20.000 als Obergrenze, nicht als Sollwert.
 
-Wo die Silhouette nach der Art-Abnahme mehr Auflösung braucht, ist Luft.
+Die Art-Abnahme vom 16.08.2026 hat für diesen Stand keine höhere Auflösung
+verlangt. Wo eine spätere Abnahme sie verlangt, ist Luft.
 
 ---
 
@@ -307,23 +315,32 @@ und von dort ins Modell gewandert.
 
 ---
 
-## Offene visuelle Entscheidungen
+## Visuelle Entscheidungen
 
 Diese Punkte sind **menschliche Gates**. Kein Werkzeug im Projekt kann sie
-beantworten, und kein grünes Gate behauptet, sie seien beantwortet.
+beantworten; beantwortet sind sie nur dort, wo unten ein Mensch entschieden
+hat, und kein grünes Gate hat daran mitgewirkt.
 
-- **Finale Art-Abnahme der Silhouette.** Liest der erste Blick als „mit diesem
-  Wesen stimmt etwas nicht" und nicht als „hier kommt das nächste Monster"?
-  Das ist die Kernfrage des Konzeptentwurfs und die einzige, die zählt.
-- **Auflösung und Detailgrad.** 3.558 Dreiecke sind eine bewusst niedrige
-  Untergrenze. Ob Kopf, Rindenplatten oder Wurzelstränge mehr Auflösung
-  brauchen, entscheidet der Blick, nicht das Budget.
-- **Farbwerte.** Base Color und Roughness beider Materialien stammen aus dem
-  Blender-Aufbau und sind Vorschläge, keine Freigabe.
-- **Der Türkiston** `(0.16, 0.72, 0.68)` steht als Vorgabewert in
-  `WurzelstreiferFeedback` und wurde übernommen, nicht geprüft.
+### Entschieden am 16. August 2026
+
+Der Game Director hat die In-Game-Darstellung mit „passt erstmal so"
+freigegeben. Die Freigabe gilt dem Stand auf Merge-Commit `08beca9`, für den
+gegenwärtigen Vertical Slice.
+
+- **Finale Art-Abnahme der Silhouette — bestanden.** Die Kernfrage des
+  Konzeptentwurfs ist für diesen Stand beantwortet.
+- **Auflösung und Detailgrad — keine Änderung nötig.** 3.558 Dreiecke bleiben
+  für diesen Stand stehen.
+- **Farbwerte — keine Änderung nötig.** Base Color und Roughness beider
+  Materialien bleiben, wie sie aus dem Blender-Aufbau kommen.
+- **Der Türkiston** `(0.16, 0.72, 0.68)` aus `WurzelstreiferFeedback` — **keine
+  Änderung nötig.**
+
+### Weiterhin offen
+
 - **Ob die Bruchlinien als Geometrie bleiben** oder auf eine Texturmaske
-  wechseln, sobald ein Texturstandard steht.
+  wechseln, sobald ein Texturstandard steht. Das ist eine technische Frage und
+  von der Art-Freigabe nicht berührt.
 - **Die bodennahe Erinnerungsschliere beim Sprungangriff** aus Abschnitt 4 des
   Entwurfs fehlt weiterhin. Sie ist ein VFX und kein Modellteil.
 - **Audio** — Lauschen, Telegraph, Biss, Treffer, Beruhigung — fehlt

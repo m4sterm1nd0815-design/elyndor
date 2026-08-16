@@ -66,10 +66,15 @@ gemessenen Kampfwerte — Kapselhöhe, Reichweite, Halteabstand, Höhe der
 Lebensanzeige — stehen weiterhin an genau einer Stelle. Am Gameplay ist nichts
 geändert.
 
-**Offen und ausdrücklich nicht bestanden: die finale künstlerische Abnahme.**
-Sie ist ein menschliches Gate. Kein grünes Gate in diesem Eintrag sagt etwas
-darüber, ob der Gegner gut aussieht. Was noch aussteht, steht in
-`Technical/WURZELSTREIFER_ASSET.md`.
+**Die finale künstlerische Abnahme ist erteilt.** Am 16.08.2026 hat der Game
+Director die In-Game-Darstellung mit „passt erstmal so" für den gegenwärtigen
+Vertical-Slice-Stand freigegeben; Detailgrad, Materialfarben und Türkiston
+brauchen dafür keine Änderung. Die Freigabe gilt dem Stand auf Merge-Commit
+`08beca9` und ist eine menschliche Entscheidung — kein grünes Gate in diesem
+Eintrag sagt etwas darüber, ob der Gegner gut aussieht. Was weiterhin offen
+ist — Erinnerungsschliere, Audio, Texturstandard und der ungenutzte `Trab` —,
+steht unverändert in `Technical/WURZELSTREIFER_ASSET.md`; die offene
+LOD-Entscheidung in `FINSTERWALD_ASSET_REQUIREMENTS.md`.
 
 ## [Unreleased] — Der Stamm blieb im Bach, und schuld war das Speichern
 

@@ -34,7 +34,7 @@ Kosten haben. Einzelheiten in `04_Gameplay/Combat.md`.
 | Werte | 35-45 LP; 8-12 Schaden; maximal 2 aktive Angreifer. |
 | Spawn | Ein Exemplar auf der Lichtung; spaeter zwei am regenerierten Nordpfad, mit ausreichend Ausweichraum. |
 | Animation | Idle/Lauschen, Walk, Trot, Strafe, Telegraph, Sprungbiss, Hit L/R, Heavy Stagger, Rueckzug, Beruhigung/Niederlage. |
-| Modelle/VFX | `ENTSCHIEDEN` (15.08.2026): vorhandener Quaternius-Wolf (CC0) nur als Blockout — umgesetzt. Finales Modell noch nicht beauftragt; Vorgabe in `07_Enemies/WURZELSTREIFER_CONCEPT_BRIEF.md`. Tuerkise Rissglut und Rindenstaub umgesetzt; bodennahe Erinnerungsschliere offen. |
+| Modelle/VFX | `ENTSCHIEDEN` (15.08.2026): vorhandener Quaternius-Wolf (CC0) nur als Blockout — umgesetzt. `ENTSCHIEDEN` (16.08.2026): finales Modell im Haus gebaut und integriert (PR #53, Merge-Commit `08beca9`), kuenstlerisch freigegeben fuer den gegenwaertigen Vertical-Slice-Stand; technischer Stand in `Technical/WURZELSTREIFER_ASSET.md`, Vorgabe in `07_Enemies/WURZELSTREIFER_CONCEPT_BRIEF.md`. Tuerkise Rissglut und Rindenstaub umgesetzt; bodennahe Erinnerungsschliere offen. |
 | Bindung | `ENTSCHIEDEN`: 12 m um die Lichtung. Darueber kehrt er zurueck und nimmt bis dahin kein Ziel wahr. |
 | Stand | **Umgesetzt in P1.5.** Werte im Prefab `Prefabs/Enemies/Blockout/Wurzelstreifer_Blockout.prefab`, Profil im Code unter `Scripts/Enemies/Wurzelstreifer.cs`. |
 | Technik | Perception, State Machine, NavMesh/Steering, IDamageable-Erweiterung, PlayerVitals-Schaden, Hitstop/Feedback, Spawn- und Resetlogik. |

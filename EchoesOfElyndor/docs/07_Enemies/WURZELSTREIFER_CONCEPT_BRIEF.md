@@ -10,9 +10,12 @@ Status: `FREIGEGEBEN` als Art-Direction-Vorgabe.
 > gemessene Maße, Rig- und Animationsumfang.
 >
 > Das Asset ist **technisch integriert** und steht auf der Kleinen Lichtung.
-> Die **finale künstlerische Abnahme steht aus** — sie ist ein menschliches
-> Gate, und kein grünes Gate im Projekt sagt etwas über sie. Was dieser Entwurf
-> beschreibt, ist weiterhin die Vorgabe, gegen die abgenommen wird.
+> Die **finale künstlerische Abnahme ist erteilt** (16.08.2026, Game Director:
+> „passt erstmal so"): Die In-Game-Darstellung ist für den gegenwärtigen
+> Vertical-Slice-Stand freigegeben, Detailgrad, Materialfarben und Türkiston
+> brauchen dafür keine Änderung. Die Freigabe gilt dem Stand auf Merge-Commit
+> `08beca9`. Sie ist eine menschliche Entscheidung; kein grünes Gate im Projekt
+> hat sie belegt. Was dieser Entwurf beschreibt, bleibt die Vorgabe.
 >
 > Der Blockout mit dem Quaternius-Wolf bleibt als Werkzeug erhalten
 > (`Elyndor/Setup/Wurzelstreifer-Blockout bauen`); in der Szene steht er nicht
@@ -232,10 +235,14 @@ binden:
 
 ## 9. Offen
 
-Stand 16.08.2026, nach dem Bau des finalen Modells.
+Stand 16.08.2026, nach dem Bau des finalen Modells und der Art-Freigabe.
 
 **Erledigt:**
 
+- ~~Finale künstlerische Abnahme des Modells~~ — am 16.08.2026 vom Game
+  Director erteilt („passt erstmal so"), für den gegenwärtigen
+  Vertical-Slice-Stand auf Merge-Commit `08beca9`. Detailgrad, Materialfarben
+  und Türkiston brauchen für diesen Stand keine Änderung.
 - ~~Beauftragung des finalen Modells~~ — eigene Modellierung in Blender,
   ohne Meshy-Credits.
 - ~~Emissionsmaske für die Bruchlinien~~ — gelöst über einen zweiten
@@ -248,7 +255,6 @@ Stand 16.08.2026, nach dem Bau des finalen Modells.
 
 **Weiterhin offen:**
 
-- **Finale künstlerische Abnahme des Modells.** Menschliches Gate.
 - Bodennahe Erinnerungsschliere beim Sprungangriff.
 - Audio: Lauschen, Telegraph, Biss, Treffer, Beruhigung.
 - Ein Vorwärtsgang wäre animiert vorhanden (`Trab`), wird aber von keinem

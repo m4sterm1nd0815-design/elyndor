@@ -46,3 +46,15 @@ _AssetInbox/
 # Local AI assistant state
 .claude/
 **/.claude/
+
+# Der Unity-AI-Assistant legt seine Einstellungen unter ProjectSettings/Packages
+# ab. Der Inhalt ist reine Editor-Bedienoberflaeche dieses einen Rechners:
+# ein absoluter Git-Pfad, eine Aufbewahrungsdauer fuer lokale Checkpoints und
+# mehrere Merker, welche Hinweisbanner der Benutzer weggeklickt hat. Ueber das
+# Spiel sagt keine dieser Angaben etwas; versioniert wuerde sie bei jedem
+# Entwickler anders aussehen und staendig als Aenderung auftauchen.
+#
+# Ignoriert wird gezielt nur dieses eine Paketverzeichnis und nicht
+# ProjectSettings/Packages/ als Ganzes: dort duerfen andere Pakete durchaus
+# projektweite Einstellungen ablegen, die dann versioniert gehoeren.
+ProjectSettings/Packages/com.unity.ai.assistant/

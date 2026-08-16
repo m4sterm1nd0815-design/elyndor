@@ -45,14 +45,21 @@ Planung noch als offen galt:
 | **P1.9** Lore und Narration | **umgesetzt** | `NarrationCatalog` mit freigegebenen Kurztexten, Gravur (zweimal), Rastplatz, Bachsteine, Brückenrest, Erinnerungsfragment und die Stimme ohne Namen. SOREN und ELIAN kommen nicht vor; `NarrationCanonTests` prüft das |
 | **P1.10** Regionsregeneration | **umgesetzt** | `FinsterwaldRegeneration` antwortet erst, wenn Rätsel **und** Erinnerung erledigt sind. Idempotent über `RegionRegenerationState`; Wiederherstellung löst kein Ereignis aus. Kein Save-System, aber `IRegionStateStore` als Vertrag für P1.13. **Bewusst offen:** welcher Weg sich öffnet (`blockedPath` ist nicht verdrahtet) — das ist eine Leveldesign-Entscheidung |
 | **P1.11** Audio und VFX | **teilweise** | **P1.11A umgesetzt:** Telegraph, Treffer, Block, Niederlage und die beiden Spannungstöne des Rätsels laufen über die vorhandene `SfxLibrary`. **Offen:** Hörprobe durch einen Menschen (`AUDIO_AUDITION.md`), Ambience, türkise Bruchlinien am finalen Modell |
-| **P1.12** Level- und Art-Polishing | **teilweise** | World Visual Overhaul und Startbereich-Führung integriert |
-| **P1.13** Save und Checkpoints | **offen** | kein Save-System; Save-Bereiche sind in `ARCHITECTURE.md` nur als Vertrag vorgemerkt |
+| **P1.12** Level- und Art-Polishing | **teilweise** | World Visual Overhaul und Startbereich-Führung integriert. **Pipeline belegt:** die Kette Blender → Export → Unity → Prefab → QA ist an `ELY_Test_Rock_A` gemessen, nicht behauptet. **P1.12A umgesetzt:** Herkunft und Lizenz liegen maschinenlesbar als `<Assetpfad>.provenance.json` neben dem Asset und sind Gate im `ModelImportValidator`; Scope ist bewusst das eine Testasset. **Offen:** jede Produktionskunst — das Vier-Prop-Paket ist nicht freigegeben |
+| **P1.13** Save und Checkpoints | **teilweise** | **P1.13A umgesetzt:** Erinnerungen, Rätselstand und Regeneration überleben einen Programmstart. Versioniertes Format, atomares Schreiben, Sicherung, definiertes Verhalten bei beschädigtem Stand. **Offen (P1.13B):** gespeicherte Startposition, Save-Slots, Menü. Einzelheiten in `Technical/SAVE_SYSTEM.md` |
 | **P1.14** Integrationstest | **umgesetzt** | `FinsterwaldSliceIntegrationRuntimeTests`: zehn Tests fahren den Kernbogen im echten Finsterwald — Begegnung, Resonanzzone, Erinnerung, Rätsel, Antwort des Waldes. Kampf über simulierte Geräte, jede Interaktion über den `InteractionDetector`. Belegt Reihenfolge, Softlock-Freiheit, Umkehrbarkeit und die Doppelbedingung der Regeneration |
 
 ## Nächste sinnvolle Schritte
 
 Der Kernbogen steht jetzt vollständig: Bewegung → Begegnung → Memory Watch →
 Rätsel → Antwort der Welt. Was fehlt, ist nicht mehr Mechanik, sondern Urteil.
+
+**Menschliche Abnahme des Kernbogens: bestanden** (15. August 2026, Lars).
+Die geprüften Punkte passen. Dabei gefunden und behoben: die Ausweichrolle
+reagierte nicht auf Strg. Einschränkung: Station 8 (Herleitbarkeit des
+Rätsels) ist für diesen Prüfer nicht mehr beurteilbar, weil die Lösung auf
+Nachfrage herausgegeben wurde — Einzelheiten in
+`FINSTERWALD_HUMAN_ACCEPTANCE.md`.
 
 Seit P1.14 läuft der Bogen auch als Test durch, nicht nur von Hand.
 

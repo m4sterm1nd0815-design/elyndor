@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,6 +35,12 @@ namespace Elyndor.World
 
         private static IRegionStateStore store;
 
+        /// <summary>Meldet jede Aenderung an diesem Zustand.</summary>
+        public static event Action Changed;
+
+        /// <summary>Alle regenerierten Abschnitte dieser Sitzung. Nur lesbar.</summary>
+        public static IReadOnlyCollection<string> RegeneratedRegionIds => regenerated;
+
         /// <summary>
         /// Hängt einen dauerhaften Speicher ein. Bis P1.13 existiert, bleibt
         /// er null und alles läuft über die Sitzung.
@@ -64,15 +71,42 @@ namespace Elyndor.World
                 return;
             }
 
-            regenerated.Add(regionStateId);
+            bool isNew = regenerated.Add(regionStateId);
             store?.SetRegenerated(regionStateId, true);
+
+            if (isNew)
+            {
+                Changed?.Invoke();
+            }
         }
 
         /// <summary>Vergisst einen Abschnitt; vor allem für Tests.</summary>
         public static void Forget(string regionStateId)
         {
-            regenerated.Remove(regionStateId);
+            bool removed = regenerated.Remove(regionStateId);
             store?.SetRegenerated(regionStateId, false);
+
+            if (removed)
+            {
+                Changed?.Invoke();
+            }
+        }
+
+        /// <summary>Vergisst alle Abschnitte. Für „Neues Spiel" und für Tests.</summary>
+        public static void ForgetAll()
+        {
+            if (regenerated.Count == 0)
+            {
+                return;
+            }
+
+            foreach (string regionStateId in regenerated)
+            {
+                store?.SetRegenerated(regionStateId, false);
+            }
+
+            regenerated.Clear();
+            Changed?.Invoke();
         }
 
         [RuntimeInitializeOnLoadMethod(
@@ -81,6 +115,10 @@ namespace Elyndor.World
         {
             regenerated.Clear();
             store = null;
+
+            // Abonnenten der letzten Sitzung sind nach einem Domain-Reload
+            // ungültig.
+            Changed = null;
         }
     }
 }

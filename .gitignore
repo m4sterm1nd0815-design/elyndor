@@ -27,3 +27,8 @@
 
 .DS_Store
 Thumbs.db
+
+# Blender legt bei jedem Speichern die Vorfassung als .blend1 daneben.
+# Das ist ein lokales Sicherheitsnetz, keine Version - dafuer gibt es Git.
+*.blend1
+*.blend2

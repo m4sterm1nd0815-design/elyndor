@@ -281,8 +281,29 @@ zweite, konkurrierende technische Wahrheit und verweist jetzt nur noch hierauf.
 
 `inventory`, `equipment`, `quickslots`, `narrative`, `settings`, `world`
 
-Ein Save-System existiert noch nicht (siehe *Später geplant*); die Bereiche sind
-als Vertrag vorgemerkt.
+Als Vertrag vorgemerkt. **Umgesetzt ist davon seit P1.13A nur `world`** — und
+auch das nur so weit, wie der Finsterwald-Slice es braucht.
+
+### Persistenz (P1.13A)
+
+```
+MemorySessionState ─┐
+PuzzleSessionState ─┼─► SaveService ─► ISaveStore ─► Datei
+RegionRegenerationState ┘      └─► SaveData (versioniert, saveVersion = 1)
+```
+
+- Die drei Sitzungszustände melden über ein `Changed`-Ereignis nur, **dass**
+  sich etwas geändert hat. Sie kennen den `SaveService` nicht.
+- Der `SaveService` kennt keine Dateien; das ist Sache des `ISaveStore`. An
+  dieser Naht hängen Tests einen temporären Speicher ein.
+- Für Regionen wird der vorhandene Vertrag `IRegionStateStore` bedient.
+- Gestartet über `SaveBootstrap` per `RuntimeInitializeOnLoadMethod` —
+  **keine Szene wurde dafür geändert**, kein neues Objekt, keine neue
+  Referenz. Ein bereits eingehängter Dienst wird nicht ersetzt.
+- **Nicht lebensnotwendig:** fällt das Speichern aus, läuft das Spiel weiter
+  und verliert nur Fortschritt.
+
+Einzelheiten in `Technical/SAVE_SYSTEM.md`.
 
 ### Qualitätsanforderung je System
 
@@ -294,5 +315,7 @@ Test und Integrationsdokumentation.
 - `GameStateManager` — Playing/Dialogue/MemoryVision/Paused (M5)
 - Dialogsystem (`DialogueAsset`, ScriptableObjects) (M7)
 - Kartografie-System (M9)
-- Save/Load mit `ISaveable` (M10) — ersetzt/persistiert `MemorySessionState`
+- Save-Slots, Hauptmenü, Cloud-Save und Plattformanbindung (P1.13B und später)
+- Gespeicherte Startposition (`spawnId` ist im Format vorgesehen, aber leer) —
+  wartet auf eine Leveldesign-Entscheidung
 - Memory-Watch-Post-Processing (URP Volume) statt UI-Overlay

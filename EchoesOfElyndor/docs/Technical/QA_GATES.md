@@ -73,8 +73,15 @@ Unity.exe -batchmode -projectPath <Projekt> `
     -logFile C:\tmp\qa\validators.log
 ```
 
-Läuft alle neun Validatoren in einem Editor-Start und meldet
+Läuft alle zehn Validatoren in einem Editor-Start und meldet
 `Elyndor Validatoren: n/n sauber`. Exit 0 nur, wenn alle sauber sind.
+
+Der zehnte ist `ModelImports` (`ModelImportValidator`). Er prüft die im
+Validator eingetragenen 3D-Assets gegen `BLENDER_ASSET_PIPELINE.md` —
+Skalierung, Achsen, Pivot, Dreiecke, Normalen, UV, Material, Rig,
+Dateigröße und die Herkunfts-/Lizenzdatei `<Assetpfad>.provenance.json`.
+Er prüft **nicht** den gesamten Assetbestand; die Begründung steht im
+Validator und im Pipelinedokument.
 
 Vor jedem einzelnen Validator wird Finsterwald neu geöffnet, weil die
 szenenöffnenden Validatoren sonst eine fremde Region als aktive Szene

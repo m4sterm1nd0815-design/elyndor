@@ -43,6 +43,13 @@ Importfreigabe.
 - Das Finsterwald Root Gate ist ein bestehendes Meshy-Hero-Asset auf
   `feature/world-visual-overhaul`; es darf nicht erneut generiert werden.
 
+## Herstellung eigener 3D-Assets
+
+Wie ein Asset in Blender entsteht, exportiert, importiert und geprueft wird,
+steht in `Technical/BLENDER_ASSET_PIPELINE.md`. Dieses Dokument hier regelt
+Beschaffung, jenes Herstellung. Wo beide etwas zum selben Punkt sagen, gilt der
+strengere Wert.
+
 ## Unity-Importstandard
 
 - Modelle: FBX bevorzugt, konsistente Meter-Skalierung und aufrechte Achsen.
@@ -104,6 +111,13 @@ Jedes externe Asset benoetigt mindestens:
 | Aenderungen | Skalierung, Material, Meshbearbeitung |
 | Einsatz | Region/System/Prefab |
 | Pruefung | Lizenz, Import, Performance, Verantwortlicher |
+
+Fuer Assets, die nach `Technical/BLENDER_ASSET_PIPELINE.md` neu entstehen, liegt
+zusaetzlich eine maschinenlesbare Kurzfassung als
+`<Assetpfad>.provenance.json` neben dem Asset. Sie ersetzt dieses Manifest
+nicht, sondern ist der Teil davon, den der `ModelImportValidator` pruefen kann.
+Format und Pflichtfelder stehen im Pipelinedokument. Der Altbestand ist davon
+nicht betroffen.
 
 Das Paket `feature/external-asset-pipeline` liegt als Draft-PR #8 bei Commit
 `4b13a42` vor. Es entwickelt Fetcher und Richtlinien parallel und muss vor

@@ -10,6 +10,89 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Die Strecke von Blender nach Unity ist befahren
+
+Zum ersten Mal ist ein Modell aus unserem eigenen Blender in Unity angekommen.
+Testobjekt war ein stilisierter Findling, 98 Dreiecke, einen Meter hoch —
+bewusst wertlos als Kunst, denn geprüft wurde die Strecke, nicht das Objekt.
+
+Er hat vier Anläufe gebraucht. Alle vier Befunde stehen jetzt in
+`Technical/BLENDER_ASSET_PIPELINE.md`, dem neuen Standarddokument für 3D-Assets.
+
+- **100× zu klein.** Blenders Vorgabe für `apply_scale_options` schreibt den
+  Einheitenfaktor als 1 in die Datei; FBX zählt das in Zentimetern. Der Fels kam
+  mit 0,007 m statt 1,00 m an. Das ist der teuerste der vier Fehler: Er sieht in
+  Blender richtig aus, im Unity-Inspector richtig aus, und fällt erst neben
+  einer Figur auf — wo man ihn typischerweise mit einer Prefab-Skalierung
+  „repariert" und ab da keine Größen-, Collider- oder Physikangabe im Projekt
+  mehr stimmt. `FBX_SCALE_ALL` behebt es.
+- **Auf dem Rücken liegend, und der Bericht war grün.** Builder und Validator
+  haben die Wurzelrotation auf Identität gezwungen und damit die Achsdrehung
+  überschrieben, bevor irgendetwas sie prüfen konnte. Sie setzen jetzt nur noch
+  die Position, und der Validator prüft die Wurzel mit — sie ist genau der Ort,
+  an dem eine nicht umgerechnete Achse landet.
+- **Achsdrehung auf der Importwurzel.** `(270.02, 0, 0)` — nicht 270. Unitys
+  eigenes `bakeAxisConversion` macht daraus `(89.98, 0, 0)` und verschiebt das
+  Problem, statt es zu lösen. `bake_space_transform=True` beim Export legt die
+  Umrechnung in die Meshdaten; die Wurzel bleibt bei null.
+- **Material über einen abgekündigten Pfad.** `MaterialLocation.External` gibt
+  es in Unity 6 nicht mehr; der Import lief trotzdem durch und legte still einen
+  zweiten Materialordner an. Aus der Datei kommt jetzt gar kein Material mehr.
+  Das URP-Material entsteht in Unity und hängt am Prefab — dort, wo ein falscher
+  Shader sonst bis zur ersten Szene unsichtbar geblieben wäre.
+
+Dauerhaft neu:
+
+- **`ModelImportValidator`** prüft eingetragene Modelle gegen den Standard und
+  läuft als zehnter Validator im Nachtlauf mit. Er prüft **nicht** den ganzen
+  Bestand: die Modelle aus der Meshy-Zeit sind vor diesem Standard entstanden,
+  und ein Gate, das am ersten Tag rot ist, wird ignoriert statt befolgt.
+- **`Art_Source/`** außerhalb von `Assets/` für `.blend`-Quelldateien. Unity
+  würde eine `.blend` sonst bei jedem Refresh durch Blender importieren.
+- **`.gitattributes`:** `*.meta` bekommt dieselbe Trailing-Space-Ausnahme wie
+  Szenen und Prefabs; `.blend` und `.fbx` sind als `binary` markiert.
+
+## [Unreleased] — Der Fortschritt überlebt das Beenden (P1.13A)
+
+Erinnerungen, Rätselstand und die Antwort des Waldes halten jetzt über einen
+Programmstart hinaus.
+
+- **Keine Szene wurde dafür angefasst.** Der Kernbogen ist menschlich
+  abgenommen; Persistenz nachzurüsten darf ihn nicht verändern. Das
+  Speichersystem startet über `RuntimeInitializeOnLoadMethod` — kein neues
+  Objekt in einer Szene, keine neue Referenz, die jemand lösen könnte.
+- **Niemand kennt das Speichersystem.** Die drei Sitzungszustände melden nur,
+  *dass* sich etwas geändert hat. Der `SaveService` weiß umgekehrt nichts über
+  Dateien; das ist Sache des `ISaveStore`. An dieser Naht hängen die Tests
+  ihren temporären Speicher ein.
+- **Der Vertrag aus P1.10 wird endlich bedient.** `IRegionStateStore` wurde
+  seinerzeit für genau diesen Tag angelegt.
+- **Wiederherstellen ist kein Nacherleben.** Es wird Zustand gesetzt, sonst
+  nichts: kein Regenerationsereignis, kein Ton, keine doppelten Pflanzen,
+  keine erzwungene Lösungsanimation. Möglich, weil `FinsterwaldRegeneration`
+  ihr `Apply` von ihrem `Regenerate` trennt.
+- **Atomar geschrieben.** Erst vollständig daneben, dann die bisherige Fassung
+  zur Sicherung, dann tauschen. In die Zieldatei hinein zu schreiben hieße,
+  den einzigen gültigen Stand als Erstes zu zerstören.
+- **Beschädigte Stände** werden nie stillschweigend als gültig behandelt: erst
+  die Sicherung, sonst ein leerer Start mit Warnung — und die kaputten Dateien
+  bleiben zur Untersuchung liegen. Ein Stand aus einer **neueren** Fassung
+  wird weder geladen noch überschrieben; ihn zu überschreiben wäre
+  Datenverlust für den, der zurückwechselt.
+- **Nicht lebensnotwendig.** Fällt das Speichern aus, läuft das Spiel weiter
+  und verliert nur Fortschritt. Ein Speichersystem, ohne das sich das Spiel
+  nicht mehr starten lässt, wäre ein schlechterer Zustand als gar keines.
+- **Echter Neustart-Nachweis.** `Save()` gefolgt von `Load()` im selben Prozess
+  beweist wenig — ein statisches Feld könnte die Daten halten, ohne dass die
+  Datei je gelesen wird. `SaveRestartProof` läuft deshalb in **zwei getrennten
+  Unity-Prozessen**; dazwischen existiert nichts als die Datei.
+- **Nicht gespeichert:** Position, Ausdauer, Leben, Gegnerzustand, Cooldowns,
+  Audiozustände. Tod, Respawn und Heilung bleiben Creative Gates — das
+  Speichersystem trifft diese Entscheidungen nicht nebenbei.
+- **Offen für P1.13B:** `spawnId` steht im Format bereit, bleibt aber leer. Wo
+  ein Laden den Spieler absetzt, ist eine Leveldesign-Entscheidung; ein
+  geratener Startpunkt wäre schlechter als gar keiner.
+
 ## [Unreleased] — Der Bogen als ein Stück (P1.14)
 
 Zum ersten Mal läuft der Kernbogen als zusammenhängender Test: Begegnung →

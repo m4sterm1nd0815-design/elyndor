@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -14,12 +15,19 @@ namespace Elyndor.EditorTools
     /// und der Builder setzt es auch in keine: er erzeugt ein Prefab und
     /// sonst nichts.
     ///
-    /// Warum das Material hier neu gebaut und nicht aus dem FBX uebernommen
-    /// wird: Blender schreibt sein Material in die Datei, aber ohne Shader.
-    /// Unity legt daraus ein Material des eingebauten Standard-Shaders an —
-    /// und der rendert unter URP magenta. Das faellt niemandem beim Import
-    /// auf, sondern erst in der Szene. Deshalb wird das FBX-Material fest auf
-    /// ein URP-Material umgebogen.
+    /// Warum das Material hier neu gebaut und gar nicht erst aus dem FBX
+    /// uebernommen wird: Blender schreibt sein Material in die Datei, aber
+    /// ohne Shader. Unity legt daraus ein Material des eingebauten
+    /// Standard-Shaders an — und der rendert unter URP magenta. Das faellt
+    /// beim Import niemandem auf, sondern erst in der Szene.
+    ///
+    /// Der erste Versuch hat das FBX-Material ueber
+    /// <c>materialLocation = External</c> auf ein URP-Material umgebogen.
+    /// Unity 6000.4 meldet dazu „External Material Location is no longer
+    /// supported" und legt daneben stillschweigend einen zweiten
+    /// Materialordner an. Der Import zieht deshalb jetzt gar kein Material
+    /// mehr aus der Datei; das Prefab bekommt sein URP-Material zugewiesen.
+    /// Das Blender-Material bleibt Vorlage fuer den Farbwert und sonst nichts.
     /// </summary>
     public static class PipelineTestAssetBuilder
     {
@@ -27,9 +35,6 @@ namespace Elyndor.EditorTools
         private const string ModelPath = Folder + "/ELY_Test_Rock_A.fbx";
         private const string MaterialPath = Folder + "/M_ELY_Test_Rock_A.mat";
         private const string PrefabPath = Folder + "/ELY_Test_Rock_A.prefab";
-
-        /// <summary>Name des Materials, wie Blender es in das FBX schreibt.</summary>
-        private const string SourceMaterialName = "M_ELY_Test_Rock_A";
 
         private const string UrpLitShader = "Universal Render Pipeline/Lit";
 
@@ -46,8 +51,8 @@ namespace Elyndor.EditorTools
             AssetDatabase.ImportAsset(ModelPath, ImportAssetOptions.ForceUpdate);
 
             Material material = BuildMaterial();
-            ConfigureImporter(material);
-            BuildPrefab();
+            ConfigureImporter();
+            BuildPrefab(material);
 
             AssetDatabase.SaveAssets();
             Debug.Log($"PIPELINE_TEST_ASSET_BUILT: {PrefabPath}");
@@ -102,7 +107,7 @@ namespace Elyndor.EditorTools
             return material;
         }
 
-        private static void ConfigureImporter(Material material)
+        private static void ConfigureImporter()
         {
             if (AssetImporter.GetAtPath(ModelPath) is not ModelImporter importer)
             {
@@ -121,6 +126,19 @@ namespace Elyndor.EditorTools
             // stillschweigend wegglaetten.
             importer.importNormals = ModelImporterNormals.Import;
 
+            // Bleibt aus — gemessen, nicht vermutet.
+            //
+            // Blender ist Z-oben, Unity Y-oben. Steht die Umrechnung nicht
+            // schon in den Meshdaten, traegt die Importwurzel sie als Rotation:
+            // ohne diese Option (270,02, 0, 0), mit ihr (89,98, 0, 0). Unity
+            // dreht Mesh und Wurzel um dieselben 180° weiter — das Objekt steht
+            // in beiden Faellen richtig, die Wurzel ist in beiden Faellen
+            // schief. Die Option loest das Problem also nicht, sie verschiebt es.
+            //
+            // Geloest wird es beim Export mit 'bake_space_transform=True'.
+            // Siehe docs/Technical/BLENDER_ASSET_PIPELINE.md.
+            importer.bakeAxisConversion = false;
+
             // Ohne Normal Map braucht das Material keine Tangenten.
             importer.importTangents = ModelImporterTangents.None;
 
@@ -137,19 +155,24 @@ namespace Elyndor.EditorTools
             // das eine bewusste Gegenentscheidung.
             importer.generateSecondaryUV = false;
 
-            // Nur im External-Modus wertet Unity die Zuordnung unten aus.
-            importer.materialImportMode = ModelImporterMaterialImportMode.ImportStandard;
-            importer.materialLocation = ModelImporterMaterialLocation.External;
+            // Kein Material aus der Datei. Was Blender mitschickt, hat keinen
+            // Shader, den URP kennt — es waere ein magentafarbenes Objekt mit
+            // einem plausiblen Namen.
+            importer.materialImportMode = ModelImporterMaterialImportMode.None;
 
-            importer.AddRemap(
-                new AssetImporter.SourceAssetIdentifier(
-                    typeof(Material), SourceMaterialName),
-                material);
+            // Zuordnungen aus frueheren Importeinstellungen wuerden sonst
+            // stehenbleiben und im Inspector als Rest auftauchen.
+            foreach (AssetImporter.SourceAssetIdentifier remap
+                     in new List<AssetImporter.SourceAssetIdentifier>(
+                         importer.GetExternalObjectMap().Keys))
+            {
+                importer.RemoveRemap(remap);
+            }
 
             importer.SaveAndReimport();
         }
 
-        private static void BuildPrefab()
+        private static void BuildPrefab(Material material)
         {
             GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(ModelPath);
             if (asset == null)
@@ -163,9 +186,24 @@ namespace Elyndor.EditorTools
             try
             {
                 instance.name = "ELY_Test_Rock_A";
-                instance.transform.SetPositionAndRotation(
-                    Vector3.zero, Quaternion.identity);
-                instance.transform.localScale = Vector3.one;
+
+                // Nur die Position. Rotation und Skalierung kommen aus dem
+                // Import und bleiben stehen: haette der Import sie schief
+                // gesetzt, waere genau das der Befund. Wer sie hier
+                // geradezieht, versteckt ihn im Prefab.
+                instance.transform.position = Vector3.zero;
+
+                foreach (Renderer renderer in
+                         instance.GetComponentsInChildren<Renderer>(true))
+                {
+                    Material[] slots = renderer.sharedMaterials;
+                    for (int i = 0; i < slots.Length; i++)
+                    {
+                        slots[i] = material;
+                    }
+
+                    renderer.sharedMaterials = slots;
+                }
 
                 AddFittedBoxCollider(instance);
 

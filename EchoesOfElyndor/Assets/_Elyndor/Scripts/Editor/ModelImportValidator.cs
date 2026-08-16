@@ -37,6 +37,7 @@ namespace Elyndor.EditorTools
         private readonly struct RegisteredModel
         {
             public readonly string AssetPath;
+            public readonly string PrefabPath;
             public readonly int MaxTriangles;
             public readonly int MaxMaterialSlots;
             public readonly long MaxFileBytes;
@@ -46,6 +47,7 @@ namespace Elyndor.EditorTools
 
             public RegisteredModel(
                 string assetPath,
+                string prefabPath,
                 int maxTriangles,
                 int maxMaterialSlots,
                 long maxFileBytes,
@@ -54,6 +56,7 @@ namespace Elyndor.EditorTools
                 bool staticProp)
             {
                 AssetPath = assetPath;
+                PrefabPath = prefabPath;
                 MaxTriangles = maxTriangles;
                 MaxMaterialSlots = maxMaterialSlots;
                 MaxFileBytes = maxFileBytes;
@@ -67,6 +70,7 @@ namespace Elyndor.EditorTools
         {
             new RegisteredModel(
                 "Assets/_Elyndor/Art/_PipelineTest/ELY_Test_Rock_A.fbx",
+                "Assets/_Elyndor/Art/_PipelineTest/ELY_Test_Rock_A.prefab",
                 maxTriangles: 500,
                 maxMaterialSlots: 1,
                 maxFileBytes: 256 * 1024,
@@ -106,12 +110,22 @@ namespace Elyndor.EditorTools
 
         private static int Check(RegisteredModel model, StringBuilder report)
         {
-            GameObject asset =
-                AssetDatabase.LoadAssetAtPath<GameObject>(model.AssetPath);
-
-            if (asset == null)
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(model.AssetPath) == null)
             {
                 report.AppendLine("  FEHLER: Modell nicht gefunden.");
+                return 1;
+            }
+
+            // Geprueft wird das Prefab, nicht die rohe Datei. Ausgeliefert wird
+            // das Prefab; alles, was erst dort entsteht — Material, Collider —
+            // waere an der Datei gemessen unsichtbar.
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(model.PrefabPath);
+
+            if (prefab == null)
+            {
+                report.AppendLine(
+                    $"  FEHLER: Prefab {model.PrefabPath} nicht gefunden.");
                 return 1;
             }
 
@@ -119,12 +133,18 @@ namespace Elyndor.EditorTools
             errors += CheckImporter(model, report);
             errors += CheckFileSize(model, report);
 
-            GameObject instance = UnityEngine.Object.Instantiate(asset);
+            ReportImportedModelRoot(model, report);
+
+            GameObject instance = UnityEngine.Object.Instantiate(prefab);
             try
             {
-                instance.transform.SetPositionAndRotation(
-                    Vector3.zero, Quaternion.identity);
-                instance.transform.localScale = Vector3.one;
+                // Nur die Position wird gesetzt. Rotation und Skalierung bleiben
+                // stehen, wie das Prefab sie mitbringt — genau die will der
+                // Validator ja messen. Eine erste Fassung hat sie hier auf
+                // Identitaet gezwungen und damit die Achsdrehung aus dem Import
+                // ueberschrieben, bevor irgendetwas sie pruefen konnte. Der
+                // Bericht war danach sauber und der Fels lag auf dem Ruecken.
+                instance.transform.position = Vector3.zero;
 
                 errors += CheckHierarchy(instance, report);
                 errors += CheckMesh(model, instance, report);
@@ -139,6 +159,35 @@ namespace Elyndor.EditorTools
             }
 
             return errors;
+        }
+
+        /// <summary>
+        /// Was Unity aus der Datei gemacht hat, bevor irgendein Prefab-Schritt
+        /// daran war. Ohne diese Zeile laesst sich hinterher nicht sagen, ob
+        /// eine schiefe Achse aus dem Export oder aus dem Prefab-Bau stammt.
+        /// </summary>
+        private static void ReportImportedModelRoot(
+            RegisteredModel model, StringBuilder report)
+        {
+            GameObject asset =
+                AssetDatabase.LoadAssetAtPath<GameObject>(model.AssetPath);
+
+            if (asset == null)
+            {
+                return;
+            }
+
+            Transform root = asset.transform;
+            report.AppendLine(
+                $"  Importwurzel roh: rot={root.localRotation.eulerAngles} " +
+                $"scale={root.localScale} kinder={root.childCount}");
+
+            foreach (Transform child in root)
+            {
+                report.AppendLine(
+                    $"    '{child.name}': rot={child.localRotation.eulerAngles} " +
+                    $"scale={child.localScale}");
+            }
         }
 
         private static int CheckImporter(RegisteredModel model, StringBuilder report)
@@ -221,13 +270,10 @@ namespace Elyndor.EditorTools
         {
             int errors = 0;
 
+            // Die Wurzel wird mitgeprueft. Sie ist der Ort, an dem eine nicht
+            // umgerechnete Achse landet.
             foreach (Transform transform in instance.GetComponentsInChildren<Transform>(true))
             {
-                if (transform == instance.transform)
-                {
-                    continue;
-                }
-
                 if (Quaternion.Angle(transform.localRotation, Quaternion.identity) > 0.01f)
                 {
                     report.AppendLine(
@@ -445,6 +491,20 @@ namespace Elyndor.EditorTools
                         report.AppendLine(
                             $"  FEHLER: '{material.name}' hat keinen gueltigen " +
                             "Shader.");
+                        errors++;
+                        continue;
+                    }
+
+                    // Das Projekt rendert mit URP. Ein Material des eingebauten
+                    // Standard-Shaders faellt beim Import nicht auf — es
+                    // erscheint erst in der Szene, und dort magenta.
+                    if (!material.shader.name.StartsWith(
+                            "Universal Render Pipeline/", StringComparison.Ordinal))
+                    {
+                        report.AppendLine(
+                            $"  FEHLER: '{material.name}' benutzt " +
+                            $"'{material.shader.name}' statt eines " +
+                            "URP-Shaders.");
                         errors++;
                     }
                 }

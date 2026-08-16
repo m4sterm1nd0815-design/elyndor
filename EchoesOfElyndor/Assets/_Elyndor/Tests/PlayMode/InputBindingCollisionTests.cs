@@ -96,6 +96,13 @@ namespace Elyndor.Tests
         [TestCase("Block", "<Gamepad>/leftTrigger")]
         [TestCase("Inventory", "<Keyboard>/i")]
         [TestCase("Inventory", "<Gamepad>/select")]
+        // Die Rolle lag lange auf der Alt-Action "Crouch" und damit auf C.
+        // Strg stand nur in dem Notpfad, der die Actions im Code aufbaut,
+        // wenn das Asset fehlt — und das Asset fehlt nie. Aufgefallen ist
+        // das keinem Test, sondern einem Menschen beim ersten Spielen.
+        [TestCase("Roll", "<Keyboard>/leftCtrl")]
+        [TestCase("Roll", "<Keyboard>/c")]
+        [TestCase("Roll", "<Gamepad>/buttonEast")]
         public void ProjektAsset_EnthaeltBisherigeBelegung(
             string actionName,
             string expectedPath)

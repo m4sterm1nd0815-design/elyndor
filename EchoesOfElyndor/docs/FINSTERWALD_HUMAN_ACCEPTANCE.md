@@ -1,8 +1,13 @@
 # Finsterwald — Human Vertical Slice Acceptance
 
 Stand: 15. August 2026
-Basis: `origin/developer` bei `8a4fa87`
+Basis: `origin/developer` bei `d5af354` (nach PR #49)
 Dauer: **10–15 Minuten**
+
+> Die Szenendatei ist seit dem Schreiben dieser Anleitung **unverändert**
+> (byte-identisch gegenüber `8a4fa87`). Alle Koordinaten und Stationen unten
+> gelten weiterhin. Seither kamen nur Tests, QA-Werkzeug und Dokumentation
+> dazu — nichts, was das Spielgefühl berührt.
 
 Diese Anleitung ist für **eine** Sitzung gedacht: einmal durch den Kernbogen,
 mit gezielten Fragen an den Stellen, die nur ein Mensch beantworten kann.
@@ -24,6 +29,35 @@ nicht mehr beurteilen.
 
 ---
 
+## Zwischenstand vom 15. August 2026
+
+Ein erster, unvollständiger Durchlauf hat stattgefunden. Was daraus feststeht:
+
+| Station | Ergebnis |
+|---|---|
+| **1** Bewegung | vorläufig positiv — aber **vor** dem Rollen-Fix, Gegenprobe mit Strg steht aus |
+| **2** Link | **PASS** fürs Verhalten. Anmerkung: der Sitzplatz musste erfragt werden; sie sitzt 3,1 m hoch, ist Blockout und ruft ohne Ton |
+| **8** Brückenrätsel | **NICHT BEURTEILBAR** — siehe unten |
+| übrige | offen |
+
+**Dabei gefunden und behoben:** Die Ausweichrolle reagierte nicht auf Strg. Das
+ausgelieferte Actions-Asset hatte keine `Roll`-Action, der Reader fiel auf die
+Alt-Action `Crouch` zurück, und die lag auf `C`. Gefunden hat das kein Test,
+sondern der erste Mensch am Gerät.
+
+> ### Station 8 ist für diesen Prüfer verbrannt
+>
+> Die Lösung wurde am 15.08.2026 auf ausdrückliche Nachfrage herausgegeben.
+> Die Frage „hergeleitet oder durchprobiert?" lässt sich **nur einmal**
+> beantworten. Sie ist damit für Lars nicht mehr beantwortbar und braucht
+> einen Prüfer **ohne Vorwissen**.
+>
+> Bis dahin bleibt die Ankerlösung 1/2/3 ausdrücklich `VORSCHLAG`. Eine
+> spätere Aussage dieses Prüfers zur Herleitbarkeit darf **nicht** als
+> Abnahme gewertet werden.
+
+---
+
 ## 1. Start, Bewegung, Kamera
 
 Geh vom Startbereich nach Norden los. Probier Gehen, Sprinten und die Rolle.
@@ -32,6 +66,12 @@ Geh vom Startbereich nach Norden los. Probier Gehen, Sprinten und die Rolle.
 2. Bleibt die Kamera in engen Stellen brauchbar?
 3. Merkst du, dass Sprint und Rolle Ausdauer kosten — ohne auf die Leiste zu
    schauen?
+4. **Sind die Stationen zu Fuß gut erreichbar** — oder sind die Wege zwischen
+   Lichtung, Brücke und Startbereich zu lang, zu unklar oder verbaut?
+
+> **HUMAN QA OPEN** · Der Integrationstest (P1.14) versetzt Aren zwischen den
+> Stationen, statt ihn laufen zu lassen. Ob der Weg **zu Fuß** trägt, ist
+> damit die einzige Stelle des Kernbogens, die keine Maschine geprüft hat.
 
 `PASS / FAIL / ANMERKUNG:`
 

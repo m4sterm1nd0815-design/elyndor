@@ -180,7 +180,8 @@ namespace Elyndor.Tests
             Press(keyboard.sKey);
             yield return null;
 
-            // Rolle: im Projekt-Asset liegt sie noch auf der Action "Crouch".
+            // Rolle ueber C. Seit dem 15.08.2026 hat sie eine eigene
+            // Roll-Action und liegt zusaetzlich auf Strg; C bleibt belegt.
             // Jede Flanke bekommt ihren eigenen Frame — zwei Tasten im selben
             // Frame loszulassen bringt das Input-System dazu, seinen
             // zwischengespeicherten Wert als veraltet zu melden.

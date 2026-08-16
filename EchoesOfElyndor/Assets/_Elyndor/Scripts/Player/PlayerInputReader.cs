@@ -25,7 +25,9 @@ namespace Elyndor.Player
         [SerializeField] private string sprintActionName = "Sprint";
         [SerializeField] private string jumpActionName = "Jump";
         [SerializeField] private string rollActionName = "Roll";
-        [Tooltip("Das aktuelle Actions-Asset besitzt noch Crouch statt Roll.")]
+        [Tooltip("Rueckfall fuer Assets aus der Zeit vor der eigenen " +
+                 "Roll-Action. Seit dem 15.08.2026 hat das ausgelieferte " +
+                 "Asset ein eigenes Roll; der Rueckfall greift dort nicht mehr.")]
         [SerializeField] private string legacyRollActionName = "Crouch";
         [SerializeField] private string interactActionName = "Interact";
         [SerializeField] private string attackActionName = "Attack";

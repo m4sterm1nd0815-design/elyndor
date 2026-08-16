@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Elyndor.Memory;
 using Elyndor.Persistence;
@@ -120,6 +121,92 @@ namespace Elyndor.Tests
                 PuzzleSessionState.GetBridgeState(PuzzleId),
                 Is.EqualTo(BridgePuzzleState.Solved),
                 "Die fertige Bruecke ist nach dem Neustart wieder kaputt.");
+        }
+
+        [Test]
+        public void Ankerstellungen_UeberlebenDenNeustart()
+        {
+            MemorySaveStore store = new MemorySaveStore();
+            SaveService.Install(new SaveService(store));
+
+            PuzzleSessionState.SetBridgeState(
+                PuzzleId, BridgePuzzleState.ReadyToRelease);
+            PuzzleSessionState.SetAnchorSettings(PuzzleId, new[] { 0, 1, 2 });
+
+            RestartWith(store);
+
+            Assert.That(
+                PuzzleSessionState.GetAnchorSettings(PuzzleId),
+                Is.EqualTo(new[] { 0, 1, 2 }),
+                "Die Ankerstellungen sind nach dem Neustart verloren. Der " +
+                "Stand meldete dann eine tragende Spannung, waehrend die " +
+                "Steine wieder auf Anfang stuenden.");
+        }
+
+        /// <summary>
+        /// Ein Stand aus der Fassung vor diesem Feld darf keinen Stein
+        /// verstellen. „Nichts gespeichert" ist nicht „alles auf null".
+        /// </summary>
+        [Test]
+        public void EinStandOhneAnkerstellungen_VerstelltKeineSteine()
+        {
+            string beforeTheField =
+                "{\"saveVersion\":1,\"bridgePuzzles\":[{\"puzzleId\":\"" +
+                PuzzleId + "\",\"state\":\"Configuring\"}]}";
+
+            MemorySaveStore store = new MemorySaveStore(beforeTheField);
+            SaveService service = new SaveService(store);
+            SaveService.Install(service);
+
+            Assert.That(
+                service.LoadAndRestore(), Is.EqualTo(LoadOutcome.Loaded));
+            Assert.That(
+                PuzzleSessionState.GetBridgeState(PuzzleId),
+                Is.EqualTo(BridgePuzzleState.Configuring));
+            Assert.That(
+                PuzzleSessionState.GetAnchorSettings(PuzzleId),
+                Is.Null,
+                "Ein Stand ohne Ankerstellungen hat welche behauptet.");
+        }
+
+        /// <summary>
+        /// Der Zeitpunkt des Ladens ist kein Geschmack, sondern die Bedingung
+        /// dafuer, dass die Welt ihren Fortschritt ueberhaupt sieht.
+        ///
+        /// <c>BridgePuzzle</c> und <c>FinsterwaldRegeneration</c> lesen den
+        /// Stand in ihrem <c>Awake</c>. Lief das Laden auf
+        /// <c>AfterSceneLoad</c>, kam es nach genau diesem <c>Awake</c>: die
+        /// Bruecke stand nach jedem Programmstart wieder auf Anfang, obwohl
+        /// die Datei den Fortschritt enthielt. Kein Laufzeittest konnte das
+        /// sehen — jeder stellt seinen Spielstand vor dem Laden der Szene her.
+        /// </summary>
+        [Test]
+        public void DerSpielstand_WirdVorDemAufbauDerWeltGeladen()
+        {
+            var install = typeof(SaveBootstrap).GetMethod(
+                "Install",
+                System.Reflection.BindingFlags.Static |
+                System.Reflection.BindingFlags.NonPublic);
+
+            Assert.That(
+                install,
+                Is.Not.Null,
+                "SaveBootstrap hat keinen Einstiegspunkt mehr.");
+
+            var attribute = (RuntimeInitializeOnLoadMethodAttribute)
+                Attribute.GetCustomAttribute(
+                    install, typeof(RuntimeInitializeOnLoadMethodAttribute));
+
+            Assert.That(
+                attribute,
+                Is.Not.Null,
+                "SaveBootstrap startet nicht mehr von selbst.");
+            Assert.That(
+                attribute.loadType,
+                Is.EqualTo(RuntimeInitializeLoadType.BeforeSceneLoad),
+                "Der Spielstand kommt erst an, wenn die Szene ihn schon " +
+                "gelesen hat. Damit beginnt jeder Programmstart wieder von " +
+                "vorn, obwohl die Datei den Fortschritt enthaelt.");
         }
 
         [Test]

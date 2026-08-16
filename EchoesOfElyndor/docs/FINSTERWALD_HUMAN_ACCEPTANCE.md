@@ -1,7 +1,8 @@
 # Finsterwald — Human Vertical Slice Acceptance
 
-Stand: 15. August 2026
-Basis: `origin/developer` bei `d5af354` (nach PR #49)
+Stand: 16. August 2026
+Basis: `origin/developer` bei `d5af354` (nach PR #49); Rätselbefund vom
+16.08.2026 nachgetragen
 Dauer: **10–15 Minuten**
 
 > Die Szenendatei ist seit dem Schreiben dieser Anleitung **unverändert**
@@ -37,7 +38,7 @@ Ein erster, unvollständiger Durchlauf hat stattgefunden. Was daraus feststeht:
 |---|---|
 | **1** Bewegung | vorläufig positiv — aber **vor** dem Rollen-Fix, Gegenprobe mit Strg steht aus |
 | **2** Link | **PASS** fürs Verhalten. Anmerkung: der Sitzplatz musste erfragt werden; sie sitzt 3,1 m hoch, ist Blockout und ruft ohne Ton |
-| **8** Brückenrätsel | **NICHT BEURTEILBAR** — siehe unten |
+| **8** Brückenrätsel | **FAIL** (16.08.2026) für die Bedienbarkeit, **NICHT BEURTEILBAR** für die Herleitbarkeit — siehe unten |
 | übrige | offen |
 
 **Dabei gefunden und behoben:** Die Ausweichrolle reagierte nicht auf Strg. Das
@@ -55,6 +56,50 @@ sondern der erste Mensch am Gerät.
 > Bis dahin bleibt die Ankerlösung 1/2/3 ausdrücklich `VORSCHLAG`. Eine
 > spätere Aussage dieses Prüfers zur Herleitbarkeit darf **nicht** als
 > Abnahme gewertet werden.
+
+---
+
+## Befund vom 16. August 2026: Station 8 war FAIL
+
+**Gemeldet:** Trotz korrekt ausgeführter Schritte wurde der Stamm im Fluss
+nicht freigegeben; der Seilbock meldete sinngemäß „Das Seil steht straff. Der
+Stamm könnte tragen."
+
+**Ursache — technisch, nicht gestalterisch.** Der Fehler steckte nicht im
+Rätsel, sondern im **fortgesetzten Spiel**. Zwei Dinge trafen zusammen:
+
+1. Der Spielstand wurde erst geladen, **nachdem** die Szene sich aufgebaut
+   hatte. Brücke und Regeneration lesen ihren Stand beim Aufbau — nach jedem
+   echten Programmstart stand die Brücke also wieder auf Anfang, obwohl die
+   Datei den Fortschritt enthielt.
+2. Die Memory Site stellte sich richtigerweise als bereits benutzt wieder her
+   und ließ sich kein zweites Mal aktivieren. Genau ihr Ereignis öffnet aber
+   das Rätsel. Ein fortgesetztes Spiel stand damit **für immer** vor gesperrten
+   Ankern und einer nicht bedienbaren Stammfreigabe.
+
+Dazu kam: Die Stellungen der Ankersteine wurden gar nicht gespeichert. Ein
+Stand, der „die Anker stehen richtig" meldete, brachte die Steine trotzdem in
+ihrer Ausgangsstellung zurück.
+
+**Behoben am 16.08.2026.** Der Spielstand kommt jetzt vor dem Aufbau der Welt
+an, ein gesehenes Echo bleibt gesehen, und die Ankerstellungen gehören zum
+gespeicherten Stand. Automatisch geprüft in
+`FinsterwaldBridgeResumeRuntimeTests`.
+
+> ### Was das für diese Abnahme heißt
+>
+> **Station 8 muss vollständig neu geprüft werden**, und zwar in beiden
+> Hinsichten:
+>
+> - **Bedienbarkeit** (Stamm lässt sich freigeben, Brücke wird begehbar) —
+>   war FAIL, ist technisch behoben, aber **noch nicht menschlich bestätigt**.
+> - **Herleitbarkeit** (Punkt 8.2) — bleibt unabhängig davon offen und braucht
+>   weiterhin einen Prüfer **ohne Vorwissen**. Ein grüner Test sagt darüber
+>   nichts.
+>
+> Ebenso offen bleibt die **Speicherwirkung über zwei echte Programmstarts**
+> (`SAVE_ACCEPTANCE.md`). Sie ist von genau diesem Fehler betroffen gewesen und
+> gilt erst als bestanden, wenn ein Mensch sie erneut durchgeführt hat.
 
 ---
 
@@ -174,6 +219,10 @@ lose Bohlen. Nimm dir die Zeit, die du brauchst.
 2. Hast du die Lösung **hergeleitet** — oder durchprobiert? (Beides ist ein
    gültiges Ergebnis. Bitte ehrlich.)
 3. Fühlt sich ein Fehlversuch folgenlos an, oder ärgerlich?
+4. **Nachprüfung zum Befund vom 16.08.2026:** Lässt sich der Stamm nach den
+   richtigen Schritten tatsächlich freigeben — und wird die Brücke danach
+   begehbar? Bitte **auch in einer fortgesetzten Sitzung** prüfen: Unity
+   schließen, neu starten, an der Brücke weitermachen.
 
 > **HUMAN QA OPEN** · Das ist die wichtigste offene Frage des Slice. Ist Raten
 > offensichtlich schneller als Verstehen, wird **nicht** ein Hinweis
@@ -254,7 +303,9 @@ Alles davon ist bekannt und keine Rückmeldung wert:
 - **Link ruft nicht hörbar** — der Ruf ist im Code vorgesehen, hat aber
   bewusst noch keinen Clip.
 - **Kein Tod und kein Respawn** — bei 0 Leben blockieren nur Aktionen.
-- **Kein Speichern** — alles gilt nur für die laufende Sitzung.
+- **Keine gespeicherte Position** — ein Fortschritt wird zwar gesichert
+  (`SAVE_ACCEPTANCE.md`), aber du startest immer im Startbereich. *Bis zum
+  15.08.2026 stand hier „kein Speichern"; das gilt seit P1.13A nicht mehr.*
 - **Kein Weg öffnet sich** bei der Regeneration; welcher es sein soll, ist noch
   nicht entschieden.
 

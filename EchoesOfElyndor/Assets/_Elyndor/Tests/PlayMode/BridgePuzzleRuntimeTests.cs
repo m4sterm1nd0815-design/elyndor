@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Elyndor.Memory;
 using Elyndor.Puzzles;
 using Elyndor.UIFoundation;
 using NUnit.Framework;
@@ -18,6 +19,7 @@ namespace Elyndor.Tests
     public sealed class BridgePuzzleRuntimeTests
     {
         private const string PuzzleId = "runtime_test_bridge";
+        private const string MemorySiteId = "runtime_test_memory_site";
         private const float Step = 0.1f;
 
         private readonly List<GameObject> spawned = new List<GameObject>();
@@ -36,6 +38,7 @@ namespace Elyndor.Tests
             consoleErrors.Clear();
             Application.logMessageReceived += CollectConsoleError;
             PuzzleSessionState.Forget(PuzzleId);
+            MemorySessionState.Forget(MemorySiteId);
         }
 
         [TearDown]
@@ -43,6 +46,7 @@ namespace Elyndor.Tests
         {
             Application.logMessageReceived -= CollectConsoleError;
             PuzzleSessionState.Forget(PuzzleId);
+            MemorySessionState.Forget(MemorySiteId);
 
             foreach (GameObject instance in spawned)
             {
@@ -361,17 +365,7 @@ namespace Elyndor.Tests
 
             Assert.That(puzzle.State, Is.EqualTo(BridgePuzzleState.Solved));
 
-            // Alles wegwerfen und neu aufbauen — wie nach einem Szenenwechsel.
-            foreach (GameObject instance in spawned)
-            {
-                if (instance != null)
-                {
-                    Object.DestroyImmediate(instance);
-                }
-            }
-
-            spawned.Clear();
-            CreatePuzzle();
+            RebuildPuzzle();
 
             Assert.That(
                 puzzle.State,
@@ -395,16 +389,7 @@ namespace Elyndor.Tests
             Assert.That(
                 puzzle.State, Is.EqualTo(BridgePuzzleState.BridgeDeploying));
 
-            foreach (GameObject instance in spawned)
-            {
-                if (instance != null)
-                {
-                    Object.DestroyImmediate(instance);
-                }
-            }
-
-            spawned.Clear();
-            CreatePuzzle();
+            RebuildPuzzle();
 
             Assert.That(
                 puzzle.State,
@@ -412,6 +397,130 @@ namespace Elyndor.Tests
                 "Ein Laden mitten in der Bewegung muss auf den letzten " +
                 "stabilen Stand zurueckfallen.");
             Assert.That(walkway.enabled, Is.False);
+        }
+
+        // ------------------------------------------------------------------
+        // Fortgesetztes Spiel
+        // ------------------------------------------------------------------
+
+        /// <summary>
+        /// Wer die Erinnerung gesehen hat, hat sie gesehen — auch gestern.
+        ///
+        /// Die Memory Site stellt sich als bereits benutzt wieder her und
+        /// laesst sich richtigerweise kein zweites Mal aktivieren. Ihr
+        /// Ereignis oeffnet aber das Raetsel. Ohne diese Anerkennung stuende
+        /// ein fortgesetztes Spiel fuer immer vor gesperrten Ankern, und der
+        /// Stamm bliebe im Bach.
+        /// </summary>
+        [Test]
+        public void EinGesternGesehenesEcho_OeffnetDasRaetselWieder()
+        {
+            MemorySessionState.MarkActivated(MemorySiteId);
+
+            CreatePuzzle();
+
+            Assert.That(
+                puzzle.CanTurnAnchors,
+                Is.True,
+                "Das gesehene Echo aus dem Spielstand oeffnet das Raetsel " +
+                "nicht — es gibt dann keinen Weg mehr, es zu oeffnen.");
+            Assert.That(
+                puzzle.State,
+                Is.EqualTo(BridgePuzzleState.EchoObserved));
+
+            SetNotches(1, 2, 3);
+
+            Assert.That(
+                puzzle.TryRelease(),
+                Is.True,
+                "Der Stamm laesst sich im fortgesetzten Spiel nicht " +
+                "freigeben.");
+        }
+
+        [Test]
+        public void DieAnkerstellungen_UeberstehenEinenNeuaufbau()
+        {
+            CreatePuzzle();
+            ObserveEcho();
+            SetNotches(1, 2, 3);
+
+            RebuildPuzzle();
+
+            Assert.That(
+                puzzle.NotchesOf(BridgeAnchorId.SouthDeep), Is.EqualTo(1));
+            Assert.That(
+                puzzle.NotchesOf(BridgeAnchorId.Side), Is.EqualTo(2));
+            Assert.That(
+                puzzle.NotchesOf(BridgeAnchorId.North), Is.EqualTo(3));
+            Assert.That(
+                puzzle.IsConfigurationCorrect(),
+                Is.True,
+                "Die geprueftte Ankerstellung ist nach dem Neuaufbau weg.");
+        }
+
+        /// <summary>
+        /// <c>ReadyToRelease</c> heisst „die Anker stehen richtig". Ein Stand
+        /// aus einer Fassung ohne gemerkte Ankerstellungen kann das nicht
+        /// belegen — dann gilt der schwaechere, wahre Zustand. Sonst meldete
+        /// das Raetsel Bereitschaft und verkantete beim ersten Griff.
+        /// </summary>
+        [Test]
+        public void EinStandOhneAnkerstellungen_BehauptetKeineSpannung()
+        {
+            PuzzleSessionState.SetBridgeState(
+                PuzzleId, BridgePuzzleState.ReadyToRelease);
+
+            CreatePuzzle();
+
+            Assert.That(
+                puzzle.IsConfigurationCorrect(),
+                Is.False,
+                "Vorbedingung: die Steine stehen auf ihrer Ausgangsstellung.");
+            Assert.That(
+                puzzle.State,
+                Is.EqualTo(BridgePuzzleState.Configuring),
+                "Das Raetsel behauptet eine Spannung, die es nicht gibt.");
+        }
+
+        /// <summary>
+        /// Wiederherstellen ist kein Nacherleben: die fertige Bruecke zeigt
+        /// sich fertig, sagt es aber nicht noch einmal.
+        /// </summary>
+        [Test]
+        public void EineWiederhergestellteBruecke_MeldetSichNichtErneut()
+        {
+            CreatePuzzle();
+            SolveUpToSecuring();
+            puzzle.TryPlacePlank();
+            puzzle.TryPlacePlank();
+
+            Assert.That(puzzle.State, Is.EqualTo(BridgePuzzleState.Solved));
+
+            int messages = 0;
+
+            void Count(string text, float duration) => messages++;
+
+            Elyndor.Core.NarrationEvents.MessageRequested += Count;
+
+            try
+            {
+                RebuildPuzzle();
+
+                Assert.That(
+                    puzzle.State, Is.EqualTo(BridgePuzzleState.Solved));
+                Assert.That(
+                    walkway.enabled,
+                    Is.True,
+                    "Die wiederhergestellte Bruecke ist nicht begehbar.");
+                Assert.That(
+                    messages,
+                    Is.EqualTo(0),
+                    "Die Wiederherstellung hat die Loesung erneut gemeldet.");
+            }
+            finally
+            {
+                Elyndor.Core.NarrationEvents.MessageRequested -= Count;
+            }
         }
 
         // ------------------------------------------------------------------
@@ -488,6 +597,10 @@ namespace Elyndor.Tests
             puzzle = root.AddComponent<BridgePuzzle>();
             SetPrivateField(puzzle, "puzzleId", PuzzleId);
 
+            // Eigene Erinnerungs-ID: die Suite darf nicht am gesehenen Echo
+            // des Finsterwaldes haengen und keines hinterlassen.
+            SetPrivateField(puzzle, "memorySiteId", MemorySiteId);
+
             south = CreateAnchor(root, BridgeAnchorId.SouthDeep, "Anker_Sued");
             side = CreateAnchor(root, BridgeAnchorId.Side, "Anker_Seite");
             north = CreateAnchor(root, BridgeAnchorId.North, "Anker_Nord");
@@ -521,6 +634,25 @@ namespace Elyndor.Tests
                 puzzle, "plankVisuals", new Object[] { plankA, plankB });
 
             root.SetActive(true);
+        }
+
+        /// <summary>
+        /// Wirft alles weg und baut es neu auf — wie ein Szenenwechsel und wie
+        /// ein zweiter Programmstart. Was danach noch da ist, stand im
+        /// Sitzungszustand und nirgends sonst.
+        /// </summary>
+        private void RebuildPuzzle()
+        {
+            foreach (GameObject instance in spawned)
+            {
+                if (instance != null)
+                {
+                    Object.DestroyImmediate(instance);
+                }
+            }
+
+            spawned.Clear();
+            CreatePuzzle();
         }
 
         private BridgeAnchor CreateAnchor(

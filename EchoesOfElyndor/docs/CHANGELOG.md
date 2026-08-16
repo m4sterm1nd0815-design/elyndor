@@ -10,6 +10,45 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Der Stamm blieb im Bach, und schuld war das Speichern
+
+Ein Mensch hat gemeldet: Trotz korrekt ausgeführter Schritte gibt das
+Brückenrätsel den Stamm nicht frei, und der Seilbock meldet weiterhin, er
+könne tragen. Am Rätsel lag es nicht. Es lag daran, dass ein **fortgesetztes**
+Spiel bisher von keinem Test gefahren wurde — alle beginnen bei null.
+
+- **Der Spielstand kam zu spät.** `SaveBootstrap` lief auf `AfterSceneLoad`,
+  die Welt liest ihren Stand aber beim Aufbau: `BridgePuzzle` und
+  `FinsterwaldRegeneration` im `Awake`. Der Fortschritt traf also ein, nachdem
+  zwei der drei Leser ihn schon gelesen hatten. Nach jedem echten
+  Programmstart stand die Brücke wieder auf Anfang, obwohl die Datei stimmte —
+  und der nächste stabile Übergang schrieb den kleineren Stand obendrein
+  zurück. Jetzt `BeforeSceneLoad`, und der Zeitpunkt ist als Test festgenagelt.
+- **Ein gesehenes Echo blieb nicht gesehen.** Die Memory Site stellt sich als
+  bereits benutzt wieder her und lässt sich richtigerweise kein zweites Mal
+  aktivieren. Genau ihr Ereignis öffnet aber das Rätsel. Ein fortgesetztes
+  Spiel stand damit für immer vor gesperrten Ankern und einer nicht
+  bedienbaren Stammfreigabe — das ist der gemeldete Fehler. Führt der
+  Spielstand das Echo, gilt der Schritt jetzt als vollzogen.
+- **Die Ankersteine standen wieder auf Anfang.** Gespeichert wurde nur der
+  Zustandsname, und `ReadyToRelease` *bedeutet* „die Anker stehen richtig".
+  Die Stellungen gehören jetzt zum Spielstand — abgelegt nach Ankerkennung,
+  nicht nach Reihenfolge im Feld. Ein alter Stand ohne sie verstellt keinen
+  Stein und darf keine Spannung mehr behaupten: er fällt auf `Configuring`.
+- **Die fertige Brücke meldete sich bei jedem Start neu.** Die Lösungsmeldung
+  hängt jetzt am Übergang statt am Zustand. Wiederherstellen ist kein
+  Nacherleben.
+
+Neu: `FinsterwaldBridgeResumeRuntimeTests` fährt das fortgesetzte Spiel im
+echten Finsterwald über den `InteractionDetector` — ein Objekt, das nicht von
+selbst zum Ziel wird, ist für einen Spieler nicht vorhanden, und genau das war
+hier der Fall.
+
+**Menschlich offen:** Station 8 der Abnahme muss neu geprüft werden
+(Bedienbarkeit *und* Herleitbarkeit), und die Fünf-Minuten-Prüfung über zwei
+echte Programmstarts gilt nicht als bestanden, bis sie jemand erneut
+durchgeführt hat. Ein grüner Test belegt beides ausdrücklich nicht.
+
 ## [Unreleased] — Die Strecke von Blender nach Unity ist befahren
 
 Zum ersten Mal ist ein Modell aus unserem eigenen Blender in Unity angekommen.

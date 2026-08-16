@@ -61,6 +61,23 @@ namespace Elyndor.Persistence
             /// Spielstaende auf einen falschen Zustand gesetzt.
             /// </summary>
             public string state = string.Empty;
+
+            /// <summary>
+            /// Die Stellungen der Ankersteine, in der Reihenfolge des
+            /// Raetsels.
+            ///
+            /// Der Zustandsname allein beschreibt den erreichten Stand nicht
+            /// vollstaendig: <c>ReadyToRelease</c> heisst „die Anker stehen
+            /// richtig". Ohne die Stellungen kaeme der Spieler an eine
+            /// Bruecke zurueck, die ihm Spannung meldet, waehrend die Steine
+            /// wieder auf Anfang stehen.
+            ///
+            /// <b>Nachtraeglich hinzugekommen und deshalb ohne Versionssprung.</b>
+            /// Eine aeltere Fassung ueberliest das Feld, eine neuere findet es
+            /// in alten Staenden leer vor — beides ist ein gueltiger,
+            /// beschriebener Zustand und keine Migration.
+            /// </summary>
+            public List<int> anchorSettings = new List<int>();
         }
 
         /// <summary>Ein leerer, gueltiger Spielstand: nichts erreicht.</summary>

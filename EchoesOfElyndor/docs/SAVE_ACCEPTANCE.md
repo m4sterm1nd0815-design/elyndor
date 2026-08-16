@@ -1,10 +1,27 @@
 # Speichern — Fünf-Minuten-Prüfung
 
-Stand: 15. August 2026
+Stand: 16. August 2026
 
 Die Maschine kann belegen, dass der Fortschritt in eine Datei kommt und aus
 ihr zurück. Sie kann nicht belegen, dass es sich beim tatsächlichen Spielen
 richtig anfühlt. Dafür ist diese Seite da.
+
+> ## Ergebnis: OFFEN — diese Prüfung muss neu durchgeführt werden
+>
+> Am 16.08.2026 wurde beim Brückenrätsel ein Fehler gefunden, der genau diese
+> Prüfung betrifft: Der Spielstand wurde erst geladen, **nachdem** die Szene
+> sich aufgebaut hatte. Die Brücke stand nach jedem echten Programmstart wieder
+> auf Anfang, obwohl die Datei den Fortschritt korrekt enthielt — und wer
+> weiterspielen wollte, kam am Rätsel nicht mehr vorbei, weil die bereits
+> gesehene Erinnerung sich nicht noch einmal ansehen ließ.
+>
+> Behoben und automatisch geprüft
+> (`SavePersistenceTests`, `FinsterwaldBridgeResumeRuntimeTests`). Ein grüner
+> Test belegt aber ausdrücklich **nicht**, dass die Datei im echten Ablauf
+> zweier Programmstarts tut, was sie soll — genau das ist der Punkt dieser
+> Seite. Sie gilt deshalb **nicht** als bestanden, bis ein Mensch sie erneut
+> durchgeführt hat. Punkt 4.2 (ist die Brücke weiterhin begehbar?) ist dabei
+> der entscheidende.
 
 **Dauer:** rund fünf Minuten. Kein Vorwissen nötig, keine Rätsellösung
 enthalten.

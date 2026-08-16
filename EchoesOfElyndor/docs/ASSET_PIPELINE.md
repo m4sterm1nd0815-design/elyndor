@@ -112,6 +112,13 @@ Jedes externe Asset benoetigt mindestens:
 | Einsatz | Region/System/Prefab |
 | Pruefung | Lizenz, Import, Performance, Verantwortlicher |
 
+Fuer Assets, die nach `Technical/BLENDER_ASSET_PIPELINE.md` neu entstehen, liegt
+zusaetzlich eine maschinenlesbare Kurzfassung als
+`<Assetpfad>.provenance.json` neben dem Asset. Sie ersetzt dieses Manifest
+nicht, sondern ist der Teil davon, den der `ModelImportValidator` pruefen kann.
+Format und Pflichtfelder stehen im Pipelinedokument. Der Altbestand ist davon
+nicht betroffen.
+
 Das Paket `feature/external-asset-pipeline` liegt als Draft-PR #8 bei Commit
 `4b13a42` vor. Es entwickelt Fetcher und Richtlinien parallel und muss vor
 Integration auf den aktuellen `developer` gebracht sowie gegen dieses Dokument

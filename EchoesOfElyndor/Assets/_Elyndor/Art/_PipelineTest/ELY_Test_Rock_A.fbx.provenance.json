@@ -1,0 +1,14 @@
+{
+  "schema": "elyndor.asset-provenance",
+  "schemaVersion": 1,
+  "assetPath": "Assets/_Elyndor/Art/_PipelineTest/ELY_Test_Rock_A.fbx",
+  "origin": "authored-in-house",
+  "creator": "Elyndor-Projekt",
+  "source": "Art_Source/PipelineTest0/ELYNDOR_MCP_PIPELINE_TEST.blend",
+  "sourceUrl": "",
+  "license": "Projekteigen. Alle Rechte beim Elyndor-Projekt; keine fremden Nutzungsbedingungen beruehrt.",
+  "licenseUrl": "",
+  "recordedOn": "2026-08-16",
+  "modifications": "In Blender 5.1.2 aus einem Wuerfel modelliert, Scale und Rotation angewendet, Pivot auf die Unterkante gelegt, UV0 ausgepackt, mit bake_space_transform als FBX 7400 exportiert. Kein Fremdmaterial verwendet, keine Textur, kein generiertes Rohmaterial.",
+  "notes": "Reines Pipeline-Testasset fuer die Kette Blender -> Export -> Unity -> QA. Gehoert in keine Produktionsszene."
+}

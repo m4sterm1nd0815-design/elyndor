@@ -262,6 +262,7 @@ Buildskript festgehalten, damit die Herkunft der Zahlen nachvollziehbar bleibt.
 | Material | `M_<Assetname>[_<Slot>]` | `M_ELY_Test_Rock_A.mat` |
 | Textur | `T_<Assetname>_<Kanal>` | `T_ELY_Test_Rock_A_BC` |
 | Prefab | wie das Modell | `ELY_Test_Rock_A.prefab` |
+| Herkunft/Lizenz | `<Modelldateiname>.provenance.json` | `ELY_Test_Rock_A.fbx.provenance.json` |
 | Quelldatei | `<ASSETNAME>.blend` | `ELYNDOR_MCP_PIPELINE_TEST.blend` |
 
 Domänen: `Env`, `Prop`, `Puzzle`, `Enemy`, `Char`, `Test`.
@@ -281,6 +282,7 @@ Art_Source/<AssetName>/                       # ausserhalb von Assets/
 
 Assets/_Elyndor/Art/<Domäne>/<RegionOderSystem>/<AssetName>/
     <AssetName>.fbx
+    <AssetName>.fbx.provenance.json     # Herkunft und Lizenz, siehe unten
     M_<AssetName>.mat
     <AssetName>.prefab
     Textures/
@@ -293,6 +295,94 @@ Spielasset.
 `.blend` und `.fbx` sind in `.gitattributes` als `binary` markiert. Eine als Text
 behandelte Binärdatei überlebt eine Zeilenendenumwandlung nicht, und der Schaden
 fiele erst beim Import auf.
+
+---
+
+## Herkunft und Lizenz als Sidecar-Datei
+
+Neben jedem Asset, das nach diesem Standard entsteht, liegt eine
+maschinenlesbare Herkunfts- und Lizenzangabe:
+
+```text
+<Assetpfad>.provenance.json
+```
+
+Also für den Testfels:
+`Assets/_Elyndor/Art/_PipelineTest/ELY_Test_Rock_A.fbx.provenance.json`.
+
+**Warum neben dem Asset und nicht in einer Liste.** Eine zentrale Liste und ein
+Asset laufen auseinander, sobald jemand das Asset verschiebt, umbenennt oder
+löscht — und niemand merkt es, weil die Liste weiterhin ordentlich aussieht.
+Die Sidecar-Datei wandert mit; fehlt sie, fällt genau das auf.
+
+Das Herkunftsmanifest in `../ASSET_PIPELINE.md` bleibt bestehen. Es beschreibt
+**Beschaffungsvorgänge für Menschen**; die Sidecar-Datei ist das, was ein
+Werkzeug prüfen kann. Wo beide etwas zum selben Asset sagen, müssen sie
+übereinstimmen; die Sidecar-Datei ist der Teil davon, der automatisch rot wird.
+
+### Beispiel
+
+```json
+{
+  "schema": "elyndor.asset-provenance",
+  "schemaVersion": 1,
+  "assetPath": "Assets/_Elyndor/Art/_PipelineTest/ELY_Test_Rock_A.fbx",
+  "origin": "authored-in-house",
+  "creator": "Elyndor-Projekt",
+  "source": "Art_Source/PipelineTest0/ELYNDOR_MCP_PIPELINE_TEST.blend",
+  "sourceUrl": "",
+  "license": "Projekteigen. Alle Rechte beim Elyndor-Projekt; keine fremden Nutzungsbedingungen beruehrt.",
+  "licenseUrl": "",
+  "recordedOn": "2026-08-16",
+  "modifications": "In Blender 5.1.2 aus einem Wuerfel modelliert, ...",
+  "notes": "Reines Pipeline-Testasset ..."
+}
+```
+
+### Pflichtfelder
+
+| Feld | Inhalt | Gate |
+|---|---|---|
+| `schema` | exakt `elyndor.asset-provenance` | FAIL bei Abweichung |
+| `schemaVersion` | Ganzzahl, aktuell `1` | FAIL bei unbekannter Version |
+| `assetPath` | Projektpfad des Assets, exakt der Pfad, neben dem die Datei liegt | FAIL bei Abweichung |
+| `origin` | `authored-in-house`, `ai-generated` oder `third-party` | FAIL bei leer oder unbekanntem Wert |
+| `creator` | wer das Asset gebaut hat | FAIL bei leer |
+| `source` | woraus es entstanden ist (Quelldatei, Paket, Generierungslauf) | FAIL bei leer |
+| `license` | unter welcher Lizenz es benutzt werden darf | FAIL bei leer |
+| `recordedOn` | ISO-Datum `jjjj-mm-tt` der Angabe | FAIL bei leer oder falschem Format |
+
+`origin` ist ein fester Wertebereich und kein freier Text: Ein freier Text sagt
+einem Werkzeug nicht, welche Beschaffungsregeln gelten.
+
+### Optionale Felder
+
+`sourceUrl`, `licenseUrl`, `modifications`, `notes`. Sie sind zulässig und
+erwünscht, werden vom Validator aber **nicht** geprüft. Ein Feld zu prüfen, das
+heute niemand füllen kann, hieße das Gate ohne Gegenwert rot zu machen; ein Feld
+als geprüft zu führen, das es nicht ist, wäre schlimmer.
+
+### Fehlerfälle, die das Gate rot machen
+
+| Fall | Ergebnis |
+|---|---|
+| Sidecar-Datei fehlt | FAIL |
+| Datei ist kein gültiges JSON (leer, abgeschnitten, kein Objekt) | FAIL |
+| `assetPath` zeigt auf ein anderes Asset | FAIL |
+| Pflichtfeld zu Herkunft oder Lizenz fehlt | FAIL |
+
+### Scope
+
+Geprüft wird, was im `ModelImportValidator` eingetragen ist — heute
+ausschließlich `ELY_Test_Rock_A`. Der Bestand aus der Meshy- und
+ThirdParty-Zeit hat diese Datei nicht und wird davon **nicht** rot: Er ist vor
+diesem Standard entstanden, und ein Gate, das am ersten Tag rot ist, wird
+ignoriert statt befolgt. Wer ein Altasset auf den neuen Standard hebt, trägt es
+im Validator ein und liefert die Datei mit.
+
+Der Validator **liest** nur. Er legt keine Sidecar-Datei an und repariert keine.
+Ein Prüfwerkzeug, das den fehlenden Zustand selbst herstellt, prüft anschließend
+nur noch sich selbst.
 
 ---
 
@@ -313,9 +403,10 @@ Ein Asset ist fertig, wenn **alles** davon gilt:
 10. Collider bewusst gewählt: Primitiv vor MeshCollider. Ein konvexer
     MeshCollider ist in Unity auf 255 Dreiecke begrenzt.
 11. Rig und Animationsclips nur, wenn das Asset sie wirklich braucht.
-12. Im `ModelImportValidator` eingetragen und grün.
+12. Herkunfts-/Lizenzdatei `<Assetpfad>.provenance.json` vorhanden und gültig.
+13. Im `ModelImportValidator` eingetragen und grün.
 
-Punkt 12 ist kein Formalismus: Ein Asset, das kein Werkzeug prüft, ist ein Asset,
+Punkt 13 ist kein Formalismus: Ein Asset, das kein Werkzeug prüft, ist ein Asset,
 dessen Zustand niemand kennt, sobald jemand anderes es anfasst.
 
 ---
@@ -407,6 +498,7 @@ das den Standard nachweislich erfüllt.
 | Fehlende Skripte | Gate | Prefab |
 | Rig/Clips bei statischen Objekten | Gate | Modell + Prefab |
 | Dateigröße | Gate | Datei |
+| Herkunfts-/Lizenzdatei vorhanden und gültig | Gate | `<Assetpfad>.provenance.json` |
 | UV-Wertebereich | Bericht | Mesh |
 | Collider und MeshCollider-Tauglichkeit | Bericht | Prefab |
 
@@ -420,11 +512,17 @@ das den Standard nachweislich erfüllt.
 - **Fehlende Texturen.** Der Validator erkennt unaufgelöste *Importverweise*.
   Eine nicht zugewiesene Textur ist davon nicht unterscheidbar, solange kein
   Materialstandard sagt, welche Kanäle Pflicht sind.
-- **Lizenz-/Herkunftsmetadaten.** Das Herkunftsmanifest steht heute in
-  Markdown. Automatisch prüfbar wird es erst, wenn es maschinenlesbar neben dem
-  Asset liegt. Das ist der nächste sinnvolle Schritt und bewusst noch nicht
-  gebaut — solange nur ein Asset diesem Standard folgt, prüfte das Werkzeug sich
-  selbst.
+- **Inhaltliche Richtigkeit der Lizenzangabe.** Der Validator prüft, dass
+  Herkunft und Lizenz *dastehen* und formal stimmen. Ob die Angabe wahr ist,
+  kann kein Werkzeug entscheiden. Eine falsch ausgefüllte Sidecar-Datei ist
+  grün — die Verantwortung dafür bleibt beim Menschen, der sie schreibt.
+- **Zusatzpflichten je Herkunftsart.** Für `third-party` wären `sourceUrl` und
+  `licenseUrl` sinnvoll Pflicht, für `ai-generated` Modell, Prompt und
+  Generierungs-ID. Beides ist erst am ersten echten Asset dieser Art zu
+  entscheiden statt vorher zu raten; heute gibt es keines nach diesem Standard.
+- **Altbestand.** Die Modelle aus der Meshy- und ThirdParty-Zeit haben keine
+  Sidecar-Datei und werden bewusst nicht eingesammelt. Sie nachzutragen ist
+  eigene Arbeit mit eigener Recherche, kein Nebeneffekt dieses Formats.
 - **Silhouette und Stil.** Nicht automatisierbar. Creative Gate.
 
 ---

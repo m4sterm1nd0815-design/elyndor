@@ -11,7 +11,8 @@ namespace Elyndor.EditorTools
     /// Prueft importierte Modelle gegen das, was in
     /// <c>docs/Technical/BLENDER_ASSET_PIPELINE.md</c> als Standard steht:
     /// Skalierung, Wurzeltransform, Pivot, Dreiecke, Normalen, UVs,
-    /// Materialslots, fehlende Verweise, Rig und Dateigroesse.
+    /// Materialslots, fehlende Verweise, Rig, Dateigroesse und die
+    /// maschinenlesbare Herkunfts-/Lizenzangabe neben dem Asset.
     ///
     /// Der Validator prueft ausdruecklich <b>nicht</b> jedes Modell im Projekt,
     /// sondern nur die unten eingetragenen. Der Bestand aus der Meshy-Zeit ist
@@ -116,6 +117,12 @@ namespace Elyndor.EditorTools
                 return 1;
             }
 
+            // Die Herkunft wird vor allem anderen geprueft und ausdruecklich
+            // auch dann, wenn spaeter etwas anderes fehlt: Ob wir ein Asset
+            // benutzen duerfen, haengt nicht daran, ob sein Prefab schon
+            // gebaut ist.
+            int errors = CheckProvenance(model, report);
+
             // Geprueft wird das Prefab, nicht die rohe Datei. Ausgeliefert wird
             // das Prefab; alles, was erst dort entsteht — Material, Collider —
             // waere an der Datei gemessen unsichtbar.
@@ -126,10 +133,9 @@ namespace Elyndor.EditorTools
             {
                 report.AppendLine(
                     $"  FEHLER: Prefab {model.PrefabPath} nicht gefunden.");
-                return 1;
+                return errors + 1;
             }
 
-            int errors = 0;
             errors += CheckImporter(model, report);
             errors += CheckFileSize(model, report);
 
@@ -188,6 +194,31 @@ namespace Elyndor.EditorTools
                     $"    '{child.name}': rot={child.localRotation.eulerAngles} " +
                     $"scale={child.localScale}");
             }
+        }
+
+        /// <summary>
+        /// Herkunft und Lizenz aus der Sidecar-Datei neben dem Asset. Der
+        /// Scope bleibt bewusst die Liste oben: Der Bestand aus der Meshy- und
+        /// ThirdParty-Zeit hat diese Datei nicht, und ihn hier einzusammeln
+        /// haette dasselbe rote Gate am ersten Tag ergeben, das der Validator
+        /// von Anfang an vermeidet. Wer ein Altasset auf den neuen Standard
+        /// hebt, traegt es oben ein und liefert die Datei mit.
+        /// </summary>
+        private static int CheckProvenance(RegisteredModel model, StringBuilder report)
+        {
+            IReadOnlyList<string> problems =
+                AssetProvenance.ValidateFile(model.AssetPath, out string summary);
+
+            report.AppendLine(
+                $"  Herkunft ({AssetProvenance.SidecarPathFor(model.AssetPath)}): " +
+                summary);
+
+            foreach (string problem in problems)
+            {
+                report.AppendLine($"  FEHLER: Herkunft — {problem}");
+            }
+
+            return problems.Count;
         }
 
         private static int CheckImporter(RegisteredModel model, StringBuilder report)

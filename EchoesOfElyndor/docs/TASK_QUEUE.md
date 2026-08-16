@@ -1,6 +1,6 @@
 # Task Queue
 
-Stand: 15. August 2026
+Stand: 16. August 2026
 Basis der Bestandsaufnahme: `origin/developer` bei `b5536ee`
 
 Die Tabelle war bis zum 15.08.2026 bei PR #37 stehengeblieben, während die
@@ -53,7 +53,9 @@ nachgetragen; maßgeblich für den Paketstand bleibt
 | P1.14 Integrationstest | INTEGRIERT | PR #49 | Merge-Commit d5af354; Kernbogen als ein Ablauf |
 | Human Vertical Slice Acceptance | ABGESCHLOSSEN | — | 15.08.2026, **PASS**. Dabei gefunden: Rolle reagierte nicht auf Strg. Station 8 fuer diesen Pruefer nicht mehr beurteilbar |
 | Rollen-Belegung und Gate-Haertung | REVIEW | PR #50 | Roll-Action auf Strg; Compiler-Gate fasst offene Editoren nicht mehr an |
-| P1.13A Save/Persistence Foundation | REVIEW | `feature/save-persistence-foundation` | Fortschritt ueberlebt Programmstart; kein Selbst-Merge, Game-Director-Review-Punkt |
+| P1.13A Save/Persistence Foundation | REVIEW | `feature/save-persistence-foundation`, PR #51 | Fortschritt ueberlebt Programmstart; kein Selbst-Merge, Game-Director-Review-Punkt |
+| Blender-Asset-Pipeline (Nachweis) | REVIEW | PR #51 | Kette Blender → Unity an `ELY_Test_Rock_A` gemessen; `ModelImportValidator` kennt genau dieses Asset |
+| P1.12A Maschinenlesbare Asset-Herkunft | REVIEW | PR #51 | `<Assetpfad>.provenance.json` als Gate im `ModelImportValidator`; Scope nur `ELY_Test_Rock_A`, Altbestand bewusst ausgenommen |
 
 ## Priorisierte Ausfuehrungsreihenfolge — erste zehn Aufgaben
 

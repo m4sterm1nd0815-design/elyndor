@@ -41,6 +41,13 @@ namespace Elyndor.EditorTools
         private const string RegionId = "restart_proof_region";
 
         /// <summary>
+        /// Eine Ankerstellung, die keine Ausgangsstellung ist. Waeren hier
+        /// lauter Nullen, wuerde ein verlorener Eintrag wie ein
+        /// wiederhergestellter aussehen.
+        /// </summary>
+        private static readonly int[] AnchorSettings = { 0, 1, 2 };
+
+        /// <summary>
         /// Ein eigener Ordner neben dem echten Spielstand. Der Nachweis darf
         /// den Spielstand eines Menschen nicht anfassen.
         /// </summary>
@@ -69,6 +76,7 @@ namespace Elyndor.EditorTools
                 MemorySessionState.MarkActivated(SiteId);
                 PuzzleSessionState.SetBridgeState(
                     PuzzleId, BridgePuzzleState.Solved);
+                PuzzleSessionState.SetAnchorSettings(PuzzleId, AnchorSettings);
                 RegionRegenerationState.MarkRegenerated(RegionId);
 
                 bool written = service.Save();
@@ -108,13 +116,20 @@ namespace Elyndor.EditorTools
                               BridgePuzzleState.Solved;
                 bool region = RegionRegenerationState.IsRegenerated(RegionId);
 
+                // Die Ankerstellungen gehoeren zum Raetselstand: ohne sie
+                // meldet die wiederhergestellte Bruecke eine Spannung, die es
+                // nicht gibt.
+                bool anchors = SameSettings(
+                    PuzzleSessionState.GetAnchorSettings(PuzzleId),
+                    AnchorSettings);
+
                 bool complete = outcome == LoadOutcome.Loaded &&
-                                memory && puzzle && region;
+                                memory && puzzle && region && anchors;
 
                 Debug.Log(
                     $"RESTART_PROOF_VERIFY: outcome={outcome} " +
-                    $"erinnerung={memory} raetsel={puzzle} region={region} " +
-                    $"vollstaendig={complete}");
+                    $"erinnerung={memory} raetsel={puzzle} anker={anchors} " +
+                    $"region={region} vollstaendig={complete}");
 
                 EditorApplication.Exit(complete ? 0 : 1);
             }
@@ -123,6 +138,24 @@ namespace Elyndor.EditorTools
                 Debug.LogError($"RESTART_PROOF_VERIFY fehlgeschlagen: {exception}");
                 EditorApplication.Exit(1);
             }
+        }
+
+        private static bool SameSettings(int[] restored, int[] expected)
+        {
+            if (restored == null || restored.Length != expected.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < expected.Length; i++)
+            {
+                if (restored[i] != expected[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>Raeumt den Nachweis-Ordner wieder weg.</summary>

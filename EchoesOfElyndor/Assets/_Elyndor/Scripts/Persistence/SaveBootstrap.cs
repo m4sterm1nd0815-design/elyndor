@@ -12,10 +12,22 @@ namespace Elyndor.Persistence
     /// kein neues Prefab, keinen neuen Eintrag in einer Szene und keine
     /// zusaetzliche Referenz, die jemand versehentlich loesen koennte.
     ///
-    /// Der Zeitpunkt ist <c>AfterSceneLoad</c> und damit nach dem
-    /// Zuruecksetzen der Sitzungszustaende, die auf
-    /// <c>SubsystemRegistration</c> laufen. Umgekehrt haette das Laden seinen
-    /// eigenen Fortschritt wieder geloescht.
+    /// Der Zeitpunkt ist <c>BeforeSceneLoad</c>: nach dem Zuruecksetzen der
+    /// Sitzungszustaende, die auf <c>SubsystemRegistration</c> laufen —
+    /// umgekehrt haette das Laden seinen eigenen Fortschritt wieder geloescht
+    /// — und <b>vor</b> dem <c>Awake</c> der ersten Szene.
+    ///
+    /// <b>Warum nicht <c>AfterSceneLoad</c>, wie zuerst gebaut.</b> Die Welt
+    /// liest den wiederhergestellten Stand beim Aufbau: <c>BridgePuzzle</c>
+    /// und <c>FinsterwaldRegeneration</c> tun das in ihrem <c>Awake</c>.
+    /// <c>AfterSceneLoad</c> laeuft nach genau diesem <c>Awake</c> — der
+    /// Spielstand kam also erst an, als die Szene ihn schon gelesen hatte.
+    /// Im Ergebnis stand die Bruecke nach jedem echten Programmstart wieder
+    /// auf Anfang, waehrend die Datei den Fortschritt korrekt enthielt; der
+    /// naechste stabile Uebergang schrieb den Stand dann obendrein zurueck.
+    /// Aufgefallen ist das keinem Test, weil jeder Test seinen Spielstand vor
+    /// dem Laden der Szene herstellt — eine Reihenfolge, die das Spiel selbst
+    /// nie hatte.
     ///
     /// <b>Ein bereits eingehaengter Dienst wird nicht ersetzt.</b> Daran
     /// haengt die Testbarkeit: die Testreihe haengt ihren eigenen,
@@ -24,7 +36,7 @@ namespace Elyndor.Persistence
     /// </summary>
     public static class SaveBootstrap
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Install()
         {
             if (SaveService.IsInstalled)

@@ -250,6 +250,18 @@ namespace Elyndor.Persistence
                     if (Enum.TryParse(entry.state, out BridgePuzzleState state))
                     {
                         PuzzleSessionState.SetBridgeState(entry.puzzleId, state);
+
+                        // Ohne Ankerstellungen kaeme das Raetsel mit dem
+                        // richtigen Namen und den falschen Steinen zurueck.
+                        // Ein leerer Eintrag stammt aus einem Stand vor
+                        // diesem Feld und laesst die Szene entscheiden.
+                        if (entry.anchorSettings != null &&
+                            entry.anchorSettings.Count > 0)
+                        {
+                            PuzzleSessionState.SetAnchorSettings(
+                                entry.puzzleId, entry.anchorSettings);
+                        }
+
                         continue;
                     }
 
@@ -350,10 +362,15 @@ namespace Elyndor.Persistence
             foreach (KeyValuePair<string, BridgePuzzleState> pair in
                      PuzzleSessionState.BridgeStates)
             {
+                int[] anchors = PuzzleSessionState.GetAnchorSettings(pair.Key);
+
                 data.bridgePuzzles.Add(new SaveData.BridgePuzzleEntry
                 {
                     puzzleId = pair.Key,
-                    state = pair.Value.ToString()
+                    state = pair.Value.ToString(),
+                    anchorSettings = anchors != null
+                        ? new List<int>(anchors)
+                        : new List<int>()
                 });
             }
         }

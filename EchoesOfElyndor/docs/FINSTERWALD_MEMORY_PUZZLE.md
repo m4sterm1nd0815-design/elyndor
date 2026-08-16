@@ -28,11 +28,12 @@ Kombinationen durchprobieren. Das entscheidet der Usability-Test, nicht der
 Code. Sollte Brute Force offensichtlich optimal sein, werden nicht mehr
 Hinweise eingebaut, sondern das Raetseldesign analysiert und am Gate berichtet.
 
-**Nicht enthalten:** Persistenz ueber das Programmende hinaus. Der Stand haelt
-ueber Szenenwechsel innerhalb der Sitzung (`PuzzleSessionState`, nach dem
-Vorbild von `MemorySessionState`); das globale Save- und Checkpoint-System ist
-weiterhin offen und wurde bewusst nicht fuer ein einzelnes Raetsel
-vorweggenommen.
+**Persistenz** (Nachtrag 16.08.2026): Der Stand haelt ueber Szenenwechsel
+innerhalb der Sitzung (`PuzzleSessionState`) **und** seit P1.13A ueber das
+Programmende hinaus. Gespeichert werden der stabile Zustandsname und die
+Stellungen der drei Ankersteine; Einzelheiten in `Technical/SAVE_SYSTEM.md`.
+Was ein fortgesetztes Spiel vom ersten unterscheidet, steht unten bei der
+Zustandsmaschine.
 
 ## Spielversprechen
 
@@ -143,6 +144,29 @@ nur Beziehungen; der Spieler fuehrt die Schlussfolgerung aus.
 Zustands-ID: `finsterwald_bridge_memory_puzzle_v1`. Jeder Zustand schreibt nur
 bei stabilen Uebergaengen. Laden waehrend einer Animation setzt auf den letzten
 stabilen Zustand zurueck.
+
+### Fortgesetztes Spiel (16.08.2026)
+
+Die Tabelle beschreibt eine Sitzung, die bei `Dormant` beginnt. Ein zweiter
+Programmstart beginnt nicht dort, und daran ist das Raetsel gescheitert:
+
+- **Ein gesehenes Echo bleibt gesehen — auch gestern.** Die Memory Site stellt
+  sich als bereits benutzt wieder her und laesst sich richtigerweise kein
+  zweites Mal aktivieren. Ihr Ereignis ist aber genau das, was `WatchAvailable`
+  nach `EchoObserved` bringt. Fuehrt der Spielstand das Echo als gesehen, gilt
+  der Uebergang deshalb als vollzogen. Ohne das stand ein fortgesetztes Spiel
+  fuer immer in `WatchAvailable`: kein Anker drehbar, keine Freigabe moeglich,
+  der Stamm fuer immer im Bach.
+- **Die Ankerstellungen gehoeren zum Zustand.** `ReadyToRelease` heisst „die
+  Anker stehen richtig". Wird nur der Zustandsname wiederhergestellt, meldet
+  der Seilbock Spannung fuer eine Stellung, die es nicht mehr gibt. Die
+  Stellungen werden deshalb mitgespeichert; ein Stand, der sie nicht hat, faellt
+  auf `Configuring` zurueck.
+- **Die Lösungsmeldung haengt am Uebergang, nicht am Zustand.** Eine
+  wiederhergestellte Bruecke zeigt sich fertig und sagt es nicht noch einmal.
+
+Kein Schritt der Loesung aendert sich dadurch, und keine falsche Reihenfolge
+gibt etwas frei; geprueft in `FinsterwaldBridgeResumeRuntimeTests`.
 
 ## Erforderliche Trigger, Prefabs und Daten
 

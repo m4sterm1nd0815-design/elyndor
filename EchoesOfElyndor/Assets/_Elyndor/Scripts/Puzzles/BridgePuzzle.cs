@@ -24,6 +24,13 @@ namespace Elyndor.Puzzles
     [DisallowMultipleComponent]
     public sealed class BridgePuzzle : MonoBehaviour
     {
+        /// <summary>
+        /// Platzhalter für „zu dieser Ankerkennung ist nichts bekannt".
+        /// Bewusst kein gültiger Stellungswert: ein Spielstand ohne Eintrag
+        /// darf keinen Stein verstellen.
+        /// </summary>
+        private const int UnknownSetting = -1;
+
         [Header("Identität")]
         [Tooltip("Stabile ID für Sitzungszustand und späteres Speichern.")]
         [SerializeField]
@@ -208,6 +215,11 @@ namespace Elyndor.Puzzles
             if (inside)
             {
                 TrySetState(BridgePuzzleState.WatchAvailable);
+
+                // Falls der Spielstand erst nach dem Aufbau der Szene
+                // ankommt, ist das hier die zweite Gelegenheit, ein bereits
+                // gesehenes Echo anzuerkennen.
+                AdoptRecordedEcho();
                 return;
             }
 
@@ -358,6 +370,103 @@ namespace Elyndor.Puzzles
             {
                 TrySetState(BridgePuzzleState.Configuring);
             }
+
+            PersistAnchorSettings();
+        }
+
+        /// <summary>
+        /// Schreibt die Ankerstellungen in den Sitzungszustand — nach Kennung
+        /// abgelegt, nicht nach Reihenfolge im Feld. Wer die Steine in der
+        /// Szene umsortiert, soll damit keinen alten Spielstand auf die
+        /// falschen Steine anwenden.
+        /// </summary>
+        private void PersistAnchorSettings()
+        {
+            int[] settings = new int[BridgePuzzleRules.AnchorCount];
+
+            for (int i = 0; i < settings.Length; i++)
+            {
+                settings[i] = UnknownSetting;
+            }
+
+            foreach (BridgeAnchor anchor in anchors)
+            {
+                if (anchor == null)
+                {
+                    continue;
+                }
+
+                int index = (int)anchor.AnchorId;
+
+                if (index >= 0 && index < settings.Length)
+                {
+                    settings[index] = anchor.Setting;
+                }
+            }
+
+            PuzzleSessionState.SetAnchorSettings(puzzleId, settings);
+        }
+
+        /// <summary>
+        /// Stellt die gemerkten Ankerstellungen wieder her. Ohne Meldung: das
+        /// ist keine Drehung des Spielers, sondern die Fortsetzung einer
+        /// bereits erfolgten.
+        /// </summary>
+        private void RestoreAnchorSettings()
+        {
+            int[] stored = PuzzleSessionState.GetAnchorSettings(puzzleId);
+
+            if (stored == null)
+            {
+                return;
+            }
+
+            foreach (BridgeAnchor anchor in anchors)
+            {
+                if (anchor == null)
+                {
+                    continue;
+                }
+
+                int index = (int)anchor.AnchorId;
+
+                if (index < 0 || index >= stored.Length ||
+                    stored[index] == UnknownSetting)
+                {
+                    continue;
+                }
+
+                anchor.SetSetting(stored[index]);
+            }
+        }
+
+        /// <summary>
+        /// Erkennt ein Echo an, das der Spielstand bereits als gesehen führt.
+        ///
+        /// Ohne das bleibt ein fortgesetztes Spiel am Rätsel hängen: die
+        /// Memory Site stellt sich als bereits benutzt wieder her und ist
+        /// damit — richtigerweise — nicht noch einmal zu aktivieren. Ihr
+        /// Ereignis, das sonst das Rätsel öffnet, kommt also nie wieder. Das
+        /// Rätsel stünde für immer in <see cref="BridgePuzzleState.WatchAvailable"/>:
+        /// keine Anker drehbar, keine Freigabe möglich, der Stamm für immer im
+        /// Bach. Wer die Erinnerung gesehen hat, hat sie gesehen — auch
+        /// gestern.
+        /// </summary>
+        private void AdoptRecordedEcho()
+        {
+            if (string.IsNullOrEmpty(memorySiteId) ||
+                !MemorySessionState.IsActivated(memorySiteId))
+            {
+                return;
+            }
+
+            if (State != BridgePuzzleState.Dormant &&
+                State != BridgePuzzleState.WatchAvailable)
+            {
+                return;
+            }
+
+            NotifyEchoObserved();
         }
 
         private bool TrySetState(BridgePuzzleState next)
@@ -371,6 +480,15 @@ namespace Elyndor.Puzzles
             State = next;
 
             ApplyStateEffects(next);
+
+            // Die Meldung hängt am Übergang, nicht am Zustand: eine
+            // wiederhergestellte Brücke zeigt sich fertig, sagt es aber nicht
+            // noch einmal. Wiederherstellen ist kein Nacherleben.
+            if (next == BridgePuzzleState.Solved)
+            {
+                NarrationEvents.RaiseMessage(solvedText, messageDuration);
+            }
+
             PuzzleSessionState.SetBridgeState(puzzleId, next);
             StateChanged?.Invoke(previous, next);
 
@@ -399,7 +517,6 @@ namespace Elyndor.Puzzles
                         walkway.enabled = true;
                     }
 
-                    NarrationEvents.RaiseMessage(solvedText, messageDuration);
                     break;
             }
 
@@ -427,15 +544,35 @@ namespace Elyndor.Puzzles
         /// Stellt den Stand der Sitzung wieder her. Übergangszustände sind
         /// dort bereits auf ihren letzten stabilen Stand zurückgeführt, es
         /// kann also keine Zwischengeometrie entstehen.
+        ///
+        /// Wiederherstellen ist kein Nacherleben: es wird Zustand gesetzt und
+        /// gezeigt, aber keine Meldung erneut ausgegeben.
         /// </summary>
         private void RestoreFromSession()
         {
+            // Zuerst die Steine, dann der Zustand: die Bewertung unten fragt
+            // die Ankerstellung, und die muss dafür die wiederhergestellte
+            // sein und nicht die der Szene.
+            RestoreAnchorSettings();
+
             BridgePuzzleState stored =
                 PuzzleSessionState.GetBridgeState(puzzleId);
+
+            // `ReadyToRelease` behauptet eine tragende Ankerstellung. Trägt
+            // sie nicht — etwa weil der Spielstand aus einer Fassung ohne
+            // gemerkte Ankerstellungen stammt —, dann gilt der schwächere,
+            // wahre Zustand. Sonst meldete der Seilbock Spannung, und der
+            // Stamm verkantete beim ersten Griff.
+            if (stored == BridgePuzzleState.ReadyToRelease &&
+                !IsConfigurationCorrect())
+            {
+                stored = BridgePuzzleState.Configuring;
+            }
 
             if (stored == BridgePuzzleState.Dormant)
             {
                 ApplyStateEffects(BridgePuzzleState.Dormant);
+                AdoptRecordedEcho();
                 return;
             }
 
@@ -461,6 +598,13 @@ namespace Elyndor.Puzzles
                     : 0f;
 
             ApplyStateEffects(stored);
+
+            // Der Sitzungszustand kennt den bewerteten Stand jetzt genauso wie
+            // dieses Rätsel. Ohne das schriebe der nächste stabile Übergang
+            // eine Fassung zurück, die nie gegolten hat.
+            PuzzleSessionState.SetBridgeState(puzzleId, State);
+
+            AdoptRecordedEcho();
         }
 
         private void Subscribe()

@@ -21,6 +21,9 @@ namespace Elyndor.Puzzles
         private static readonly Dictionary<string, BridgePuzzleState> bridgeStates =
             new Dictionary<string, BridgePuzzleState>();
 
+        private static readonly Dictionary<string, int[]> anchorSettings =
+            new Dictionary<string, int[]>();
+
         /// <summary>
         /// Meldet jede Aenderung. Das Speichersystem haengt sich hier ein,
         /// statt einzelne Aufrufer zu kennen.
@@ -30,6 +33,19 @@ namespace Elyndor.Puzzles
         /// <summary>Alle gemerkten Raetselstaende. Nur lesbar.</summary>
         public static IReadOnlyDictionary<string, BridgePuzzleState> BridgeStates =>
             bridgeStates;
+
+        /// <summary>
+        /// Die Ankerstellungen je Raetsel-ID. Nur lesbar.
+        ///
+        /// Der Zustandsname allein genuegt nicht: <c>ReadyToRelease</c>
+        /// <em>bedeutet</em> „die Anker stehen richtig". Wird nur der Name
+        /// wiederhergestellt und stehen die Steine danach wieder in ihrer
+        /// Ausgangsstellung, behauptet das Raetsel eine Spannung, die es nicht
+        /// gibt — und der Stamm verkantet ausgerechnet bei dem Spieler, dem
+        /// gerade gesagt wurde, er koenne tragen.
+        /// </summary>
+        public static IReadOnlyDictionary<string, int[]> AnchorSettings =>
+            anchorSettings;
 
         /// <summary>Der gespeicherte Stand, oder <see cref="BridgePuzzleState.Dormant"/>.</summary>
         public static BridgePuzzleState GetBridgeState(string puzzleId)
@@ -72,10 +88,88 @@ namespace Elyndor.Puzzles
             Changed?.Invoke();
         }
 
+        /// <summary>
+        /// Die gemerkten Ankerstellungen, oder <c>null</c>, wenn zu diesem
+        /// Raetsel noch keine gemerkt wurden. <c>null</c> heisst ausdruecklich
+        /// „nichts bekannt" und nicht „alle auf null": ein Spielstand aus einer
+        /// Fassung ohne dieses Feld darf die Steine nicht heimlich verstellen.
+        /// </summary>
+        public static int[] GetAnchorSettings(string puzzleId)
+        {
+            if (string.IsNullOrEmpty(puzzleId) ||
+                !anchorSettings.TryGetValue(puzzleId, out int[] stored))
+            {
+                return null;
+            }
+
+            return (int[])stored.Clone();
+        }
+
+        /// <summary>Schreibt die Ankerstellungen eines Raetsels.</summary>
+        public static void SetAnchorSettings(
+            string puzzleId, IReadOnlyList<int> settings)
+        {
+            if (string.IsNullOrEmpty(puzzleId))
+            {
+                Debug.LogWarning(
+                    "PuzzleSessionState: Leere Raetsel-ID kann keine " +
+                    "Ankerstellungen speichern.");
+                return;
+            }
+
+            if (settings == null)
+            {
+                return;
+            }
+
+            if (anchorSettings.TryGetValue(puzzleId, out int[] previous) &&
+                SameSettings(previous, settings))
+            {
+                return;
+            }
+
+            int[] copy = new int[settings.Count];
+
+            for (int i = 0; i < settings.Count; i++)
+            {
+                copy[i] = settings[i];
+            }
+
+            anchorSettings[puzzleId] = copy;
+            Changed?.Invoke();
+        }
+
+        private static bool SameSettings(
+            int[] previous, IReadOnlyList<int> settings)
+        {
+            if (previous.Length != settings.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < previous.Length; i++)
+            {
+                if (previous[i] != settings[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>Vergisst den Stand eines Rätsels; vor allem für Tests.</summary>
         public static void Forget(string puzzleId)
         {
-            if (!string.IsNullOrEmpty(puzzleId) && bridgeStates.Remove(puzzleId))
+            if (string.IsNullOrEmpty(puzzleId))
+            {
+                return;
+            }
+
+            bool removed = bridgeStates.Remove(puzzleId);
+            removed |= anchorSettings.Remove(puzzleId);
+
+            if (removed)
             {
                 Changed?.Invoke();
             }
@@ -84,12 +178,13 @@ namespace Elyndor.Puzzles
         /// <summary>Vergisst alle Raetsel. Fuer „Neues Spiel" und fuer Tests.</summary>
         public static void ForgetAll()
         {
-            if (bridgeStates.Count == 0)
+            if (bridgeStates.Count == 0 && anchorSettings.Count == 0)
             {
                 return;
             }
 
             bridgeStates.Clear();
+            anchorSettings.Clear();
             Changed?.Invoke();
         }
 
@@ -98,6 +193,7 @@ namespace Elyndor.Puzzles
         private static void ResetForNewSession()
         {
             bridgeStates.Clear();
+            anchorSettings.Clear();
 
             // Abonnenten der letzten Sitzung sind nach einem Domain-Reload
             // ungueltig.

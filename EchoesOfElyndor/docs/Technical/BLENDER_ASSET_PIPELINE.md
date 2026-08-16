@@ -198,8 +198,73 @@ sie Objekt- und Armature-Raum auseinanderzieht. Für **statische Meshes mit
 angewendeten Transformationen** — also für alles, was diese Pipeline heute baut
 — ist sie unauffällig und belegt.
 
-`NOCH ZU ENTSCHEIDEN`: Wie gerigte Assets (Wurzelstreifer, Link) mit den Achsen
-umgehen. Das ist am ersten gerigten Asset zu messen, nicht vorher zu raten.
+### Gerigte Assets — gemessen am 16.08.2026
+
+Dies war der offene Punkt „wie gerigte Assets mit den Achsen umgehen". Er ist
+am ersten gerigten Asset gemessen worden, dem Wurzelstreifer: dieselbe Datei
+zweimal exportiert, beide Male importiert, beide Male vermessen.
+
+| `bake_space_transform` | Mesh-Kind | Armature-Kind |
+|---|---|---|
+| **`True`** | **(0, 0, 0)** | (270.02, 0, 0) |
+| `False` | (270.02, 0, 0) | (270.02, 0, 0) |
+
+Beide Varianten liefern denselben gültigen Avatar, dieselben 24 Knochen und
+dieselben elf Clips mit exakt den erwarteten Dauern. Die Warnung, die Option
+ziehe bei Rigs Objekt- und Armature-Raum auseinander, hat sich hier **nicht**
+bestätigt.
+
+**Regel: auch gerigte Assets mit `bake_space_transform=True` exportieren.** Der
+Unterschied ist eine schiefe Wurzel weniger. Das Mesh — der Teil, an dem
+Collider, Größenangaben und Kindobjekte hängen — steht damit auf (0,0,0).
+
+**Die Rotation am Armature-Objekt bleibt und ist hinzunehmen.** Unity
+importiert ein Blender-Skelett grundsätzlich mit der Achsumrechnung als
+Rotation des Armature-Objekts, unabhängig von jeder Exporteinstellung. Sie ist
+nicht wegzubekommen, ohne das Rig zu verbiegen. Der Validator prüft sie deshalb
+nicht als Fehler, sondern führt sie als Rig-Transform auf — und prüft weiterhin
+hart, dass das **Mesh** gerade steht.
+
+### Die Blickrichtungsfalle
+
+`axis_forward='-Z'` dreht Blenders **+Y auf Unitys −Z**. In Unity ist +Z vorn.
+Ein Modell, das in Blender nach +Y schaut, kommt damit **rückwärts** an.
+
+Gemessen an genau diesem Fehler: Der Wurzelstreifer wurde zuerst nach +Y
+gebaut. Er importierte sauber — Wurzel gerade, Größe richtig, Pivot am Boden,
+Avatar gültig, alle elf Clips mit korrekter Dauer. Keine dieser Prüfungen
+schlug an. Nur die eigens dafür gebaute Messung `Becken→Kopf` zeigte
+`(0, 0, −0,620)`, also einen Gegner, der im Spiel rückwärts gelaufen wäre.
+
+**Regel: Figuren zeigen in der Quelldatei nach −Y**, also in Blenders eigene
+Vorwärtsrichtung. Der Wurzelstreifer rechnet der Lesbarkeit halber intern in
++Y und dreht sich am Ende des Aufbaus um 180° um die Hochachse; eine
+180°-Drehung um die Hochachse spiegelt nicht, Normalen und Händigkeit bleiben,
+und „links" und „rechts" der Knochen bleiben richtig.
+
+**Nicht über `axis_forward` lösen.** Der Exportstandard ist gemessen und gilt
+für alle Assets; ihn für ein einzelnes Modell zu ändern hieße, zwei Exportwege
+zu haben.
+
+Der Validator prüft die Blickrichtung seither bei jedem gerigten Asset.
+
+### Exportabweichungen für gerigte Assets
+
+Der Exportstandard oben ist für statische Meshes gemessen. Für Figuren gilt er
+mit genau drei Änderungen, jede davon zwingend:
+
+```python
+object_types={'MESH', 'ARMATURE'},   # sonst kaeme ein Skin ohne Skelett
+bake_anim=True,                      # mit bake_anim_use_all_actions=True:
+                                     # jede Aktion wird ein eigener Unity-Clip
+primary_bone_axis='Y', secondary_bone_axis='X',
+```
+
+`bake_anim_simplify_factor` bleibt auf dem Vorgabewert `1.0`. Jedes Bild als
+Schlüsselbild zu schreiben blähte die Datei beim Wurzelstreifer um gut die
+Hälfte auf, ohne dass sich eine Bewegung geändert hätte;
+`bake_anim_force_startend_keying=True` hält Anfang und Ende und damit die
+gemessenen Dauern exakt.
 
 **Gegenprobe im Validator:** Wurzel **und** alle Kinder müssen im Prefab
 Rotation (0,0,0) und Scale (1,1,1) haben. Die Wurzel wird ausdrücklich
@@ -374,9 +439,9 @@ als geprüft zu führen, das es nicht ist, wäre schlimmer.
 ### Scope
 
 Geprüft wird, was im `ModelImportValidator` eingetragen ist — heute
-ausschließlich `ELY_Test_Rock_A`. Der Bestand aus der Meshy- und
-ThirdParty-Zeit hat diese Datei nicht und wird davon **nicht** rot: Er ist vor
-diesem Standard entstanden, und ein Gate, das am ersten Tag rot ist, wird
+`ELY_Test_Rock_A` und `ELY_Enemy_Wurzelstreifer`. Der Bestand aus der Meshy-
+und ThirdParty-Zeit hat diese Datei nicht und wird davon **nicht** rot: Er ist
+vor diesem Standard entstanden, und ein Gate, das am ersten Tag rot ist, wird
 ignoriert statt befolgt. Wer ein Altasset auf den neuen Standard hebt, trägt es
 im Validator ein und liefert die Datei mit.
 
@@ -501,6 +566,42 @@ das den Standard nachweislich erfüllt.
 | Herkunfts-/Lizenzdatei vorhanden und gültig | Gate | `<Assetpfad>.provenance.json` |
 | UV-Wertebereich | Bericht | Mesh |
 | Collider und MeshCollider-Tauglichkeit | Bericht | Prefab |
+
+Bei **gerigten** Assets kommt hinzu:
+
+| Prüfung | Art | Wo gemessen |
+|---|---|---|
+| Knochenzahl und Name des Wurzelknochens | Gate | SkinnedMeshRenderer |
+| Fehlende Knochen in der Skinliste | Gate | SkinnedMeshRenderer |
+| Avatar vorhanden und gültig | Gate | Modell |
+| Clipnamen vollständig, keine unerwarteten | Gate | Modell |
+| Clipdauern gegen die Vorgabe (±0,011 s) | Gate | Modell |
+| Blickrichtung nach Unity +Z | Gate | zwei benannte Knochen |
+| Rotation der Rig-Transforms | Bericht | Prefab |
+
+Drei Pruefungen messen bei Figuren bewusst anders als bei statischen Objekten:
+
+- **Rotation.** Knochen und das Armature-Objekt dürfen Rotationen tragen; eine
+  Ruhepose besteht daraus. Das Gate gilt weiterhin hart für alles außerhalb der
+  Rig-Hierarchie, insbesondere für das Mesh. Die Rig-Hierarchie wird über die
+  Knochenliste der Skins ermittelt und nicht über Namen — sonst hätte jedes
+  Objekt, das jemand „Rig" nennt, eine Ausnahme.
+- **Skalierung** wird auch an Knochen hart geprüft. Ein Knochen mit Skalierung
+  ungleich 1 ist kein Gestaltungsmittel, sondern ein nicht angewendeter
+  Transform aus der Quelldatei.
+- **Maße** kommen aus der Ruhepose des Meshes, nicht aus `Renderer.bounds`.
+  Unity legt die Grenzen eines `SkinnedMeshRenderer` bewusst großzügig aus,
+  damit ein animiertes Modell nicht aus seinem eigenen Culling fällt: beim
+  Wurzelstreifer 1,21 m Höhe statt 0,93 m, mit einer Unterkante 10 cm unter dem
+  Boden. Dagegen geprüft meldete die Pivotprüfung ein schwebendes Objekt und die
+  Höhenprüfung ein zu großes — beides falsch.
+
+Das **Materialbudget** zählt nur Renderer des Modells. Ein Partikelsystem im
+Prefab hat sein eigenes Material und gehört nicht zum Materialbudget der
+Silhouette. Auf leere Slots und Nicht-URP-Shader wird trotzdem jeder Renderer
+geprüft — ein leerer Slot rendert magenta, gleichgültig woran er hängt. Genau
+so ist am 16.08.2026 aufgefallen, dass der per Skript angelegte Rindenstaub des
+Wurzelstreifers seit dem Blockout ohne Material lief.
 
 ### Was bewusst noch nicht automatisiert ist
 

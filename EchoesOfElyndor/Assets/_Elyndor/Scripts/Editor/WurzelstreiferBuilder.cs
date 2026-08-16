@@ -79,7 +79,13 @@ namespace Elyndor.EditorTools
             AnimatorController controller = BuildAnimatorController();
             Material material = BuildMaterial(model);
 
-            GameObject prefab = BuildPrefab(model, controller, material);
+            GameObject prefab = BuildPrefab(
+                model,
+                "Blockout (Quaternius-Wolf, CC0)",
+                ModelScale,
+                controller,
+                new[] { material },
+                PrefabPath);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -279,27 +285,52 @@ namespace Elyndor.EditorTools
             return material;
         }
 
-        private static GameObject BuildPrefab(
+        /// <summary>
+        /// Setzt den Gegner aus Modell, Controller und Materialien zusammen.
+        ///
+        /// Blockout und fertiges Asset laufen durch dieselbe Methode. Sie zu
+        /// verdoppeln waere der bequemere Weg gewesen und der schlechtere: die
+        /// gemessenen Kampfwerte — Kapselhoehe, Reichweite, Halteabstand,
+        /// Hoehe der Lebensanzeige — stuenden dann an zwei Stellen, und die
+        /// erste Aenderung an einer davon waere die, bei der der fertige
+        /// Gegner sich anders anfuehlt als der Blockout, an dem sie gemessen
+        /// wurden.
+        /// </summary>
+        internal static GameObject BuildPrefab(
             GameObject model,
+            string visualName,
+            float modelScale,
             AnimatorController controller,
-            Material material)
+            Material[] materials,
+            string prefabPath)
         {
-            GameObject root = new GameObject("Wurzelstreifer_Blockout");
+            GameObject root = new GameObject(
+                Path.GetFileNameWithoutExtension(prefabPath));
 
             try
             {
-                // --- Modell als reines Blockout ---------------------------
+                // --- Sichtbares Modell ------------------------------------
                 GameObject visual =
                     (GameObject)PrefabUtility.InstantiatePrefab(model);
-                visual.name = "Blockout (Quaternius-Wolf, CC0)";
+                visual.name = visualName;
                 visual.transform.SetParent(root.transform, false);
-                visual.transform.localScale =
-                    Vector3.one * ModelScale;
+                visual.transform.localScale = Vector3.one * modelScale;
 
                 foreach (Renderer renderer in
                          visual.GetComponentsInChildren<Renderer>(true))
                 {
-                    renderer.sharedMaterial = material;
+                    Material[] slots = renderer.sharedMaterials;
+
+                    for (int i = 0; i < slots.Length; i++)
+                    {
+                        // Mehr Slots als Materialien heisst nicht "leer
+                        // lassen": ein leerer Slot rendert magenta. Das letzte
+                        // Material fuellt den Rest auf, und der Validator
+                        // meldet die Slotzahl ohnehin.
+                        slots[i] = materials[Mathf.Min(i, materials.Length - 1)];
+                    }
+
+                    renderer.sharedMaterials = slots;
                 }
 
                 Animator animator = visual.GetComponent<Animator>()
@@ -374,9 +405,9 @@ namespace Elyndor.EditorTools
                 // die mit dem laufenden Spiel nichts zu tun haben.
                 profile.Apply();
 
-                AssetDatabase.DeleteAsset(PrefabPath);
+                AssetDatabase.DeleteAsset(prefabPath);
 
-                return PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
+                return PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
             }
             finally
             {
@@ -437,6 +468,9 @@ namespace Elyndor.EditorTools
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        private const string DustMaterialPath =
+            ArtFolder + "/M_Wurzelstreifer_Rindenstaub.mat";
+
         /// <summary>
         /// Kleiner Rinden- und Holzstaub beim Treffer. Bewusst winzig: der
         /// Auftrag verlangt einfache Gameplay-VFX, keine Partikelwolke.
@@ -448,6 +482,15 @@ namespace Elyndor.EditorTools
             dustObject.transform.localPosition = new Vector3(0f, 0.55f, 0f);
 
             ParticleSystem system = dustObject.AddComponent<ParticleSystem>();
+
+            // Ein per Skript angelegtes Partikelsystem kommt ohne Material auf
+            // die Welt. Der Slot bleibt leer, und ein leerer Materialslot
+            // rendert unter URP magenta — beim ersten Treffer, mitten im
+            // Kampf, an genau der Stelle, auf die der Spieler gerade schaut.
+            // Der Modellvalidator hat das am fertigen Prefab gemeldet; im
+            // Blockout stand es seit dem ersten Tag drin.
+            dustObject.GetComponent<ParticleSystemRenderer>().sharedMaterial =
+                BuildDustMaterial();
 
             ParticleSystem.MainModule main = system.main;
             main.duration = 0.4f;
@@ -476,20 +519,84 @@ namespace Elyndor.EditorTools
             return system;
         }
 
+        /// <summary>
+        /// Das Material des Rindenstaubs.
+        ///
+        /// Es liegt im gemeinsamen Gegnerordner und nicht beim fertigen
+        /// Modell: Blockout und fertiges Asset benutzen dasselbe, und ein
+        /// Material, das zu einem Modell gehoert, das es nicht benutzt, wandert
+        /// beim naechsten Aufraeumen mit diesem Modell in den Papierkorb.
+        /// </summary>
+        private static Material BuildDustMaterial()
+        {
+            Material material =
+                AssetDatabase.LoadAssetAtPath<Material>(DustMaterialPath);
+
+            Shader shader = Shader.Find("Universal Render Pipeline/Particles/Unlit")
+                ?? Shader.Find("Universal Render Pipeline/Unlit");
+
+            if (shader == null)
+            {
+                throw new InvalidOperationException(
+                    "Wurzelstreifer: kein URP-Shader fuer den Rindenstaub " +
+                    "gefunden. Ohne ihn waere der Staub magenta.");
+            }
+
+            if (material == null)
+            {
+                EnsureFolder(ArtFolder);
+                material = new Material(shader);
+                AssetDatabase.CreateAsset(material, DustMaterialPath);
+            }
+            else
+            {
+                material.shader = shader;
+            }
+
+            // Trockenes Rinden- und Holzbraun, wie die Startfarbe der Partikel.
+            if (material.HasProperty("_BaseColor"))
+            {
+                material.SetColor(
+                    "_BaseColor", new Color(0.36f, 0.29f, 0.22f, 1f));
+            }
+
+            EditorUtility.SetDirty(material);
+            return material;
+        }
+
         // ------------------------------------------------------------------
         // Schritt 2: Begegnung in der Szene
         // ------------------------------------------------------------------
 
+        /// <summary>
+        /// Die erste Begegnung nimmt das fertige Asset, sobald es vorliegt,
+        /// sonst weiterhin den Blockout.
+        ///
+        /// Der Rueckfall ist kein Notbehelf, sondern die Bedingung dafuer,
+        /// dass diese Methode auch in einem Arbeitsstand laeuft, in dem das
+        /// Modell noch nicht gebaut wurde — sie soll nicht durchfallen, nur
+        /// weil ein Schritt davor fehlt.
+        /// </summary>
         [MenuItem("Elyndor/Finsterwald/Erste Begegnung platzieren")]
         public static void PlaceFirstEncounter()
         {
-            GameObject prefab =
-                AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                WurzelstreiferAssetBuilder.PrefabPath);
+
+            if (prefab == null)
+            {
+                prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+
+                Debug.LogWarning(
+                    "Wurzelstreifer: Das fertige Asset fehlt; auf der " +
+                    "Lichtung steht weiterhin der Blockout.");
+            }
 
             if (prefab == null)
             {
                 throw new InvalidOperationException(
-                    "Wurzelstreifer: Bitte zuerst den Blockout bauen.");
+                    "Wurzelstreifer: Weder fertiges Asset noch Blockout " +
+                    "vorhanden. Bitte zuerst eines von beiden bauen.");
             }
 
             Scene scene = EditorSceneManager.OpenScene(
@@ -534,6 +641,25 @@ namespace Elyndor.EditorTools
                 "WURZELSTREIFER_ENCOUNTER_OK: genau ein Exemplar auf der " +
                 "Lichtung bei " + instance.transform.position.ToString("F2") +
                 ".");
+        }
+
+        /// <summary>
+        /// Einstiegspunkt fuer den Batchmode: Asset aufbauen und auf die
+        /// Lichtung stellen.
+        /// </summary>
+        public static void BuildAndPlaceBatch()
+        {
+            try
+            {
+                WurzelstreiferAssetBuilder.Build();
+                PlaceFirstEncounter();
+                EditorApplication.Exit(0);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError($"WURZELSTREIFER_PLATZIERUNG fehlgeschlagen: {exception}");
+                EditorApplication.Exit(1);
+            }
         }
 
         /// <summary>

@@ -10,6 +10,67 @@ Last Updated: 22.07.2026
 
 # CHANGELOG
 
+## [Unreleased] — Der Wurzelstreifer hat aufgehört, ein Wolf zu sein
+
+Auf der Kleinen Lichtung stand seit P1.5 ein Quaternius-Wolf. Er war nie die
+Art Direction, sondern ein Maßband: an ihm sind Größe, Timing, Hitboxen und
+Telegraph gemessen worden. Diese Messungen stehen im freigegebenen
+Konzeptentwurf, und aus ihnen ist jetzt das Modell gebaut — im Haus in Blender,
+über die MCP-Brücke, ohne einen einzigen der drei freigegebenen Meshy-Versuche.
+
+- **Das Modell ist ein Skript, nicht eine Datei.**
+  `Art_Source/Wurzelstreifer/build_wurzelstreifer.py` baut Rumpf, Kopf, Beine,
+  Wurzelstränge, Rindenplatten und Bruchlinien aus den Zahlen des
+  Konzeptentwurfs; die `.blend` ist sein Ergebnis. Damit steht jede Maßangabe
+  als benannte Konstante da und nicht als Vertexposition, von der niemand mehr
+  sagen kann, ob sie Absicht war. Fester Seed, zwei Läufe ergeben dasselbe Mesh.
+- **Er lief zuerst rückwärts.** `axis_forward='-Z'` dreht Blenders +Y auf Unitys
+  −Z, und −Z ist in Unity hinten. Das Modell importierte dabei vollkommen
+  sauber: Wurzel gerade, Größe richtig, Pivot am Boden, Avatar gültig, alle elf
+  Clips mit korrekter Dauer. Keine dieser Prüfungen schlug an. Figuren zeigen
+  in der Quelldatei jetzt nach −Y, und der Validator misst die Blickrichtung
+  seither an zwei benannten Knochen.
+- **Die Rindenplatten rissen vom Körper ab, sobald er sich bewegte.** Sie
+  liegen als eigene Schalen auf der Haut, und automatische Gewichte behandeln
+  sie eigenständig — ein paar Millimeter weiter außen, also anders gewichtet.
+  Beim ersten Krümmen des Rückens klaffte ein Loch. Die 423 Vertices dieser
+  Schalen übernehmen jetzt die Gewichte des Hautvertex unter sich.
+- **Der Rindenstaub hatte seit dem Blockout kein Material.** Ein per Skript
+  angelegtes Partikelsystem kommt ohne auf die Welt, und ein leerer
+  Materialslot rendert unter URP magenta — beim ersten Treffer, mitten im
+  Kampf. Aufgefallen ist es, weil der Modellvalidator jetzt auch Prefabs mit
+  Partikeln prüft.
+- **Türkis leuchtet nur noch in den Rissen.** Die Bruchlinien haben einen
+  eigenen Materialslot mit eingeschalteter Emission; am Rindenmaterial ist das
+  Keyword aus, und URP ignoriert die Farbe aus dem Property Block dort
+  vollständig. Damit tut `WurzelstreiferFeedback` endlich das, was die Art
+  Direction verlangt, statt den ganzen Körper einzufärben.
+- **50 Bilder je Sekunde, damit drei Zahlen stimmen.** Der Konzeptentwurf legt
+  0,7 s Telegraph, 0,18 s Flinch und 0,8 s Straucheln fest. Bei 50 fps sind das
+  glatt 35, 9 und 40 Bilder; bei 30 fps wäre der Flinch 5,4 Bilder lang und die
+  Vorgabe schon beim Anlegen der Datei verfehlt. Gemessen kommen alle elf Clips
+  auf die Hundertstelsekunde genau in Unity an.
+- **Der offene Achsenpunkt der Pipeline ist zu.** Zweimal exportiert, zweimal
+  gemessen: `bake_space_transform=True` lässt das Mesh auf (0,0,0) stehen,
+  `False` verdreht es. Beide Varianten liefern gültigen Avatar und korrekte
+  Clips — die Warnung, die Option ziehe bei Rigs die Räume auseinander, hat
+  sich hier nicht bestätigt.
+- **Der Validator kann jetzt Figuren.** Er suchte bisher nach `MeshFilter` und
+  hätte bei jeder gehäuteten Figur „kein Mesh im Modell" gemeldet. Er prüft nun
+  Knochenzahl, Wurzelknochen, Avatar, Clipnamen, Clipdauern und
+  Blickrichtung — und misst die Maße an der Ruhepose statt an
+  `Renderer.bounds`, die Unity für animierte Modelle bewusst zu groß auslegt.
+
+**Blockout und fertiges Asset laufen durch dieselbe Aufbaumethode.** Die
+gemessenen Kampfwerte — Kapselhöhe, Reichweite, Halteabstand, Höhe der
+Lebensanzeige — stehen weiterhin an genau einer Stelle. Am Gameplay ist nichts
+geändert.
+
+**Offen und ausdrücklich nicht bestanden: die finale künstlerische Abnahme.**
+Sie ist ein menschliches Gate. Kein grünes Gate in diesem Eintrag sagt etwas
+darüber, ob der Gegner gut aussieht. Was noch aussteht, steht in
+`Technical/WURZELSTREIFER_ASSET.md`.
+
 ## [Unreleased] — Der Stamm blieb im Bach, und schuld war das Speichern
 
 Ein Mensch hat gemeldet: Trotz korrekt ausgeführter Schritte gibt das

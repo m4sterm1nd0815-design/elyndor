@@ -1,8 +1,22 @@
 # Wurzelstreifer — Konzeptentwurf für das finale Asset
 
 Stand: 15. August 2026
-Status: `FREIGEGEBEN` als Art-Direction-Vorgabe; das finale Modell ist noch
-nicht beauftragt.
+Status: `FREIGEGEBEN` als Art-Direction-Vorgabe.
+
+> **Nachtrag 16.08.2026 — das finale Modell steht.** Es ist im Haus in Blender
+> gebaut worden, nicht über Meshy; keiner der drei freigegebenen Meshy-Versuche
+> wurde verbraucht. Der technische Stand steht in
+> `../Technical/WURZELSTREIFER_ASSET.md`: Quelldatei, Exportweg, Unity-Pfade,
+> gemessene Maße, Rig- und Animationsumfang.
+>
+> Das Asset ist **technisch integriert** und steht auf der Kleinen Lichtung.
+> Die **finale künstlerische Abnahme steht aus** — sie ist ein menschliches
+> Gate, und kein grünes Gate im Projekt sagt etwas über sie. Was dieser Entwurf
+> beschreibt, ist weiterhin die Vorgabe, gegen die abgenommen wird.
+>
+> Der Blockout mit dem Quaternius-Wolf bleibt als Werkzeug erhalten
+> (`Elyndor/Setup/Wurzelstreifer-Blockout bauen`); in der Szene steht er nicht
+> mehr.
 
 Dieser Entwurf beschreibt, wie der Wurzelstreifer am Ende aussehen soll. Er
 entsteht am Ende von P1.5, weil das Gameplay zuerst mit einem Blockout
@@ -218,13 +232,28 @@ binden:
 
 ## 9. Offen
 
-- Beauftragung des finalen Modells (Meshy oder eigene Modellierung) — bewusst
-  **nicht** in P1.5 ausgeführt, um keine Credits für Proportionen zu
-  verbrennen, die sich noch ändern können.
-- Emissionsmaske für die Bruchlinien.
-- Eigene Clips für seitlichen Schritt, Telegraph und schweres Straucheln.
+Stand 16.08.2026, nach dem Bau des finalen Modells.
+
+**Erledigt:**
+
+- ~~Beauftragung des finalen Modells~~ — eigene Modellierung in Blender,
+  ohne Meshy-Credits.
+- ~~Emissionsmaske für die Bruchlinien~~ — gelöst über einen zweiten
+  Materialslot statt über eine Textur. Begründung in
+  `../Technical/WURZELSTREIFER_ASSET.md`; ob es dabei bleibt, entscheidet sich,
+  sobald ein Texturstandard steht.
+- ~~Eigene Clips für seitlichen Schritt, Telegraph und schweres Straucheln~~ —
+  alle drei liegen als eigene Clips vor, mit den hier festgelegten Dauern
+  0,7 s und 0,8 s.
+
+**Weiterhin offen:**
+
+- **Finale künstlerische Abnahme des Modells.** Menschliches Gate.
 - Bodennahe Erinnerungsschliere beim Sprungangriff.
 - Audio: Lauschen, Telegraph, Biss, Treffer, Beruhigung.
+- Ein Vorwärtsgang wäre animiert vorhanden (`Trab`), wird aber von keinem
+  Zustand gewählt — die Zustandsmaschine kennt heute keinen Vorwärtsschritt.
+  Ihn zu verdrahten ist eine Gameplay-Entscheidung, keine Assetfrage.
 
 Siehe `FINSTERWALD_ENCOUNTER_PLAN.md` für die Rolle im Encounter und
 `FINSTERWALD_ASSET_REQUIREMENTS.md` für den Assetbedarf des Slice.

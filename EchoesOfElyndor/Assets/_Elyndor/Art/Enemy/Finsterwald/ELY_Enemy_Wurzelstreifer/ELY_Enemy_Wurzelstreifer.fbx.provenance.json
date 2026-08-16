@@ -1,0 +1,14 @@
+{
+  "schema": "elyndor.asset-provenance",
+  "schemaVersion": 1,
+  "assetPath": "Assets/_Elyndor/Art/Enemy/Finsterwald/ELY_Enemy_Wurzelstreifer/ELY_Enemy_Wurzelstreifer.fbx",
+  "origin": "authored-in-house",
+  "creator": "Elyndor-Projekt",
+  "source": "Art_Source/Wurzelstreifer/build_wurzelstreifer.py (Blender 5.1.2 ueber die Blender-MCP-Bruecke); Ergebnisdatei Art_Source/Wurzelstreifer/ELY_ENEMY_WURZELSTREIFER.blend",
+  "sourceUrl": "",
+  "license": "Projekteigen. Alle Rechte beim Elyndor-Projekt; keine fremden Nutzungsbedingungen beruehrt. Es wurde kein Fremdmodell, kein generatives Modell und kein kostenpflichtiger Dienst verwendet.",
+  "licenseUrl": "",
+  "recordedOn": "2026-08-16",
+  "modifications": "Vollstaendig aus Primitiven in Blender 5.1.2 aufgebaut: Rumpf und Kopf als ein Loft ueber einer Ruecken-/Kopfkurve, Beine und Wurzelstraenge als Roehren, Rindenplatten und tuerkise Bruchlinien als aufliegende Schalen. Generic-Rig mit 24 Knochen, automatische Gewichte plus Uebernahme der Gewichte fuer die aufliegenden Schalen. 11 Animationsclips bei 50 Bildern je Sekunde. Export als FBX 7400 binaer nach dem Standard aus docs/Technical/BLENDER_ASSET_PIPELINE.md mit bake_space_transform=True.",
+  "notes": "Masse und Silhouette folgen dem freigegebenen Konzeptentwurf docs/07_Enemies/WURZELSTREIFER_CONCEPT_BRIEF.md. Es wurde keine externe Referenz, keine Concept-Art-Bilddatei und kein Fremdasset benutzt — im Repository liegt keine. Das Asset ist technisch integriert; die finale kuenstlerische Abnahme ist ein menschliches Gate und steht aus."
+}

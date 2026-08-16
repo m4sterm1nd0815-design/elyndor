@@ -31,6 +31,35 @@ namespace Elyndor.EditorTools
         private const float Epsilon = 0.001f;
 
         /// <summary>
+        /// Was ein gerigtes Asset zusaetzlich erfuellen muss.
+        ///
+        /// Statische Objekte und Figuren teilen sich fast alle Pruefungen —
+        /// Skalierung, Pivot, Normalen, UVs, Material. Was sie nicht teilen,
+        /// steht hier: ein Skelett hat eine erwartete Groesse, Clips haben
+        /// gemessene Dauern, und eine Figur hat eine Blickrichtung. Gerade die
+        /// Blickrichtung ist der Fehler, der beim Import nicht auffaellt und
+        /// im Spiel als rueckwaerts laufender Gegner endet.
+        /// </summary>
+        private sealed class RigExpectation
+        {
+            /// <summary>Erwartete Knochenzahl.</summary>
+            public int Bones;
+
+            /// <summary>Name des Wurzelknochens am SkinnedMeshRenderer.</summary>
+            public string RootBone;
+
+            /// <summary>Clipname ohne Praefix auf die Dauer in Sekunden.</summary>
+            public IReadOnlyDictionary<string, float> Clips;
+
+            /// <summary>
+            /// Zwei Knochen, deren Verbindung nach vorn zeigen muss. In Unity
+            /// ist vorn +Z.
+            /// </summary>
+            public string ForwardFromBone;
+            public string ForwardToBone;
+        }
+
+        /// <summary>
         /// Ein Modell, das den Standard erfuellen muss, mit seinen Grenzen.
         /// Die Grenzen stehen bewusst am Asset und nicht global: ein Findling
         /// und eine Landmarke haben nichts gemeinsam ausser dem Dateiformat.
@@ -46,6 +75,9 @@ namespace Elyndor.EditorTools
             public readonly float MaxHeightMeters;
             public readonly bool StaticProp;
 
+            /// <summary>Null bei statischen Objekten.</summary>
+            public readonly RigExpectation Rig;
+
             public RegisteredModel(
                 string assetPath,
                 string prefabPath,
@@ -54,7 +86,8 @@ namespace Elyndor.EditorTools
                 long maxFileBytes,
                 float minHeightMeters,
                 float maxHeightMeters,
-                bool staticProp)
+                bool staticProp,
+                RigExpectation rig = null)
             {
                 AssetPath = assetPath;
                 PrefabPath = prefabPath;
@@ -64,6 +97,7 @@ namespace Elyndor.EditorTools
                 MinHeightMeters = minHeightMeters;
                 MaxHeightMeters = maxHeightMeters;
                 StaticProp = staticProp;
+                Rig = rig;
             }
         }
 
@@ -78,6 +112,49 @@ namespace Elyndor.EditorTools
                 minHeightMeters: 0.5f,
                 maxHeightMeters: 1.5f,
                 staticProp: true),
+
+            // Der Wurzelstreifer ist das erste gerigte Asset nach diesem
+            // Standard. Die Hoehengrenzen sind die Schulterhoehe aus dem
+            // freigegebenen Konzeptentwurf; der hoechste Punkt des Modells ist
+            // die Schulter. Die Clipdauern stehen ebenfalls dort und sind der
+            // Grund, warum der Blender-Aufbau mit 50 Bildern je Sekunde
+            // arbeitet: 0,7 s, 0,18 s und 0,8 s gehen damit glatt auf.
+            //
+            // Das Dreiecksbudget ist die dokumentierte Obergrenze aus
+            // FINSTERWALD_ASSET_REQUIREMENTS.md. Das Modell liegt weit
+            // darunter — die Pipeline verlangt die niedrigste Zahl, bei der
+            // die Silhouette liest, nicht die hoechste, die das Budget
+            // hergibt.
+            new RegisteredModel(
+                "Assets/_Elyndor/Art/Enemy/Finsterwald/ELY_Enemy_Wurzelstreifer/ELY_Enemy_Wurzelstreifer.fbx",
+                "Assets/_Elyndor/Prefabs/Enemies/Wurzelstreifer.prefab",
+                maxTriangles: 20000,
+                maxMaterialSlots: 2,
+                maxFileBytes: 2 * 1024 * 1024,
+                minHeightMeters: 0.85f,
+                maxHeightMeters: 0.95f,
+                staticProp: false,
+                rig: new RigExpectation
+                {
+                    Bones = 24,
+                    RootBone = "Wurzel",
+                    ForwardFromBone = "Becken",
+                    ForwardToBone = "Kopf",
+                    Clips = new Dictionary<string, float>(StringComparer.Ordinal)
+                    {
+                        { "Idle", 2.40f },
+                        { "Lauschen", 2.00f },
+                        { "Schritt", 1.00f },
+                        { "Trab", 1.00f },
+                        { "Lauf", 0.60f },
+                        { "Telegraph", 0.70f },
+                        { "Sprungbiss", 0.50f },
+                        { "Flinch", 0.18f },
+                        { "Stagger", 0.80f },
+                        { "Flucht", 0.70f },
+                        { "Niederlage", 1.40f },
+                    },
+                }),
         };
 
         [MenuItem("Elyndor/QA/Validate Model Imports")]
@@ -152,7 +229,7 @@ namespace Elyndor.EditorTools
                 // Bericht war danach sauber und der Fels lag auf dem Ruecken.
                 instance.transform.position = Vector3.zero;
 
-                errors += CheckHierarchy(instance, report);
+                errors += CheckHierarchy(model, instance, report);
                 errors += CheckMesh(model, instance, report);
                 errors += CheckBounds(model, instance, report);
                 errors += CheckMaterials(model, instance, report);
@@ -297,24 +374,50 @@ namespace Elyndor.EditorTools
             return 1;
         }
 
-        private static int CheckHierarchy(GameObject instance, StringBuilder report)
+        private static int CheckHierarchy(
+            RegisteredModel model, GameObject instance, StringBuilder report)
         {
             int errors = 0;
 
-            // Die Wurzel wird mitgeprueft. Sie ist der Ort, an dem eine nicht
-            // umgerechnete Achse landet.
+            // Knochen duerfen Rotationen tragen — eine Ruhepose besteht daraus.
+            // Das Armature-Objekt selbst ebenfalls: Unity importiert ein
+            // Blender-Skelett grundsaetzlich mit der Achsumrechnung als
+            // Rotation, gemessen (270.02, 0, 0), und zwar unabhaengig davon,
+            // ob beim Export bake_space_transform gesetzt war.
+            //
+            // Was dadurch nicht ungeprueft bleiben darf, ist das Mesh: genau
+            // dort entscheidet sich, ob die Achsumrechnung in den Meshdaten
+            // steckt oder als schiefe Wurzel mitgeschleppt wird. Der Unter-
+            // schied zwischen beiden Exportvarianten war am 16.08.2026 genau
+            // diese eine Rotation.
+            HashSet<Transform> rigTransforms = CollectRigTransforms(instance);
+
             foreach (Transform transform in instance.GetComponentsInChildren<Transform>(true))
             {
+                bool isRig = rigTransforms.Contains(transform);
+
                 if (Quaternion.Angle(transform.localRotation, Quaternion.identity) > 0.01f)
                 {
-                    report.AppendLine(
-                        $"  FEHLER: '{transform.name}' bringt eine Rotation " +
-                        $"{transform.localRotation.eulerAngles} mit. Eine " +
-                        "eingebackene Achsdrehung faellt erst auf, wenn jemand " +
-                        "das Prefab dreht.");
-                    errors++;
+                    if (isRig)
+                    {
+                        report.AppendLine(
+                            $"  Rig-Transform '{transform.name}': rot=" +
+                            $"{transform.localRotation.eulerAngles} (zulaessig)");
+                    }
+                    else
+                    {
+                        report.AppendLine(
+                            $"  FEHLER: '{transform.name}' bringt eine Rotation " +
+                            $"{transform.localRotation.eulerAngles} mit. Eine " +
+                            "eingebackene Achsdrehung faellt erst auf, wenn jemand " +
+                            "das Prefab dreht.");
+                        errors++;
+                    }
                 }
 
+                // Die Skalierung wird ueberall geprueft, auch an Knochen. Ein
+                // Knochen mit Skalierung ungleich 1 ist kein Gestaltungsmittel,
+                // sondern ein nicht angewendeter Transform aus der Quelldatei.
                 if ((transform.localScale - Vector3.one).sqrMagnitude > Epsilon * Epsilon)
                 {
                     report.AppendLine(
@@ -338,12 +441,72 @@ namespace Elyndor.EditorTools
             return errors;
         }
 
+        /// <summary>
+        /// Alle Meshes der Instanz mit dem Namen des Objekts, an dem sie
+        /// haengen — gehaeutete wie starre.
+        ///
+        /// Ein gehaeutetes Mesh haengt an einem <see cref="SkinnedMeshRenderer"/>
+        /// und hat keinen <see cref="MeshFilter"/>. Eine Pruefung, die nur
+        /// nach MeshFilter sucht, meldet bei einer Figur "kein Mesh im Modell"
+        /// — und das ist die eine Fehlermeldung, die niemand ernst nimmt, weil
+        /// das Modell sichtbar da ist.
+        /// </summary>
+        private static List<(string Name, Mesh Mesh)> CollectMeshes(
+            GameObject instance)
+        {
+            var meshes = new List<(string, Mesh)>();
+
+            foreach (MeshFilter filter in
+                     instance.GetComponentsInChildren<MeshFilter>(true))
+            {
+                meshes.Add((filter.name, filter.sharedMesh));
+            }
+
+            foreach (SkinnedMeshRenderer skin in
+                     instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            {
+                meshes.Add((skin.name, skin.sharedMesh));
+            }
+
+            return meshes;
+        }
+
+        /// <summary>
+        /// Das Armature-Objekt und alle Knochen darunter.
+        ///
+        /// Ermittelt ueber die Knochenliste der gehaeuteten Renderer und deren
+        /// Elternkette. Ueber Namen zu gehen waere die naheliegende Abkuerzung
+        /// und die falsche: dann haette jedes Objekt, das jemand "Rig" nennt,
+        /// eine Ausnahme von der Rotationspruefung.
+        /// </summary>
+        private static HashSet<Transform> CollectRigTransforms(GameObject instance)
+        {
+            var rig = new HashSet<Transform>();
+            Transform root = instance.transform;
+
+            foreach (SkinnedMeshRenderer skin in
+                     instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            {
+                foreach (Transform bone in skin.bones)
+                {
+                    for (Transform current = bone;
+                         current != null && current != root;
+                         current = current.parent)
+                    {
+                        rig.Add(current);
+                    }
+                }
+            }
+
+            return rig;
+        }
+
         private static int CheckMesh(
             RegisteredModel model, GameObject instance, StringBuilder report)
         {
-            MeshFilter[] filters = instance.GetComponentsInChildren<MeshFilter>(true);
+            List<(string Name, Mesh Mesh)> meshes = CollectMeshes(instance);
 
-            if (filters.Length == 0)
+            if (meshes.Count == 0)
             {
                 report.AppendLine("  FEHLER: kein Mesh im Modell.");
                 return 1;
@@ -353,13 +516,11 @@ namespace Elyndor.EditorTools
             int triangles = 0;
             int vertices = 0;
 
-            foreach (MeshFilter filter in filters)
+            foreach ((string name, Mesh mesh) in meshes)
             {
-                Mesh mesh = filter.sharedMesh;
-
                 if (mesh == null)
                 {
-                    report.AppendLine($"  FEHLER: '{filter.name}' ohne Mesh.");
+                    report.AppendLine($"  FEHLER: '{name}' ohne Mesh.");
                     errors++;
                     continue;
                 }
@@ -456,15 +617,55 @@ namespace Elyndor.EditorTools
                 return 1;
             }
 
-            Bounds bounds = renderers[0].bounds;
-            for (int i = 1; i < renderers.Length; i++)
+            // Bei gehaeuteten Meshes wird die Ruhepose gemessen, nicht
+            // Renderer.bounds.
+            //
+            // Unity legt die Grenzen eines SkinnedMeshRenderer bewusst
+            // grosszuegig aus, damit ein animiertes Modell nicht aus seinem
+            // eigenen Culling faellt. Beim Wurzelstreifer sind das 1,21 m Hoehe
+            // statt 0,93 m, und die Unterkante liegt 10 cm unter dem Boden.
+            // Gegen diese Zahlen geprueft, meldete die Pivotpruefung ein
+            // schwebendes Objekt und die Hoehenpruefung ein zu grosses — beides
+            // falsch. Das Mesh selbst kennt seine Ruhepose genau.
+            bool skinned = false;
+            Bounds bounds = default;
+
+            foreach (SkinnedMeshRenderer skin in
+                     instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
-                bounds.Encapsulate(renderers[i].bounds);
+                if (skin.sharedMesh == null)
+                {
+                    continue;
+                }
+
+                Bounds local = skin.sharedMesh.bounds;
+                Bounds world = new Bounds(
+                    skin.transform.TransformPoint(local.center),
+                    Vector3.Scale(local.size, skin.transform.lossyScale));
+
+                if (!skinned)
+                {
+                    bounds = world;
+                    skinned = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(world);
+                }
+            }
+
+            if (!skinned)
+            {
+                bounds = renderers[0].bounds;
+                for (int i = 1; i < renderers.Length; i++)
+                {
+                    bounds.Encapsulate(renderers[i].bounds);
+                }
             }
 
             report.AppendLine(
-                $"  Weltmasse bei Identitaet: {bounds.size} " +
-                $"| min {bounds.min} | max {bounds.max}");
+                $"  {(skinned ? "Ruhepose" : "Weltmasse bei Identitaet")}: " +
+                $"{bounds.size} | min {bounds.min} | max {bounds.max}");
 
             int errors = 0;
 
@@ -499,7 +700,24 @@ namespace Elyndor.EditorTools
             foreach (Renderer renderer in instance.GetComponentsInChildren<Renderer>(true))
             {
                 Material[] materials = renderer.sharedMaterials;
-                slots += materials.Length;
+
+                // Ins Budget zaehlen nur die Renderer des Modells. Ein
+                // Partikelsystem im Prefab — beim Wurzelstreifer der
+                // Rindenstaub beim Treffer — hat sein eigenes Material und
+                // gehoert nicht zum Materialbudget der Silhouette; das Budget
+                // begrenzt Drawcalls des Modells, nicht die Gameplay-VFX
+                // daneben.
+                //
+                // Auf leere Slots und Nicht-URP-Shader wird trotzdem jeder
+                // Renderer geprueft. Ein leerer Slot rendert magenta,
+                // gleichgueltig woran er haengt.
+                bool countsTowardBudget =
+                    renderer is MeshRenderer or SkinnedMeshRenderer;
+
+                if (countsTowardBudget)
+                {
+                    slots += materials.Length;
+                }
 
                 foreach (Material material in materials)
                 {
@@ -576,7 +794,7 @@ namespace Elyndor.EditorTools
 
             if (!model.StaticProp)
             {
-                return 0;
+                return CheckRiggedAsset(model, instance, clips, report);
             }
 
             int errors = 0;
@@ -601,6 +819,239 @@ namespace Elyndor.EditorTools
         }
 
         /// <summary>
+        /// Was eine Figur mitbringen muss: ein Skelett der erwarteten Groesse,
+        /// einen gueltigen Avatar, die Clips mit ihren gemessenen Dauern — und
+        /// eine Blickrichtung nach vorn.
+        /// </summary>
+        private static int CheckRiggedAsset(
+            RegisteredModel model,
+            GameObject instance,
+            IReadOnlyList<string> clipNames,
+            StringBuilder report)
+        {
+            RigExpectation expected = model.Rig;
+
+            if (expected == null)
+            {
+                report.AppendLine(
+                    "  FEHLER: als Figur eingetragen, aber ohne Rig-Erwartung. " +
+                    "Ein Asset, dessen Sollwerte niemand aufgeschrieben hat, " +
+                    "laesst sich nicht pruefen.");
+                return 1;
+            }
+
+            int errors = 0;
+
+            SkinnedMeshRenderer[] skins =
+                instance.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+
+            if (skins.Length == 0)
+            {
+                report.AppendLine(
+                    "  FEHLER: als Figur eingetragen, aber ohne gehaeutetes " +
+                    "Mesh.");
+                return errors + 1;
+            }
+
+            foreach (SkinnedMeshRenderer skin in skins)
+            {
+                report.AppendLine(
+                    $"  Skin '{skin.name}': bones={skin.bones.Length} " +
+                    $"rootBone={(skin.rootBone != null ? skin.rootBone.name : "<fehlt>")}");
+
+                if (skin.bones.Length != expected.Bones)
+                {
+                    report.AppendLine(
+                        $"  FEHLER: {skin.bones.Length} Knochen, erwartet " +
+                        $"{expected.Bones}. Eine abweichende Knochenzahl heisst, " +
+                        "dass Rig und Clips nicht mehr zueinander passen.");
+                    errors++;
+                }
+
+                if (skin.rootBone == null ||
+                    skin.rootBone.name != expected.RootBone)
+                {
+                    report.AppendLine(
+                        $"  FEHLER: Wurzelknochen ist " +
+                        $"'{(skin.rootBone != null ? skin.rootBone.name : "<fehlt>")}', " +
+                        $"erwartet '{expected.RootBone}'.");
+                    errors++;
+                }
+
+                foreach (Transform bone in skin.bones)
+                {
+                    if (bone == null)
+                    {
+                        report.AppendLine(
+                            "  FEHLER: ein Knochen des Skins fehlt. Das Mesh " +
+                            "wuerde an dieser Stelle zusammenfallen.");
+                        errors++;
+                    }
+                }
+            }
+
+            errors += CheckAvatar(model, report);
+            errors += CheckClips(expected, clipNames, model, report);
+            errors += CheckForward(expected, instance, report);
+
+            return errors;
+        }
+
+        private static int CheckAvatar(RegisteredModel model, StringBuilder report)
+        {
+            foreach (UnityEngine.Object sub in
+                     AssetDatabase.LoadAllAssetsAtPath(model.AssetPath))
+            {
+                if (sub is not Avatar avatar)
+                {
+                    continue;
+                }
+
+                report.AppendLine(
+                    $"  Avatar: '{avatar.name}' isValid={avatar.isValid}");
+
+                if (avatar.isValid)
+                {
+                    return 0;
+                }
+
+                report.AppendLine(
+                    "  FEHLER: Avatar ist ungueltig. Ohne ihn spielt der " +
+                    "Animator keinen einzigen Clip ab.");
+                return 1;
+            }
+
+            report.AppendLine(
+                "  FEHLER: kein Avatar im Modell. Die Clips waeren nicht " +
+                "abspielbar.");
+            return 1;
+        }
+
+        private static int CheckClips(
+            RigExpectation expected,
+            IReadOnlyList<string> clipNames,
+            RegisteredModel model,
+            StringBuilder report)
+        {
+            var lengths = new Dictionary<string, float>(StringComparer.Ordinal);
+
+            foreach (UnityEngine.Object sub in
+                     AssetDatabase.LoadAllAssetsAtPath(model.AssetPath))
+            {
+                if (sub is AnimationClip clip &&
+                    !clip.name.StartsWith("__preview__", StringComparison.Ordinal))
+                {
+                    int separator = clip.name.LastIndexOf('|');
+                    string shortName = separator >= 0
+                        ? clip.name.Substring(separator + 1)
+                        : clip.name;
+
+                    lengths[shortName] = clip.length;
+                }
+            }
+
+            int errors = 0;
+
+            foreach (KeyValuePair<string, float> wanted in expected.Clips)
+            {
+                if (!lengths.TryGetValue(wanted.Key, out float length))
+                {
+                    report.AppendLine(
+                        $"  FEHLER: Clip '{wanted.Key}' fehlt im Modell.");
+                    errors++;
+                    continue;
+                }
+
+                // Eine halbe Bildlaenge bei 50 Bildern je Sekunde. Die Dauern
+                // stehen im Konzeptentwurf auf die Hundertstelsekunde; eine
+                // groessere Toleranz wuerde genau den Unterschied durchlassen,
+                // wegen dem die Bildrate auf 50 gesetzt wurde.
+                if (Mathf.Abs(length - wanted.Value) > 0.011f)
+                {
+                    report.AppendLine(
+                        $"  FEHLER: Clip '{wanted.Key}' dauert " +
+                        $"{length:F3} s, erwartet {wanted.Value:F3} s.");
+                    errors++;
+                }
+            }
+
+            foreach (string name in lengths.Keys)
+            {
+                if (!expected.Clips.ContainsKey(name))
+                {
+                    report.AppendLine(
+                        $"  FEHLER: unerwarteter Clip '{name}' im Modell. " +
+                        "Ein Clip, den niemand eingetragen hat, ist entweder " +
+                        "ueberfluessig oder die Liste ist veraltet.");
+                    errors++;
+                }
+            }
+
+            report.AppendLine(
+                $"  Clips: {lengths.Count} gefunden, {expected.Clips.Count} erwartet");
+
+            return errors;
+        }
+
+        /// <summary>
+        /// Zeigt die Figur nach vorn?
+        ///
+        /// In Unity ist vorn +Z. Blender ist Z-oben mit -Y nach vorn, und der
+        /// Standardexport dreht Blenders +Y auf Unitys -Z. Ein Modell, das in
+        /// Blender nach +Y schaut, kommt damit rueckwaerts an: es steht
+        /// richtig da, hat die richtige Groesse, den richtigen Pivot und
+        /// gueltige Clips — und laeuft im Spiel rueckwaerts. Genau das ist am
+        /// 16.08.2026 beim ersten Export dieses Assets passiert und keiner der
+        /// anderen Pruefungen aufgefallen.
+        /// </summary>
+        private static int CheckForward(
+            RigExpectation expected, GameObject instance, StringBuilder report)
+        {
+            Transform from = FindBone(instance.transform, expected.ForwardFromBone);
+            Transform to = FindBone(instance.transform, expected.ForwardToBone);
+
+            if (from == null || to == null)
+            {
+                report.AppendLine(
+                    $"  FEHLER: Knochen '{expected.ForwardFromBone}' oder " +
+                    $"'{expected.ForwardToBone}' fehlt; Blickrichtung nicht " +
+                    "pruefbar.");
+                return 1;
+            }
+
+            Vector3 spine = to.position - from.position;
+
+            report.AppendLine(
+                $"  Blickrichtung {expected.ForwardFromBone}->" +
+                $"{expected.ForwardToBone}: {spine.ToString("F3")}");
+
+            if (spine.z > 0.05f && Mathf.Abs(spine.z) > Mathf.Abs(spine.x))
+            {
+                return 0;
+            }
+
+            report.AppendLine(
+                "  FEHLER: die Figur schaut nicht nach +Z. In Unity ist das " +
+                "hinten oder zur Seite — der Gegner wuerde sich falsch herum " +
+                "bewegen.");
+            return 1;
+        }
+
+        private static Transform FindBone(Transform root, string name)
+        {
+            foreach (Transform transform in
+                     root.GetComponentsInChildren<Transform>(true))
+            {
+                if (transform.name == name)
+                {
+                    return transform;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Reine Auskunft, kein Gate. Ob ein Objekt einen Collider braucht und
         /// welchen, ist eine Gameplay-Entscheidung — der Validator darf sie
         /// nicht treffen, aber er kann sagen, was moeglich ist.
@@ -611,11 +1062,11 @@ namespace Elyndor.EditorTools
             Collider[] colliders = instance.GetComponentsInChildren<Collider>(true);
             int triangles = 0;
 
-            foreach (MeshFilter filter in instance.GetComponentsInChildren<MeshFilter>(true))
+            foreach ((string _, Mesh mesh) in CollectMeshes(instance))
             {
-                if (filter.sharedMesh != null)
+                if (mesh != null)
                 {
-                    triangles += filter.sharedMesh.triangles.Length / 3;
+                    triangles += mesh.triangles.Length / 3;
                 }
             }
 

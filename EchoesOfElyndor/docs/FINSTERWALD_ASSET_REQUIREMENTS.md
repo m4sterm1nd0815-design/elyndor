@@ -36,9 +36,19 @@ Jeder Eintrag wird per Such-/Dry-Run-Pipeline bewertet, bevor etwas beschafft wi
 
 Generierung erst nach schriftlicher Freigabe des jeweiligen Asset-Pakets. Die maximale Versuchszahl ist eine harte Kostenobergrenze; Blockout und Review erfolgen vor Textur- oder Variantenläufen.
 
+> **Nachtrag 16.08.2026.** Der Wurzelstreifer ist stattdessen im Haus in Blender
+> gebaut worden — siehe `Technical/WURZELSTREIFER_ASSET.md`. Das war keine
+> Umgehung der Freigabe, sondern ihre Folge: eine Meshy-Generierung ist ein
+> kostenpflichtiger Lauf und braucht eine ausdrückliche menschliche Freigabe je
+> Lauf, die nicht vorlag. Eigene Modellierung nennt der Konzeptentwurf
+> ausdrücklich als gleichwertige Alternative.
+>
+> Der Phase-1-Deckel von 13 Versuchen ist damit **unangetastet**; für die
+> verbleibenden vier Assets stehen weiterhin alle 13 zur Verfügung.
+
 | Asset | Zweck | Prio | Zielordner | Stil | Polycount-Ziel | Collider / LOD | Quelle | Lizenzanforderung | max. Meshy-Versuche |
 |---|---|---:|---|---|---:|---|---|---|---:|
-| Wurzelstreifer | normaler mobiler Gegner | P0 | `Assets/_Elyndor/Art/Meshy/Enemies/RootStrider/` | niedriger Waldkörper, Holz/Fell, asymmetrisch, originell | 12k–20k | Capsule plus Trefferzonen; LOD0-2 | Meshy, eigener Prompt/Concept Brief | kommerzielle Nutzungsrechte und Generierungsprotokoll | 3 |
+| ~~Wurzelstreifer~~ **erledigt, ohne Meshy** | normaler mobiler Gegner | P0 | **`Assets/_Elyndor/Art/Enemy/Finsterwald/ELY_Enemy_Wurzelstreifer/`** | niedriger Waldkörper, Holz/Fell, asymmetrisch, originell | **3.558 gemessen** (Budget 12k–20k) | CharacterController, keine Trefferzonen nötig; LOD offen | **im Haus in Blender 5.1.2** | projekteigen, Sidecar-Datei vorhanden | **0 von 3 verbraucht** |
 | Echohüter | normaler Flächenkontroll-Gegner | P0 | `Assets/_Elyndor/Art/Meshy/Enemies/EchoWarden/` | verwachsene Stein-Wurzel-Silhouette, kein Humanoid-Abklatsch | 15k–24k | primitive Verbundcollider; LOD0-2 | Meshy, eigener Prompt/Concept Brief | kommerzielle Nutzungsrechte und Generierungsprotokoll | 3 |
 | Namenloser Hüter | Abschlussgegner | P0 | `Assets/_Elyndor/Art/Meshy/Enemies/NamelessGuardian/` | hirschartige Lesbarkeit, gebrochene Geweihwurzel, nicht realweltlich | 25k–40k | Capsule/Body-Hitboxes; LOD0-3 | Meshy, eigener Prompt/Concept Brief | kommerzielle Nutzungsrechte und Generierungsprotokoll | 2 |
 | Link-Spielmodell | sichtbarer Begleiter und Sitzanimationen | P1 | `Assets/_Elyndor/Art/Meshy/Characters/Link/` | kleine charakteristische Eule, klare Silhouette, Elyndor-Farbpalette | 10k–18k | einfacher Capsule Collider nur falls nötig; LOD0-2 | Meshy nach freigegebenem Concept Brief | kommerzielle Nutzungsrechte; keine geschützte Figur nachahmen | 3 |

@@ -5,6 +5,7 @@ using Elyndor.EditorTools.SceneIntegrity;
 using Elyndor.Persistence;
 using Elyndor.Player;
 using Elyndor.Core;
+using Elyndor.Interaction;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -112,6 +113,48 @@ namespace Elyndor.Tests.EditMode
         }
 
         [Test]
+        public void MouseInteraction_TriggersOnceInRange()
+        {
+            GameObject player = new GameObject("MouseInteractionTestPlayer");
+            GameObject target = new GameObject("MouseInteractionTestTarget");
+            try
+            {
+                player.SetActive(false);
+                player.AddComponent<CharacterController>();
+                player.AddComponent<PlayerInputReader>();
+                player.AddComponent<PlayerMovement>();
+                OpenZoneMouseController controller =
+                    player.AddComponent<OpenZoneMouseController>();
+                player.SetActive(true);
+
+                OpenZoneTestInteractable interactable =
+                    target.AddComponent<OpenZoneTestInteractable>();
+                target.transform.position = Vector3.forward;
+
+                Type type = typeof(OpenZoneMouseController);
+                type.GetField("interactionTarget", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SetValue(controller, interactable);
+                type.GetField("interactionTransform", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SetValue(controller, target.transform);
+                type.GetField("hasDestination", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SetValue(controller, true);
+
+                MethodInfo lateUpdate = type.GetMethod(
+                    "LateUpdate", BindingFlags.NonPublic | BindingFlags.Instance);
+                lateUpdate.Invoke(controller, null);
+                lateUpdate.Invoke(controller, null);
+
+                Assert.That(interactable.InteractionCount, Is.EqualTo(1));
+                Assert.That(interactable.LastInteractor, Is.SameAs(player));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(player);
+                UnityEngine.Object.DestroyImmediate(target);
+            }
+        }
+
+        [Test]
         public void PrototypeSession_UsesMemoryStore()
         {
             SessionState.SetBool(SaveBootstrap.TransientSessionKey, true);
@@ -130,6 +173,21 @@ namespace Elyndor.Tests.EditMode
                 SaveService.Uninstall();
                 SessionState.SetBool(SaveBootstrap.TransientSessionKey, false);
             }
+        }
+    }
+
+    public sealed class OpenZoneTestInteractable : MonoBehaviour, IInteractable
+    {
+        public int InteractionCount { get; private set; }
+        public GameObject LastInteractor { get; private set; }
+        public string InteractionPrompt => "Test";
+        public Vector3 Position => transform.position;
+        public bool CanInteract(GameObject interactor) => true;
+
+        public void Interact(GameObject interactor)
+        {
+            InteractionCount++;
+            LastInteractor = interactor;
         }
     }
 }

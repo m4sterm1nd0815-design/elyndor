@@ -1,4 +1,5 @@
 using Elyndor.Combat;
+using Elyndor.Interaction;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -13,6 +14,7 @@ namespace Elyndor.Player
         [SerializeField, Min(0.2f)] private float slowdownDistance = 3f;
         [SerializeField, Range(0.05f, 1f)] private float minimumMoveInput = 0.18f;
         [SerializeField, Min(0.1f)] private float attackDistance = 2f;
+        [SerializeField, Min(0.1f)] private float interactionDistance = 1.8f;
         [SerializeField, Min(1f)] private float rayDistance = 500f;
         [SerializeField, Min(0.1f)] private float obstacleProbeDistance = 1.4f;
         [SerializeField, Min(0.05f)] private float obstacleProbeRadius = 0.32f;
@@ -30,7 +32,10 @@ namespace Elyndor.Player
         private readonly RaycastHit[] obstacleHits = new RaycastHit[16];
         private Vector3 destination;
         private Transform attackTarget;
+        private IInteractable interactionTarget;
+        private Transform interactionTransform;
         private bool hasDestination;
+        private bool interactionConsumedUntilRelease;
         private float preferredAvoidanceSide = 1f;
 
         private void Awake()
@@ -43,7 +48,16 @@ namespace Elyndor.Player
         private void Update()
         {
             if (inputReader == null || !inputReader.GameplayMapEnabled ||
-                Mouse.current == null || !Mouse.current.leftButton.isPressed ||
+                Mouse.current == null)
+                return;
+
+            if (!Mouse.current.leftButton.isPressed)
+            {
+                interactionConsumedUntilRelease = false;
+                return;
+            }
+
+            if (
                 (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
                 return;
 
@@ -53,12 +67,28 @@ namespace Elyndor.Player
             Ray ray = view.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance)) return;
 
+            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable is Component interactionComponent &&
+                interactionComponent.transform != transform)
+            {
+                if (interactionConsumedUntilRelease) return;
+                interactionTarget = interactable;
+                interactionTransform = interactionComponent.transform;
+                attackTarget = null;
+                destination = interactable.Position;
+                hasDestination = true;
+                UpdateDestinationMarker(destination, false, true);
+                return;
+            }
+
             IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
             if (damageable is Component target && target.transform != transform)
             {
                 attackTarget = target.transform;
+                interactionTarget = null;
+                interactionTransform = null;
                 hasDestination = true;
-                UpdateDestinationMarker(target.transform.position, true);
+                UpdateDestinationMarker(target.transform.position, true, false);
                 return;
             }
 
@@ -68,14 +98,28 @@ namespace Elyndor.Player
             if (hit.collider is TerrainCollider)
             {
                 attackTarget = null;
+                interactionTarget = null;
+                interactionTransform = null;
                 destination = hit.point;
                 hasDestination = true;
-                UpdateDestinationMarker(destination, false);
+                UpdateDestinationMarker(destination, false, false);
             }
         }
 
         private void LateUpdate()
         {
+            if (interactionTarget != null && hasDestination)
+            {
+                if (PlanarDistance(transform.position, interactionTarget.Position) >
+                    interactionDistance)
+                    return;
+                if (interactionTarget.CanInteract(gameObject))
+                    interactionTarget.Interact(gameObject);
+                interactionConsumedUntilRelease = true;
+                Cancel();
+                return;
+            }
+
             if (attackTarget == null || !hasDestination) return;
             if (PlanarDistance(transform.position, attackTarget.position) > attackDistance) return;
 
@@ -87,14 +131,27 @@ namespace Elyndor.Player
         {
             if (!hasDestination) return Vector3.zero;
             if (attackTarget != null) destination = attackTarget.position;
+            else if (interactionTarget != null)
+            {
+                if (interactionTarget is Component component && component == null)
+                {
+                    Cancel();
+                    return Vector3.zero;
+                }
+                destination = interactionTarget.Position;
+            }
 
             Vector3 offset = destination - position;
             offset.y = 0f;
-            float stoppingDistance = attackTarget == null ? arrivalDistance : attackDistance;
+            float stoppingDistance = attackTarget != null
+                ? attackDistance
+                : interactionTarget != null
+                    ? interactionDistance
+                    : arrivalDistance;
             float distance = offset.magnitude;
             if (distance <= stoppingDistance)
             {
-                if (attackTarget == null) Cancel();
+                if (attackTarget == null && interactionTarget == null) Cancel();
                 return Vector3.zero;
             }
 
@@ -105,7 +162,7 @@ namespace Elyndor.Player
                 Mathf.Max(0.2f, distance - stoppingDistance));
             if (steeredDirection.sqrMagnitude <= 0.01f) return Vector3.zero;
 
-            if (attackTarget != null) return steeredDirection;
+            if (attackTarget != null || interactionTarget != null) return steeredDirection;
 
             float speedScale = Mathf.InverseLerp(
                 arrivalDistance,
@@ -118,6 +175,8 @@ namespace Elyndor.Player
         {
             hasDestination = false;
             attackTarget = null;
+            interactionTarget = null;
+            interactionTransform = null;
             if (destinationMarker != null) destinationMarker.enabled = false;
         }
 
@@ -178,6 +237,11 @@ namespace Elyndor.Player
                     (candidate == attackTarget || candidate.IsChildOf(attackTarget) ||
                      attackTarget.IsChildOf(candidate)))
                     continue;
+                if (interactionTransform != null &&
+                    (candidate == interactionTransform ||
+                     candidate.IsChildOf(interactionTransform) ||
+                     interactionTransform.IsChildOf(candidate)))
+                    continue;
                 return true;
             }
             return false;
@@ -214,12 +278,17 @@ namespace Elyndor.Player
             destinationMarker.enabled = false;
         }
 
-        private void UpdateDestinationMarker(Vector3 point, bool hostile)
+        private void UpdateDestinationMarker(
+            Vector3 point,
+            bool hostile,
+            bool interactive)
         {
             if (destinationMarker == null) return;
             Color color = hostile
                 ? new Color(1f, 0.28f, 0.12f, 0.9f)
-                : new Color(0.25f, 0.9f, 0.75f, 0.85f);
+                : interactive
+                    ? new Color(1f, 0.72f, 0.18f, 0.9f)
+                    : new Color(0.25f, 0.9f, 0.75f, 0.85f);
             destinationMarker.startColor = color;
             destinationMarker.endColor = color;
             point.y += 0.08f;

@@ -1,6 +1,7 @@
 # Open Zone – Finsterwald-Probe
 
-Stand: 11. Oktober 2026. Status: **Maussteuerung ergänzt; visuelle und manuelle Abnahme offen**.
+Stand: 11. Oktober 2026. Status: **Zone verbunden und Maussteuerung ergänzt;
+visuelle und manuelle Abnahme offen**.
 
 Die aktuelle Entscheidung „Sacred trifft Zelda“ betrifft zunächst den Spielfluss:
 frei zwischen Zielen wählen, kämpfen, die Memory Watch verwenden und über
@@ -38,9 +39,12 @@ den nächsten Ausbau, kein fertiges Sacred-Steuerungssystem.
 
 Der Südteil enthält zwei gleichzeitig erreichbare Alternativen vom Start:
 westlich zur Lichtung mit dem vorhandenen Wurzelstreifer, östlich zum Rastplatz.
-Eine Waldschleife verbindet beide. Das Brückenrätsel bleibt nördlich davon;
-keiner der neuen Wege quert den Bach. Die neuen Wegpunkte liegen unsichtbar unter
-`[Prototype] Open Zone Routes`; sie dienen der Lageprüfung, nicht als UI-Marker.
+Eine Waldschleife verbindet beide und ein eigener Zubringer führt zur Brücke.
+Hinter der Brücke verzweigt die Zone zum vergessenen Schrein und Tor, über den
+Höhenweg sowie zum Steinkreis und Aussichtspunkt. Das Brückenrätsel bleibt der
+vorgesehene Zugang in den Norden; keiner der südlichen Wege umgeht den Bach.
+Die neuen Wegpunkte liegen unsichtbar unter `[Prototype] Open Zone Routes`; sie
+dienen der Lageprüfung, nicht als UI-Marker.
 
 Beim Spielen dieser Szene verwendet der Editor einen flüchtigen Spielstand.
 Der vorhandene Fortschritt wird weder geladen noch beschrieben. Beim Stoppen
@@ -49,14 +53,16 @@ nicht in die Build Settings aufgenommen werden; ein Build-Check verhindert das.
 
 ## Prüfrunde
 
-1. Vom Start beide Wege getrennt erkunden: erst Westen, dann Osten; anschließend
-   umgekehrt. Auf der Waldschleife ohne Umweg zum gemeinsamen Rastbereich
-   zurückkehren.
+1. Vom Start beide Südwege getrennt erkunden: erst Westen, dann Osten;
+   anschließend umgekehrt. Auf der Waldschleife ohne Umweg zum gemeinsamen
+   Rastbereich zurückkehren und danach dem Zubringer zur Brücke folgen.
 2. Auf beiden Wegen Kamera, Baumkronen, Bodenhöhe und erkennbare Landmarken
    beurteilen. Insbesondere prüfen, ob der höhere Blick Gegnerangriffe und
    Interaktionsziele noch gut lesbar lässt.
 3. Wurzelstreifer, Rucksack, HUD, Portale und vorhandene Memory-Watch-Brücke
-   testen. Die Brücke darf nicht von einem neuen Weg umgangen werden.
+   testen. Die Brücke darf nicht von einem neuen Weg umgangen werden. Nach dem
+   Öffnen alle drei Nordrouten bis Schrein/Tor, Höhenweg und
+   Steinkreis/Aussichtspunkt ablaufen.
    Zusätzlich auf freie Wegstellen und auf den Wurzelstreifer klicken:
    Bewegung und genau ein Angriff nach Annäherung prüfen. Danach mit WASD
    das Klickziel abbrechen und mit Rechtsklick die Kamera drehen.
@@ -74,12 +80,17 @@ Die Probe ersetzt die bestehende Gate-1-Abnahme nicht.
 - Unity 6000.4.5f1 hat die Probe im Batch-Modus erzeugt und die
   Szenenintegrität bestätigt. 150 Vegetationsobjekte wurden aus den
   Wegkorridoren verschoben; das Terrain bleibt 200 × 200 Meter groß.
-- Edit-Mode-Tests: Open-Zone-Probe 2/2, bestehende Speicher-Tests 17/17.
+- Edit-Mode-Tests: Open-Zone-Probe 3/3, bestehende Speicher-Tests 17/17.
   `git diff --check` ist grün. Die Originalszene und ihre TerrainData
   zeigen keine Änderungen im Branch.
 - Nach Ergänzung der Maussteuerung: Live-Editor-Kompilierung, Szenenvalidator,
   Open-Zone-Edit-Mode-Tests 2/2 und Play-Start ohne Konsolenfehler. Die
   tatsächlichen Klickwege bleiben manuell zu prüfen.
+- Nach dem Zonenausbau: sieben Wegabschnitte automatisch auf Gelände und feste
+  Hindernisse abgetastet. Ergebnis: 0 blockierte Prüfpunkte und keine Steigung
+  über 40 Grad. Die Ostroute wurde dabei um die kleine Ruine herumgeführt.
+  Szenenvalidator, Open-Zone-Edit-Mode-Tests 3/3 und Play-Start bleiben grün;
+  die Unity-Konsole meldet 0 Fehler und 0 Warnungen.
 - Ein frischer Import des unveränderten `com.unity.shadergraph` 17.4.0
   meldete unter diesem Unity-Editor zwei `GUID`-Kompilierfehler. Für die
   lokale Validierung wurde ausschließlich die ignorierte `Library/PackageCache`

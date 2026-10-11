@@ -6,11 +6,13 @@
   `developer` bei `a6330e5`. Aktuelle Nutzerentscheidung: offener
   Sacred-meets-Zelda-Spielfluss mit vorhandenen Systemen als erste Testzone.
 - Scope: separate Finsterwald-Szene und TerrainData, erhöhte Kamera, zwei
-  Südwege mit Rückschleife, isolierter Editor-Spielstand und kontextabhängiger
-  Linksklick für Bodenbewegung bzw. Annäherung/Angriff am Gegner. Kein Umbau der
-  Produktionsszene und keine neuen externen Assets.
+  Südwege mit Rückschleife, Anschluss an die Brücke sowie drei Nordrouten zu
+  Schrein, Tor, Höhenweg, Steinkreis und Aussichtspunkt. Dazu ein isolierter
+  Editor-Spielstand und kontextabhängiger Linksklick für Bodenbewegung bzw.
+  Annäherung/Angriff am Gegner. Kein Umbau der Produktionsszene und keine neuen
+  externen Assets.
 - Technische und manuelle Abnahme: `OPEN_ZONE_PROTOTYPE.md`. Unity-Batch und
-  Szenenintegrität grün; Open-Zone-Tests 2/2 und Speicher-Tests 17/17 grün.
+  Szenenintegrität grün; Open-Zone-Tests 3/3 und Speicher-Tests 17/17 grün.
   Der saubere ShaderGraph-Paketimport ist als Umgebungsrisiko dokumentiert.
 - Implementierung: Commit `46181f3`; Draft-PR
   [#55](https://github.com/m4sterm1nd0815-design/elyndor/pull/55) gegen
@@ -19,6 +21,12 @@
   Szenenvalidator, Open-Zone-Tests 2/2 und Play-Start ohne Konsolenfehler;
   manueller Klicktest und Wegfindung an Hindernissen offen. Ergänzung zu
   Draft-PR #55 in Commit `c3b649b`.
+- Zonenausbau: Nutzerentscheidung am 11.10.2026. Sieben sichtbare
+  Wegabschnitte verbinden Start, Lichtung, Rastplatz, Brücke und die nördlichen
+  Landmarken. Eine Abtastung aller Routen meldet 0 blockierte Punkte und keine
+  Steigung über 40 Grad; Szene, Open-Zone-Tests 3/3 und Play-Start sind grün.
+  Das Brückenrätsel bleibt der vorgesehene Zugang in den Norden. Manueller
+  kompletter Durchlauf steht aus.
 - Diese Nutzerentscheidung autorisiert den Prototyp. Gate 1 für die
   Produktionsübernahme und weitere Regionen bleibt gesondert offen.
 

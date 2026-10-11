@@ -30,12 +30,39 @@ namespace Elyndor.EditorTools
         public static readonly Vector2[] EastRoute =
         {
             new Vector2(-3, -70), new Vector2(12, -62), new Vector2(23, -49),
-            new Vector2(26, -36), new Vector2(17, -27), new Vector2(5, -25)
+            new Vector2(26, -40), new Vector2(17, -42),
+            new Vector2(17, -27), new Vector2(5, -25)
         };
         public static readonly Vector2[] ReturnRoute =
         {
             new Vector2(-26, -16), new Vector2(-17, -22),
             new Vector2(-8, -29), new Vector2(5, -25)
+        };
+        // The southern branch rejoins the original puzzle approach. Every
+        // northern route starts beyond the bridge, never across the river.
+        public static readonly Vector2[] SouthBridgeRoute =
+        {
+            new Vector2(-26, -16), new Vector2(-18, -12),
+            new Vector2(-10, -10), new Vector2(-3, -8)
+        };
+        public static readonly Vector2[] NorthWestRoute =
+        {
+            new Vector2(2, 7), new Vector2(-8, 13),
+            new Vector2(-19, 11), new Vector2(-25, 10),
+            new Vector2(-34, 12), new Vector2(-42, 20),
+            new Vector2(-45, 25), new Vector2(-45, 34)
+        };
+        public static readonly Vector2[] NorthRidgeRoute =
+        {
+            new Vector2(-45, 34), new Vector2(-29, 44),
+            new Vector2(-12, 46), new Vector2(5, 46),
+            new Vector2(21, 44), new Vector2(36, 18)
+        };
+        public static readonly Vector2[] NorthEastRoute =
+        {
+            new Vector2(2, 7), new Vector2(19, 12),
+            new Vector2(36, 18), new Vector2(44, 29),
+            new Vector2(48, 44)
         };
 
         [MenuItem("Elyndor/Open Zone/Create or Open Finsterwald Prototype")]
@@ -72,6 +99,7 @@ namespace Elyndor.EditorTools
             terrain.GetComponent<TerrainCollider>().terrainData = data;
             PaintRoutes(terrain);
             int moved = ClearRoutes(terrain);
+            moved += ClearBlockingVegetation(terrain);
 
             CameraFollow follow = UnityEngine.Object.FindAnyObjectByType<CameraFollow>();
             if (follow == null)
@@ -95,6 +123,7 @@ namespace Elyndor.EditorTools
             AddWaypoints(routes.transform, "West - Lichtung", WestRoute, terrain);
             AddWaypoints(routes.transform, "East - Rastplatz", EastRoute, terrain);
             AddWaypoints(routes.transform, "Return - Waldschleife", ReturnRoute, terrain);
+            AddCompletionWaypoints(routes.transform, terrain);
             EditorUtility.SetDirty(data);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -112,6 +141,55 @@ namespace Elyndor.EditorTools
             yield return WestRoute;
             yield return EastRoute;
             yield return ReturnRoute;
+            yield return SouthBridgeRoute;
+            yield return NorthWestRoute;
+            yield return NorthRidgeRoute;
+            yield return NorthEastRoute;
+        }
+
+        private static void AddCompletionWaypoints(Transform routes, Terrain terrain)
+        {
+            AddWaypoints(routes, "South - Brueckenansatz", SouthBridgeRoute, terrain);
+            AddWaypoints(routes, "North - Schrein und Tor", NorthWestRoute, terrain);
+            AddWaypoints(routes, "North - Hoehenweg", NorthRidgeRoute, terrain);
+            AddWaypoints(routes, "North - Steinkreis und Aussicht", NorthEastRoute, terrain);
+        }
+
+        [MenuItem("Elyndor/Open Zone/Complete Finsterwald Routes")]
+        public static void CompleteRoutes()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                throw new InvalidOperationException("Stop Play Mode first.");
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != ScenePath || scene.isDirty)
+                throw new InvalidOperationException("Open the saved prototype scene first.");
+
+            GameObject routes = GameObject.Find("[Prototype] Open Zone Routes");
+            Terrain terrain = UnityEngine.Object.FindAnyObjectByType<Terrain>();
+            if (routes == null || terrain == null ||
+                AssetDatabase.GetAssetPath(terrain.terrainData) != TerrainPath)
+                throw new InvalidOperationException("Isolated prototype routes or terrain missing.");
+
+            bool northComplete = routes.transform.Find("North - Hoehenweg") != null;
+            bool eastRepaired = RepairEastRoute(routes.transform, terrain);
+            if (northComplete && !eastRepaired)
+            {
+                Validate();
+                return;
+            }
+
+            PaintRoutes(terrain);
+            int moved = ClearRoutes(terrain);
+            moved += ClearBlockingVegetation(terrain);
+            if (!northComplete)
+                AddCompletionWaypoints(routes.transform, terrain);
+            EditorUtility.SetDirty(terrain.terrainData);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+            Validate();
+            Debug.Log($"OPEN_ZONE_ROUTES_COMPLETE: {moved} vegetation objects moved. " +
+                      "The bridge remains the intended northern entry.");
         }
 
         public static float DistanceToRoutes(Vector2 point, out Vector2 closest)
@@ -187,6 +265,92 @@ namespace Elyndor.EditorTools
             return moved;
         }
 
+        private static int ClearBlockingVegetation(Terrain terrain)
+        {
+            string[] names = { "Baeume", "Waldrand", "Buesche", "Farne", "Felsen", "Bodenpflanzen" };
+            Transform[] roots = names
+                .Select(name => GameObject.Find("Environment/Vegetation/" + name))
+                .Where(group => group != null)
+                .Select(group => group.transform)
+                .ToArray();
+            HashSet<Transform> moved = new HashSet<Transform>();
+
+            // Imported trunk colliders can extend several metres beyond their
+            // root, so centre-based clearing alone cannot guarantee passage.
+            for (int pass = 0; pass < 5; pass++)
+            {
+                bool found = false;
+                HashSet<Transform> movedThisPass = new HashSet<Transform>();
+                foreach (Vector2[] route in Routes())
+                    for (int i = 1; i < route.Length; i++)
+                    {
+                        Vector2 segment = route[i] - route[i - 1];
+                        int samples = Mathf.CeilToInt(segment.magnitude);
+                        for (int step = 0; step <= samples; step++)
+                        {
+                            Vector2 point = Vector2.Lerp(route[i - 1], route[i], step / (float)samples);
+                            Vector3 ground = new Vector3(point.x, 0f, point.y);
+                            ground.y = terrain.SampleHeight(ground) + terrain.transform.position.y;
+                            foreach (Collider collider in Physics.OverlapSphere(ground + Vector3.up, 0.8f))
+                            {
+                                if (collider.isTrigger || collider is TerrainCollider) continue;
+                                Transform item = VegetationItem(collider.transform, roots);
+                                if (item == null || !movedThisPass.Add(item)) continue;
+                                Vector3 direction = item.position - ground;
+                                direction.y = 0f;
+                                if (direction.sqrMagnitude < 0.01f)
+                                    direction = new Vector3(-segment.y, 0f, segment.x);
+                                direction.Normalize();
+                                Vector3 old = item.position;
+                                Vector3 next = old + direction * 3f;
+                                next.y += terrain.SampleHeight(next) - terrain.SampleHeight(old);
+                                item.position = next;
+                                moved.Add(item);
+                                found = true;
+                            }
+                        }
+                    }
+                Physics.SyncTransforms();
+                if (!found) break;
+            }
+            return moved.Count;
+        }
+
+        private static Transform VegetationItem(Transform collider, Transform[] roots)
+        {
+            foreach (Transform root in roots)
+                for (Transform current = collider; current != null; current = current.parent)
+                    if (current.parent == root)
+                        return current;
+            return null;
+        }
+
+        private static bool RepairEastRoute(Transform routes, Terrain terrain)
+        {
+            Transform east = routes.Find("East - Rastplatz");
+            if (east == null) return false;
+            if (east.childCount == 6)
+            {
+                Transform marker = new GameObject("Waypoint 5").transform;
+                marker.SetParent(east);
+                marker.SetSiblingIndex(4);
+            }
+            if (east.childCount != EastRoute.Length) return false;
+
+            bool changed = false;
+            for (int i = 0; i < EastRoute.Length; i++)
+            {
+                Vector2 point = EastRoute[i];
+                Vector3 destination = new Vector3(point.x, 0f, point.y);
+                destination.y = terrain.SampleHeight(destination) + terrain.transform.position.y;
+                Transform marker = east.GetChild(i);
+                changed |= Vector3.Distance(marker.position, destination) > 0.01f;
+                marker.position = destination;
+                marker.name = $"Waypoint {i + 1}";
+            }
+            return changed;
+        }
+
         private static void AddWaypoints(Transform parent, string name, Vector2[] points, Terrain terrain)
         {
             Transform route = new GameObject(name).transform;
@@ -218,6 +382,14 @@ namespace Elyndor.EditorTools
             PlayerMovement player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>();
             if (player == null || player.GetComponent<OpenZoneMouseController>() == null)
                 throw new InvalidOperationException("Prototype mouse control missing from Player.");
+            GameObject routeRoot = GameObject.Find("[Prototype] Open Zone Routes");
+            if (routeRoot == null ||
+                routeRoot.transform.Find("East - Rastplatz")?.childCount != EastRoute.Length ||
+                routeRoot.transform.Find("South - Brueckenansatz") == null ||
+                routeRoot.transform.Find("North - Schrein und Tor") == null ||
+                routeRoot.transform.Find("North - Hoehenweg") == null ||
+                routeRoot.transform.Find("North - Steinkreis und Aussicht") == null)
+                throw new InvalidOperationException("Complete zone routes missing.");
             Debug.Log("OPEN_ZONE_VALIDATION_PASS: scene integrity and isolated terrain.");
         }
 

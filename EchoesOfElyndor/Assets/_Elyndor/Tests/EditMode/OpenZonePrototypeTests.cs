@@ -41,9 +41,29 @@ namespace Elyndor.Tests.EditMode
             Assert.That(routes.transform.Find("West - Lichtung"), Is.Not.Null);
             Assert.That(routes.transform.Find("East - Rastplatz"), Is.Not.Null);
             Assert.That(routes.transform.Find("Return - Waldschleife"), Is.Not.Null);
+            Assert.That(routes.transform.Find("South - Brueckenansatz"), Is.Not.Null);
+            Assert.That(routes.transform.Find("North - Schrein und Tor"), Is.Not.Null);
+            Assert.That(routes.transform.Find("North - Hoehenweg"), Is.Not.Null);
+            Assert.That(routes.transform.Find("North - Steinkreis und Aussicht"), Is.Not.Null);
             var player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>();
             Assert.That(player, Is.Not.Null);
             Assert.That(player.GetComponent<OpenZoneMouseController>(), Is.Not.Null);
+        }
+
+        [Test]
+        public void AddedRoutes_DoNotBypassTheBridge()
+        {
+            foreach (Vector2[] route in new[]
+            {
+                OpenZonePrototypeBuilder.NorthWestRoute,
+                OpenZonePrototypeBuilder.NorthRidgeRoute,
+                OpenZonePrototypeBuilder.NorthEastRoute
+            })
+                foreach (Vector2 point in route)
+                    Assert.That(point.y, Is.GreaterThan(5f));
+
+            foreach (Vector2 point in OpenZonePrototypeBuilder.SouthBridgeRoute)
+                Assert.That(point.y, Is.LessThan(0f));
         }
 
         [Test]

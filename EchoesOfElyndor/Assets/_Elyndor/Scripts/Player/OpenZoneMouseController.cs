@@ -14,16 +14,24 @@ namespace Elyndor.Player
         [SerializeField, Range(0.05f, 1f)] private float minimumMoveInput = 0.18f;
         [SerializeField, Min(0.1f)] private float attackDistance = 2f;
         [SerializeField, Min(1f)] private float rayDistance = 500f;
+        [SerializeField, Min(0.1f)] private float obstacleProbeDistance = 1.4f;
+        [SerializeField, Min(0.05f)] private float obstacleProbeRadius = 0.32f;
+        [SerializeField, Min(0.1f)] private float obstacleProbeHeight = 0.65f;
+        [SerializeField] private LayerMask obstacleMask = ~0;
         [SerializeField, Min(8)] private int markerSegments = 32;
         [SerializeField, Min(0.05f)] private float markerRadius = 0.42f;
+
+        private static readonly float[] AvoidanceAngles = { 30f, 52f, 75f, 95f };
 
         private PlayerCombat combat;
         private PlayerInputReader inputReader;
         private LineRenderer destinationMarker;
         private Material markerMaterial;
+        private readonly RaycastHit[] obstacleHits = new RaycastHit[16];
         private Vector3 destination;
         private Transform attackTarget;
         private bool hasDestination;
+        private float preferredAvoidanceSide = 1f;
 
         private void Awake()
         {
@@ -90,13 +98,20 @@ namespace Elyndor.Player
                 return Vector3.zero;
             }
 
-            if (attackTarget != null) return offset.normalized;
+            Vector3 desiredDirection = offset.normalized;
+            Vector3 steeredDirection = SteerAroundObstacle(
+                position,
+                desiredDirection,
+                Mathf.Max(0.2f, distance - stoppingDistance));
+            if (steeredDirection.sqrMagnitude <= 0.01f) return Vector3.zero;
+
+            if (attackTarget != null) return steeredDirection;
 
             float speedScale = Mathf.InverseLerp(
                 arrivalDistance,
                 Mathf.Max(slowdownDistance, arrivalDistance + 0.1f),
                 distance);
-            return offset.normalized * Mathf.Lerp(minimumMoveInput, 1f, speedScale);
+            return steeredDirection * Mathf.Lerp(minimumMoveInput, 1f, speedScale);
         }
 
         public void Cancel()
@@ -108,9 +123,71 @@ namespace Elyndor.Player
 
         private void OnDisable() => Cancel();
 
+        private Vector3 SteerAroundObstacle(
+            Vector3 position,
+            Vector3 desiredDirection,
+            float remainingDistance)
+        {
+            float probeDistance = Mathf.Min(obstacleProbeDistance, remainingDistance);
+            if (!IsBlocked(position, desiredDirection, probeDistance))
+                return desiredDirection;
+
+            Vector3 bestDirection = Vector3.zero;
+            float bestScore = float.NegativeInfinity;
+            foreach (float angle in AvoidanceAngles)
+            {
+                for (int sideIndex = 0; sideIndex < 2; sideIndex++)
+                {
+                    float side = sideIndex == 0
+                        ? preferredAvoidanceSide
+                        : -preferredAvoidanceSide;
+                    Vector3 candidate =
+                        Quaternion.AngleAxis(angle * side, Vector3.up) * desiredDirection;
+                    if (IsBlocked(position, candidate, probeDistance)) continue;
+
+                    float score = Vector3.Dot(candidate, desiredDirection) +
+                                  Vector3.Dot(candidate, transform.forward) * 0.12f;
+                    if (score <= bestScore) continue;
+                    bestScore = score;
+                    bestDirection = candidate;
+                    preferredAvoidanceSide = side;
+                }
+            }
+            return bestDirection;
+        }
+
+        private bool IsBlocked(Vector3 position, Vector3 direction, float distance)
+        {
+            if (distance <= 0.05f) return false;
+            Vector3 origin = position + Vector3.up * obstacleProbeHeight;
+            int hitCount = Physics.SphereCastNonAlloc(
+                origin,
+                obstacleProbeRadius,
+                direction,
+                obstacleHits,
+                distance,
+                obstacleMask,
+                QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < hitCount; i++)
+            {
+                Collider collider = obstacleHits[i].collider;
+                if (collider == null || collider is TerrainCollider) continue;
+                Transform candidate = collider.transform;
+                if (candidate == transform || candidate.IsChildOf(transform)) continue;
+                if (attackTarget != null &&
+                    (candidate == attackTarget || candidate.IsChildOf(attackTarget) ||
+                     attackTarget.IsChildOf(candidate)))
+                    continue;
+                return true;
+            }
+            return false;
+        }
+
         private void OnDestroy()
         {
-            if (markerMaterial != null) Destroy(markerMaterial);
+            if (markerMaterial == null) return;
+            if (Application.isPlaying) Destroy(markerMaterial);
+            else DestroyImmediate(markerMaterial);
         }
 
         private void CreateDestinationMarker()
@@ -160,6 +237,9 @@ namespace Elyndor.Player
         private void OnValidate()
         {
             slowdownDistance = Mathf.Max(slowdownDistance, arrivalDistance + 0.1f);
+            obstacleProbeDistance = Mathf.Max(0.1f, obstacleProbeDistance);
+            obstacleProbeRadius = Mathf.Max(0.05f, obstacleProbeRadius);
+            obstacleProbeHeight = Mathf.Max(0.1f, obstacleProbeHeight);
             markerSegments = Mathf.Max(8, markerSegments);
         }
 

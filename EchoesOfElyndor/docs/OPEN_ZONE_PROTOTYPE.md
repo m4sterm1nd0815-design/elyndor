@@ -37,10 +37,10 @@ das Gamepad bleibt als alternative Eingabe erhalten. UI-Klicks lösen keine
 Bewegung aus. Das alte WASD-Starttutorial ist in der Probe deaktiviert.
 
 Diese erste Eingabeprobe steuert direkt auf das Ziel zu. Automatische
-Wegfindung um Hindernisse und Kontextinteraktion per Klick sind noch offen.
-An Bäumen, Felsen und
-Ruinen kann die Figur deshalb hängen bleiben; das ist ein Prüfbefund für
-den nächsten Ausbau, kein fertiges Sacred-Steuerungssystem.
+Wegfindung über längere Strecken und Kontextinteraktion per Klick sind noch
+offen. Eine lokale Hindernisprobe lenkt Aren vor Bäumen, Felsen und Ruinen
+seitlich um den unmittelbar erkannten Collider. Sie ersetzt kein NavMesh und
+kann in Sackgassen oder komplexen Ruinen weiterhin scheitern.
 
 Der Südteil enthält zwei gleichzeitig erreichbare Alternativen vom Start:
 westlich zur Lichtung mit dem vorhandenen Wurzelstreifer, östlich zum Rastplatz.
@@ -85,7 +85,7 @@ Die Probe ersetzt die bestehende Gate-1-Abnahme nicht.
 - Unity 6000.4.5f1 hat die Probe im Batch-Modus erzeugt und die
   Szenenintegrität bestätigt. 150 Vegetationsobjekte wurden aus den
   Wegkorridoren verschoben; das Terrain bleibt 200 × 200 Meter groß.
-- Edit-Mode-Tests: Open-Zone-Probe 3/3, bestehende Speicher-Tests 17/17.
+- Edit-Mode-Tests: Open-Zone-Probe 4/4, bestehende Speicher-Tests 17/17.
   `git diff --check` ist grün. Die Originalszene und ihre TerrainData
   zeigen keine Änderungen im Branch.
 - Nach Ergänzung der Maussteuerung: Live-Editor-Kompilierung, Szenenvalidator,
@@ -94,8 +94,11 @@ Die Probe ersetzt die bestehende Gate-1-Abnahme nicht.
 - Nach dem Zonenausbau: sieben Wegabschnitte automatisch auf Gelände und feste
   Hindernisse abgetastet. Ergebnis: 0 blockierte Prüfpunkte und keine Steigung
   über 40 Grad. Die Ostroute wurde dabei um die kleine Ruine herumgeführt.
-  Szenenvalidator, Open-Zone-Edit-Mode-Tests 3/3 und Play-Start bleiben grün;
+  Szenenvalidator, Open-Zone-Edit-Mode-Tests 4/4 und Play-Start bleiben grün;
   die Unity-Konsole meldet 0 Fehler und 0 Warnungen.
+- Die lokale Hindernisumgehung ist mit einem direkten Collider vor Aren
+  abgesichert: Die resultierende Bewegung bleibt vorwärts gerichtet und erhält
+  einen seitlichen Anteil, statt weiter in das Hindernis zu drücken.
 - Ein frischer Import des unveränderten `com.unity.shadergraph` 17.4.0
   meldete unter diesem Unity-Editor zwei `GUID`-Kompilierfehler. Für die
   lokale Validierung wurde ausschließlich die ignorierte `Library/PackageCache`

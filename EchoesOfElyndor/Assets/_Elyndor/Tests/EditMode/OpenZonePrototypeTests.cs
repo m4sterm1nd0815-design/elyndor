@@ -72,6 +72,46 @@ namespace Elyndor.Tests.EditMode
         }
 
         [Test]
+        public void MouseMovement_SteersAroundImmediateObstacle()
+        {
+            GameObject player = new GameObject("MouseSteeringTestPlayer");
+            GameObject obstacle = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            try
+            {
+                player.SetActive(false);
+                player.AddComponent<CharacterController>();
+                player.AddComponent<PlayerInputReader>();
+                player.AddComponent<PlayerMovement>();
+                OpenZoneMouseController controller =
+                    player.AddComponent<OpenZoneMouseController>();
+                player.SetActive(true);
+
+                obstacle.name = "MouseSteeringTestObstacle";
+                obstacle.transform.position = new Vector3(0f, 0.65f, 0.9f);
+                obstacle.transform.localScale = new Vector3(0.7f, 1.3f, 0.4f);
+                Physics.SyncTransforms();
+
+                typeof(OpenZoneMouseController)
+                    .GetField("destination", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SetValue(controller, new Vector3(0f, 0f, 10f));
+                typeof(OpenZoneMouseController)
+                    .GetField("hasDestination", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SetValue(controller, true);
+
+                Vector3 movement = controller.GetMovement(Vector3.zero);
+                Assert.That(movement.sqrMagnitude, Is.GreaterThan(0.1f));
+                Assert.That(Mathf.Abs(movement.x), Is.GreaterThan(0.1f),
+                    "Aren lenkt vor einem direkten Hindernis nicht seitlich aus.");
+                Assert.That(movement.z, Is.GreaterThan(0f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(player);
+                UnityEngine.Object.DestroyImmediate(obstacle);
+            }
+        }
+
+        [Test]
         public void PrototypeSession_UsesMemoryStore()
         {
             SessionState.SetBool(SaveBootstrap.TransientSessionKey, true);

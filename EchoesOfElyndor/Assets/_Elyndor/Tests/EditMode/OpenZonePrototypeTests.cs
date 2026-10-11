@@ -3,6 +3,7 @@ using System.Reflection;
 using Elyndor.EditorTools;
 using Elyndor.EditorTools.SceneIntegrity;
 using Elyndor.Persistence;
+using Elyndor.Player;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -40,6 +41,9 @@ namespace Elyndor.Tests.EditMode
             Assert.That(routes.transform.Find("West - Lichtung"), Is.Not.Null);
             Assert.That(routes.transform.Find("East - Rastplatz"), Is.Not.Null);
             Assert.That(routes.transform.Find("Return - Waldschleife"), Is.Not.Null);
+            var player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>();
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player.GetComponent<OpenZoneMouseController>(), Is.Not.Null);
         }
 
         [Test]

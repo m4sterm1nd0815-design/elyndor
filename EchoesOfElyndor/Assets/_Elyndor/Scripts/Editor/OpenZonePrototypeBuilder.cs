@@ -86,6 +86,7 @@ namespace Elyndor.EditorTools
             SetFloat(camera, "maxDistance", 27f);
             camera.ApplyModifiedPropertiesWithoutUndo();
             Transform player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>().transform;
+            player.gameObject.AddComponent<OpenZoneMouseController>();
             Vector3 focus = player.position + Vector3.up * 1.2f;
             follow.transform.position = focus + Quaternion.Euler(60f, 0f, 0f) * Vector3.back * 21f;
             follow.transform.LookAt(focus);
@@ -214,7 +215,29 @@ namespace Elyndor.EditorTools
                 throw new InvalidOperationException("Prototype shares production terrain data.");
             if (EditorBuildSettings.scenes.Any(s => s.enabled && s.path == ScenePath))
                 throw new InvalidOperationException("Prototype must not be in production build settings.");
+            PlayerMovement player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>();
+            if (player == null || player.GetComponent<OpenZoneMouseController>() == null)
+                throw new InvalidOperationException("Prototype mouse control missing from Player.");
             Debug.Log("OPEN_ZONE_VALIDATION_PASS: scene integrity and isolated terrain.");
+        }
+
+        [MenuItem("Elyndor/Open Zone/Enable Mouse Control In Prototype")]
+        public static void EnableMouseControl()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                throw new InvalidOperationException("Stop Play Mode first.");
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != ScenePath)
+                throw new InvalidOperationException("Open the prototype scene first.");
+            PlayerMovement player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>();
+            if (player == null) throw new InvalidOperationException("Player missing.");
+            if (player.GetComponent<OpenZoneMouseController>() == null)
+            {
+                player.gameObject.AddComponent<OpenZoneMouseController>();
+                EditorSceneManager.MarkSceneDirty(scene);
+                EditorSceneManager.SaveScene(scene);
+            }
+            Validate();
         }
     }
 }

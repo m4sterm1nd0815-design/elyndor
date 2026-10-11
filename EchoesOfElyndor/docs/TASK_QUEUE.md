@@ -6,7 +6,8 @@
   `developer` bei `a6330e5`. Aktuelle Nutzerentscheidung: offener
   Sacred-meets-Zelda-Spielfluss mit vorhandenen Systemen als erste Testzone.
 - Scope: separate Finsterwald-Szene und TerrainData, erhöhte Kamera, zwei
-  Südwege mit Rückschleife, isolierter Editor-Spielstand. Kein Umbau der
+  Südwege mit Rückschleife, isolierter Editor-Spielstand und kontextabhängiger
+  Linksklick für Bodenbewegung bzw. Annäherung/Angriff am Gegner. Kein Umbau der
   Produktionsszene und keine neuen externen Assets.
 - Technische und manuelle Abnahme: `OPEN_ZONE_PROTOTYPE.md`. Unity-Batch und
   Szenenintegrität grün; Open-Zone-Tests 2/2 und Speicher-Tests 17/17 grün.
@@ -14,6 +15,10 @@
 - Implementierung: Commit `46181f3`; Draft-PR
   [#55](https://github.com/m4sterm1nd0815-design/elyndor/pull/55) gegen
   `developer`. Manuelle Prüfrunde und Gate-1-Entscheidung stehen aus.
+- Maussteuerung: Nutzerentscheidung am 11.10.2026. Unity-Editor-Kompilierung,
+  Szenenvalidator, Open-Zone-Tests 2/2 und Play-Start ohne Konsolenfehler;
+  manueller Klicktest und Wegfindung an Hindernissen offen. Ergänzung zu
+  Draft-PR #55.
 - Diese Nutzerentscheidung autorisiert den Prototyp. Gate 1 für die
   Produktionsübernahme und weitere Regionen bleibt gesondert offen.
 

@@ -257104,6 +257104,7 @@ GameObject:
   - component: {fileID: 1117875258}
   - component: {fileID: 1117875259}
   - component: {fileID: 1117875260}
+  - component: {fileID: 1117875261}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -257468,6 +257469,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Combat.PlayerDamageReceiver
   blockDamageReduction: 0.7
   vitals: {fileID: 0}
+--- !u!114 &1117875261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117875246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5bfd6e4bd3f6da41bb3016166a93776, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Player.OpenZoneMouseController
+  arrivalDistance: 0.7
+  attackDistance: 2
+  rayDistance: 500
 --- !u!1001 &1118215899
 PrefabInstance:
   m_ObjectHideFlags: 0

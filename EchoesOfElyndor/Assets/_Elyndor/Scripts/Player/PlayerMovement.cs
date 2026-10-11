@@ -58,6 +58,7 @@ namespace Elyndor.Player
 
         private CharacterController characterController;
         private PlayerInputReader inputReader;
+        private OpenZoneMouseController mouseController;
         private Transform cameraTransform;
 
         private PlayerState currentState = PlayerState.Normal;
@@ -72,6 +73,7 @@ namespace Elyndor.Player
         {
             characterController = GetComponent<CharacterController>();
             inputReader = GetComponent<PlayerInputReader>();
+            mouseController = GetComponent<OpenZoneMouseController>();
 
             if (playerVitals == null)
             {
@@ -97,6 +99,14 @@ namespace Elyndor.Player
 
             Vector3 moveDirection =
                 ToCameraRelativeDirection(movementInput);
+
+            if (mouseController != null && mouseController.isActiveAndEnabled)
+            {
+                if (movementInput.sqrMagnitude > 0.01f)
+                    mouseController.Cancel();
+                else
+                    moveDirection = mouseController.GetMovement(transform.position);
+            }
 
             bool hasMovementInput =
                 moveDirection.sqrMagnitude > 0.01f;

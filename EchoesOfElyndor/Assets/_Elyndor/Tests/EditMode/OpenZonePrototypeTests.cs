@@ -6,10 +6,12 @@ using Elyndor.Persistence;
 using Elyndor.Player;
 using Elyndor.Core;
 using Elyndor.Interaction;
+using Elyndor.UI;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Elyndor.Tests.EditMode
 {
@@ -150,6 +152,41 @@ namespace Elyndor.Tests.EditMode
             finally
             {
                 UnityEngine.Object.DestroyImmediate(player);
+                UnityEngine.Object.DestroyImmediate(target);
+            }
+        }
+
+        [Test]
+        public void InteractionPrompt_UsesMouseInstructionInPrototype()
+        {
+            GameObject player = new GameObject("MousePromptTestPlayer");
+            GameObject prompt = new GameObject("MousePromptTestPrompt");
+            GameObject target = new GameObject("MousePromptTestTarget");
+            try
+            {
+                player.SetActive(false);
+                player.AddComponent<CharacterController>();
+                player.AddComponent<PlayerInputReader>();
+                player.AddComponent<PlayerMovement>();
+                InteractionDetector detector = player.AddComponent<InteractionDetector>();
+                player.AddComponent<OpenZoneMouseController>();
+
+                Text text = prompt.AddComponent<Text>();
+                InteractionPromptUI promptUi = prompt.AddComponent<InteractionPromptUI>();
+                promptUi.Configure(detector, prompt, text, prompt.transform as RectTransform);
+                OpenZoneTestInteractable interactable =
+                    target.AddComponent<OpenZoneTestInteractable>();
+
+                typeof(InteractionPromptUI)
+                    .GetMethod("HandleTargetChanged", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Invoke(promptUi, new object[] { interactable });
+
+                Assert.That(text.text, Is.EqualTo("[Linksklick] Test"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(player);
+                UnityEngine.Object.DestroyImmediate(prompt);
                 UnityEngine.Object.DestroyImmediate(target);
             }
         }

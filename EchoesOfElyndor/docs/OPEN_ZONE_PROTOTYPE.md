@@ -34,6 +34,9 @@ Zielring zeigt das aktuelle Laufziel, ein roter Ring das Angriffsziel und ein
 goldener Ring ein Interaktionsziel. Aren bremst innerhalb der letzten drei
 Meter vor einem Laufziel weich ab und richtet sich an seiner tatsächlichen
 Bewegungsrichtung aus. Rechtsklick bewegt weiterhin die Kamera. Die
+Maus-Vorschau markiert anwählbare Gegner rot und Interaktionsobjekte gold,
+bevor geklickt wird. Hinweise in Reichweite nennen in dieser Probe
+„Linksklick“ statt der alten E-Taste. Die
 Tastaturbewegung über WASD und Pfeiltasten ist in dieser Probe abgeschaltet;
 das Gamepad bleibt als alternative Eingabe erhalten. UI-Klicks lösen keine
 Bewegung aus. Das alte WASD-Starttutorial ist in der Probe deaktiviert.
@@ -87,7 +90,7 @@ Die Probe ersetzt die bestehende Gate-1-Abnahme nicht.
 - Unity 6000.4.5f1 hat die Probe im Batch-Modus erzeugt und die
   Szenenintegrität bestätigt. 150 Vegetationsobjekte wurden aus den
   Wegkorridoren verschoben; das Terrain bleibt 200 × 200 Meter groß.
-- Edit-Mode-Tests: Open-Zone-Probe 5/5, bestehende Speicher-Tests 17/17.
+- Edit-Mode-Tests: Open-Zone-Probe 6/6, bestehende Speicher-Tests 17/17.
   `git diff --check` ist grün. Die Originalszene und ihre TerrainData
   zeigen keine Änderungen im Branch.
 - Nach Ergänzung der Maussteuerung: Live-Editor-Kompilierung, Szenenvalidator,
@@ -96,13 +99,17 @@ Die Probe ersetzt die bestehende Gate-1-Abnahme nicht.
 - Nach dem Zonenausbau: sieben Wegabschnitte automatisch auf Gelände und feste
   Hindernisse abgetastet. Ergebnis: 0 blockierte Prüfpunkte und keine Steigung
   über 40 Grad. Die Ostroute wurde dabei um die kleine Ruine herumgeführt.
-  Szenenvalidator, Open-Zone-Edit-Mode-Tests 5/5 und Play-Start bleiben grün;
+  Szenenvalidator, Open-Zone-Edit-Mode-Tests 6/6 und Play-Start bleiben grün;
   die Unity-Konsole meldet 0 Fehler und 0 Warnungen.
 - Die lokale Hindernisumgehung ist mit einem direkten Collider vor Aren
   abgesichert: Die resultierende Bewegung bleibt vorwärts gerichtet und erhält
   einen seitlichen Anteil, statt weiter in das Hindernis zu drücken.
 - Die Kontextinteraktion ist gegen doppeltes Auslösen abgesichert: In Reichweite
   wird genau eine Aktion ausgeführt, bis die linke Maustaste losgelassen wurde.
+- Maus-Vorschau und Interaktionshinweis verwenden dieselben Farben und Begriffe
+  wie die Klicksteuerung; ein Test schützt den Hinweis „[Linksklick]“.
+- Die Szene enthält 39 aktive Interaktionsziele. Der Editor-Audit bestätigt,
+  dass jedes davon mindestens einen aktivierten Collider für Mausklicks besitzt.
 - Ein frischer Import des unveränderten `com.unity.shadergraph` 17.4.0
   meldete unter diesem Unity-Editor zwei `GUID`-Kompilierfehler. Für die
   lokale Validierung wurde ausschließlich die ignorierte `Library/PackageCache`

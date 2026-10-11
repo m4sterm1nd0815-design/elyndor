@@ -22,12 +22,14 @@ namespace Elyndor.Player
         [SerializeField] private LayerMask obstacleMask = ~0;
         [SerializeField, Min(8)] private int markerSegments = 32;
         [SerializeField, Min(0.05f)] private float markerRadius = 0.42f;
+        [SerializeField, Min(0.05f)] private float hoverMarkerRadius = 0.34f;
 
         private static readonly float[] AvoidanceAngles = { 30f, 52f, 75f, 95f };
 
         private PlayerCombat combat;
         private PlayerInputReader inputReader;
         private LineRenderer destinationMarker;
+        private LineRenderer hoverMarker;
         private Material markerMaterial;
         private readonly RaycastHit[] obstacleHits = new RaycastHit[16];
         private Vector3 destination;
@@ -42,7 +44,8 @@ namespace Elyndor.Player
         {
             combat = GetComponent<PlayerCombat>();
             inputReader = GetComponent<PlayerInputReader>();
-            CreateDestinationMarker();
+            destinationMarker = CreateMarker("Mouse Destination", 0.055f);
+            hoverMarker = CreateMarker("Mouse Hover", 0.035f);
         }
 
         private void Update()
@@ -54,8 +57,11 @@ namespace Elyndor.Player
             if (!Mouse.current.leftButton.isPressed)
             {
                 interactionConsumedUntilRelease = false;
+                UpdateHoverMarker();
                 return;
             }
+
+            if (hoverMarker != null) hoverMarker.enabled = false;
 
             if (
                 (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
@@ -180,7 +186,11 @@ namespace Elyndor.Player
             if (destinationMarker != null) destinationMarker.enabled = false;
         }
 
-        private void OnDisable() => Cancel();
+        private void OnDisable()
+        {
+            Cancel();
+            if (hoverMarker != null) hoverMarker.enabled = false;
+        }
 
         private Vector3 SteerAroundObstacle(
             Vector3 position,
@@ -254,28 +264,29 @@ namespace Elyndor.Player
             else DestroyImmediate(markerMaterial);
         }
 
-        private void CreateDestinationMarker()
+        private LineRenderer CreateMarker(string markerName, float width)
         {
-            GameObject marker = new GameObject("Mouse Destination");
+            GameObject marker = new GameObject(markerName);
             marker.transform.SetParent(transform, false);
-            destinationMarker = marker.AddComponent<LineRenderer>();
-            destinationMarker.useWorldSpace = true;
-            destinationMarker.loop = true;
-            destinationMarker.positionCount = markerSegments;
-            destinationMarker.startWidth = 0.055f;
-            destinationMarker.endWidth = 0.055f;
-            destinationMarker.numCornerVertices = 2;
-            destinationMarker.numCapVertices = 2;
-            destinationMarker.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            destinationMarker.receiveShadows = false;
+            LineRenderer line = marker.AddComponent<LineRenderer>();
+            line.useWorldSpace = true;
+            line.loop = true;
+            line.positionCount = markerSegments;
+            line.startWidth = width;
+            line.endWidth = width;
+            line.numCornerVertices = 2;
+            line.numCapVertices = 2;
+            line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            line.receiveShadows = false;
             Shader markerShader = Shader.Find("Sprites/Default") ??
                                   Shader.Find("Universal Render Pipeline/Unlit");
             if (markerShader != null)
             {
-                markerMaterial = new Material(markerShader);
-                destinationMarker.sharedMaterial = markerMaterial;
+                if (markerMaterial == null) markerMaterial = new Material(markerShader);
+                line.sharedMaterial = markerMaterial;
             }
-            destinationMarker.enabled = false;
+            line.enabled = false;
+            return line;
         }
 
         private void UpdateDestinationMarker(
@@ -291,16 +302,54 @@ namespace Elyndor.Player
                     : new Color(0.25f, 0.9f, 0.75f, 0.85f);
             destinationMarker.startColor = color;
             destinationMarker.endColor = color;
+            DrawMarker(destinationMarker, point, markerRadius);
+            destinationMarker.enabled = true;
+        }
+
+        private void UpdateHoverMarker()
+        {
+            if (hoverMarker == null) return;
+            hoverMarker.enabled = false;
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+            Camera view = Camera.main;
+            if (view == null) return;
+            Ray ray = view.ScreenPointToRay(Mouse.current.position.ReadValue());
+            if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance)) return;
+
+            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable is Component interactionComponent &&
+                interactionComponent.transform != transform &&
+                interactable.CanInteract(gameObject))
+            {
+                hoverMarker.startColor = new Color(1f, 0.72f, 0.18f, 0.72f);
+                hoverMarker.endColor = hoverMarker.startColor;
+                DrawMarker(hoverMarker, hit.point, hoverMarkerRadius);
+                hoverMarker.enabled = true;
+                return;
+            }
+
+            IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
+            if (damageable is Component target && target.transform != transform)
+            {
+                hoverMarker.startColor = new Color(1f, 0.28f, 0.12f, 0.72f);
+                hoverMarker.endColor = hoverMarker.startColor;
+                DrawMarker(hoverMarker, hit.point, hoverMarkerRadius);
+                hoverMarker.enabled = true;
+            }
+        }
+
+        private void DrawMarker(LineRenderer marker, Vector3 point, float radius)
+        {
             point.y += 0.08f;
             for (int i = 0; i < markerSegments; i++)
             {
                 float angle = i * Mathf.PI * 2f / markerSegments;
-                destinationMarker.SetPosition(i, point + new Vector3(
-                    Mathf.Cos(angle) * markerRadius,
+                marker.SetPosition(i, point + new Vector3(
+                    Mathf.Cos(angle) * radius,
                     0f,
-                    Mathf.Sin(angle) * markerRadius));
+                    Mathf.Sin(angle) * radius));
             }
-            destinationMarker.enabled = true;
         }
 
         private void OnValidate()
@@ -310,6 +359,7 @@ namespace Elyndor.Player
             obstacleProbeRadius = Mathf.Max(0.05f, obstacleProbeRadius);
             obstacleProbeHeight = Mathf.Max(0.1f, obstacleProbeHeight);
             markerSegments = Mathf.Max(8, markerSegments);
+            hoverMarkerRadius = Mathf.Max(0.05f, hoverMarkerRadius);
         }
 
         private static float PlanarDistance(Vector3 a, Vector3 b)

@@ -1,4 +1,5 @@
 using Elyndor.Interaction;
+using Elyndor.Player;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -75,7 +76,10 @@ namespace Elyndor.UI
 
             if (hasTarget)
             {
-                promptText.text = $"[E] {target.InteractionPrompt}";
+                bool mouseOnly = detector.GetComponent<OpenZoneMouseController>() != null;
+                promptText.text = mouseOnly
+                    ? $"[Linksklick] {target.InteractionPrompt}"
+                    : $"[E] {target.InteractionPrompt}";
             }
         }
     }

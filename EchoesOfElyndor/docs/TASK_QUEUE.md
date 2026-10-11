@@ -12,7 +12,7 @@
   Annäherung/Angriff am Gegner. Kein Umbau der Produktionsszene und keine neuen
   externen Assets.
 - Technische und manuelle Abnahme: `OPEN_ZONE_PROTOTYPE.md`. Unity-Batch und
-  Szenenintegrität grün; Open-Zone-Tests 5/5 und Speicher-Tests 17/17 grün.
+  Szenenintegrität grün; Open-Zone-Tests 6/6 und Speicher-Tests 17/17 grün.
   Der saubere ShaderGraph-Paketimport ist als Umgebungsrisiko dokumentiert.
 - Implementierung: Commit `46181f3`; Draft-PR
   [#55](https://github.com/m4sterm1nd0815-design/elyndor/pull/55) gegen
@@ -37,10 +37,12 @@
 - Kontextinteraktion: Linksklick auf ein `IInteractable` nähert Aren bis auf
   Interaktionsreichweite und löst die Aktion einmal pro gedrückter Maustaste
   aus. Ein goldener Zielring unterscheidet die Aktion von Lauf und Angriff.
+  Die Vorschau markiert anwählbare Interaktionen bereits beim Darüberfahren;
+  der Hinweis in Reichweite zeigt in der Probe „[Linksklick]“ statt „[E]“.
 - Zonenausbau: Nutzerentscheidung am 11.10.2026. Sieben sichtbare
   Wegabschnitte verbinden Start, Lichtung, Rastplatz, Brücke und die nördlichen
   Landmarken. Eine Abtastung aller Routen meldet 0 blockierte Punkte und keine
-  Steigung über 40 Grad; Szene, Open-Zone-Tests 5/5 und Play-Start sind grün.
+  Steigung über 40 Grad; Szene, Open-Zone-Tests 6/6 und Play-Start sind grün.
   Das Brückenrätsel bleibt der vorgesehene Zugang in den Norden. Manueller
   kompletter Durchlauf steht aus.
 - Diese Nutzerentscheidung autorisiert den Prototyp. Gate 1 für die

@@ -27,6 +27,10 @@
 - Reine Mausbewegung: Nutzerentscheidung am 11.10.2026. WASD und Pfeiltasten
   bewegen Aren in der Open-Zone-Probe nicht mehr; das alte WASD-Starttutorial
   ist dort deaktiviert. Gamepad-Unterstützung bleibt erhalten.
+- Movement-Polish: weiches Abbremsen innerhalb der letzten drei Meter,
+  Ausrichtung an der tatsächlichen Bewegungsrichtung und farbiger Zielring für
+  Lauf- beziehungsweise Angriffsziele. Finale Animationen und Wegfindung um
+  feste Hindernisse bleiben eigene spätere Schritte.
 - Zonenausbau: Nutzerentscheidung am 11.10.2026. Sieben sichtbare
   Wegabschnitte verbinden Start, Lichtung, Rastplatz, Brücke und die nördlichen
   Landmarken. Eine Abtastung aller Routen meldet 0 blockierte Punkte und keine

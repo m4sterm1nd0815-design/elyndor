@@ -116,10 +116,7 @@ namespace Elyndor.Player
                 moveDirection.sqrMagnitude > 0.01f;
 
             if (hasMovementInput)
-            {
                 lastMoveDirection = moveDirection.normalized;
-                RotateTowards(lastMoveDirection);
-            }
 
             if (inputReader.RollPressedThisFrame &&
                 Time.time >= nextRollTime &&
@@ -148,6 +145,16 @@ namespace Elyndor.Player
                 planarVelocity,
                 targetPlanarVelocity,
                 velocityChangeRate * Time.deltaTime);
+
+            if (hasMovementInput)
+            {
+                Vector3 facingDirection =
+                    mouseController != null && mouseController.isActiveAndEnabled &&
+                    planarVelocity.sqrMagnitude > 0.01f
+                        ? planarVelocity.normalized
+                        : lastMoveDirection;
+                RotateTowards(facingDirection);
+            }
 
             ApplyGravity();
 

@@ -28,7 +28,10 @@ Die Probe nutzt die linke Maustaste kontextabhängig: auf freien Terrainboden
 klicken, um dorthin zu laufen; die Taste gedrückt halten, damit Aren dem Cursor
 laufend folgt; auf einen Gegner klicken oder gedrückt halten, um sich zu nähern
 und in Reichweite leicht anzugreifen. Der Spieler muss dafür eine Waffe in der
-Haupthand tragen. Rechtsklick bewegt weiterhin die Kamera. Die
+Haupthand tragen. Ein türkisfarbener Zielring zeigt das aktuelle Laufziel, ein
+orangefarbener Ring das Angriffsziel. Aren bremst innerhalb der letzten drei
+Meter vor einem Laufziel weich ab und richtet sich an seiner tatsächlichen
+Bewegungsrichtung aus. Rechtsklick bewegt weiterhin die Kamera. Die
 Tastaturbewegung über WASD und Pfeiltasten ist in dieser Probe abgeschaltet;
 das Gamepad bleibt als alternative Eingabe erhalten. UI-Klicks lösen keine
 Bewegung aus. Das alte WASD-Starttutorial ist in der Probe deaktiviert.

@@ -11,6 +11,9 @@
 - Technische und manuelle Abnahme: `OPEN_ZONE_PROTOTYPE.md`. Unity-Batch und
   Szenenintegrität grün; Open-Zone-Tests 2/2 und Speicher-Tests 17/17 grün.
   Der saubere ShaderGraph-Paketimport ist als Umgebungsrisiko dokumentiert.
+- Implementierung: Commit `46181f3`; Draft-PR
+  [#55](https://github.com/m4sterm1nd0815-design/elyndor/pull/55) gegen
+  `developer`. Manuelle Prüfrunde und Gate-1-Entscheidung stehen aus.
 - Diese Nutzerentscheidung autorisiert den Prototyp. Gate 1 für die
   Produktionsübernahme und weitere Regionen bleibt gesondert offen.
 

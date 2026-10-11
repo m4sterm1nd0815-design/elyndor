@@ -1,5 +1,19 @@
 # Task Queue
 
+## Open-Zone-Probe – 11. Oktober 2026
+
+- Status: **TECHNISCH ERSTELLT / MANUELL OFFEN** auf `feature/open-zone-camera-probe`, Basis
+  `developer` bei `a6330e5`. Aktuelle Nutzerentscheidung: offener
+  Sacred-meets-Zelda-Spielfluss mit vorhandenen Systemen als erste Testzone.
+- Scope: separate Finsterwald-Szene und TerrainData, erhöhte Kamera, zwei
+  Südwege mit Rückschleife, isolierter Editor-Spielstand. Kein Umbau der
+  Produktionsszene und keine neuen externen Assets.
+- Technische und manuelle Abnahme: `OPEN_ZONE_PROTOTYPE.md`. Unity-Batch und
+  Szenenintegrität grün; Open-Zone-Tests 2/2 und Speicher-Tests 17/17 grün.
+  Der saubere ShaderGraph-Paketimport ist als Umgebungsrisiko dokumentiert.
+- Diese Nutzerentscheidung autorisiert den Prototyp. Gate 1 für die
+  Produktionsübernahme und weitere Regionen bleibt gesondert offen.
+
 Stand: 16. August 2026
 Basis der Bestandsaufnahme: `origin/developer` bei `b5536ee`
 

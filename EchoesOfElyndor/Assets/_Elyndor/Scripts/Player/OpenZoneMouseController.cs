@@ -28,7 +28,7 @@ namespace Elyndor.Player
         private void Update()
         {
             if (inputReader == null || !inputReader.GameplayMapEnabled ||
-                Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame ||
+                Mouse.current == null || !Mouse.current.leftButton.isPressed ||
                 (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
                 return;
 
@@ -46,8 +46,9 @@ namespace Elyndor.Player
                 return;
             }
 
-            // A terrain click is a movement order. Props and UI never create
-            // an arbitrary destination behind a visible obstacle.
+            // While the button stays down, the terrain hit follows the cursor.
+            // Props and UI never create an arbitrary destination behind a
+            // visible obstacle.
             if (hit.collider is TerrainCollider)
             {
                 attackTarget = null;

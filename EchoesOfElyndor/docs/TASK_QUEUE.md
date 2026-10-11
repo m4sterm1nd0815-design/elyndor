@@ -21,6 +21,9 @@
   Szenenvalidator, Open-Zone-Tests 2/2 und Play-Start ohne Konsolenfehler;
   manueller Klicktest und Wegfindung an Hindernissen offen. Ergänzung zu
   Draft-PR #55 in Commit `c3b649b`.
+- Halten der linken Maustaste: Nutzerentscheidung am 11.10.2026. Das Laufziel
+  folgt während des Haltens fortlaufend dem Cursor; über Gegnern bleibt die
+  kontextabhängige Annäherung mit leichtem Angriff aktiv.
 - Zonenausbau: Nutzerentscheidung am 11.10.2026. Sieben sichtbare
   Wegabschnitte verbinden Start, Lichtung, Rastplatz, Brücke und die nördlichen
   Landmarken. Eine Abtastung aller Routen meldet 0 blockierte Punkte und keine

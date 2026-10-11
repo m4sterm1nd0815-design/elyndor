@@ -24,16 +24,17 @@ Die Kamera blickt zunächst aus etwa 21 Metern bei 60 Grad auf Aren und erlaubt
 einen begrenzten Orbit von 50–70 Grad sowie Zoom von 16–27 Metern. Diese Werte
 sind ausdrücklich Testwerte. Mit Tastatur/Maus und Controller vergleichen.
 
-Die Probe nutzt einen kontextabhängigen Linksklick: auf freien Terrainboden
-klicken, um dorthin zu laufen; auf einen Gegner klicken, um sich zu nähern und
-in Reichweite einen leichten Angriff auszuführen. Der Spieler muss dafür eine
-Waffe in der Haupthand tragen. Rechtsklick bewegt weiterhin die Kamera,
+Die Probe nutzt die linke Maustaste kontextabhängig: auf freien Terrainboden
+klicken, um dorthin zu laufen; die Taste gedrückt halten, damit Aren dem Cursor
+laufend folgt; auf einen Gegner klicken oder gedrückt halten, um sich zu nähern
+und in Reichweite leicht anzugreifen. Der Spieler muss dafür eine Waffe in der
+Haupthand tragen. Rechtsklick bewegt weiterhin die Kamera,
 WASD und Gamepad bleiben als zusätzliche Eingaben erhalten. Eine WASD-Eingabe
 bricht das aktuelle Klickziel ab. UI-Klicks lösen keine Bewegung aus.
 
 Diese erste Eingabeprobe steuert direkt auf das Ziel zu. Automatische
-Wegfindung um Hindernisse, Kontextinteraktion per Klick und wiederholte
-Angriffe bei gedrückter Maustaste sind noch offen. An Bäumen, Felsen und
+Wegfindung um Hindernisse und Kontextinteraktion per Klick sind noch offen.
+An Bäumen, Felsen und
 Ruinen kann die Figur deshalb hängen bleiben; das ist ein Prüfbefund für
 den nächsten Ausbau, kein fertiges Sacred-Steuerungssystem.
 

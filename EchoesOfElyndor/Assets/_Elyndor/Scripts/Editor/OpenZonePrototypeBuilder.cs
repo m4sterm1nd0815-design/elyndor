@@ -5,7 +5,10 @@ using System.Linq;
 using Elyndor.Cameras;
 using Elyndor.Core;
 using Elyndor.EditorTools.SceneIntegrity;
+using Elyndor.Enemies;
 using Elyndor.Player;
+using Elyndor.Prototypes;
+using Elyndor.World;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -21,6 +24,14 @@ namespace Elyndor.EditorTools
         public const string TerrainPath = Folder + "/Finsterwald_OpenZone_Terrain.asset";
         private const string SourcePath = "Assets/_Elyndor/Scenes/Finsterwald.unity";
         private const float ClearRadius = 7f;
+        private const string EncounterRootName = "[Prototype] Open Zone Encounters";
+        private const string NorthEncounterName = "Nordpfad - Streiferpaar";
+
+        public static readonly Vector2[] NorthEncounterPositions =
+        {
+            new Vector2(-28f, 43f),
+            new Vector2(-16f, 46f)
+        };
 
         // Both choices remain south of the river: the memory bridge is not bypassed.
         public static readonly Vector2[] WestRoute =
@@ -213,6 +224,58 @@ namespace Elyndor.EditorTools
             return best;
         }
 
+        [MenuItem("Elyndor/Open Zone/Populate Encounter Flow")]
+        public static void PopulateEncounterFlow()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                throw new InvalidOperationException("Stop Play Mode first.");
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != ScenePath || scene.isDirty)
+                throw new InvalidOperationException("Open the saved prototype scene first.");
+
+            Terrain terrain = UnityEngine.Object.FindAnyObjectByType<Terrain>();
+            FinsterwaldRegeneration regeneration =
+                UnityEngine.Object.FindAnyObjectByType<FinsterwaldRegeneration>();
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                WurzelstreiferAssetBuilder.PrefabPath);
+            if (terrain == null || regeneration == null || prefab == null)
+                throw new InvalidOperationException(
+                    "Terrain, regeneration, or Wurzelstreifer prefab missing.");
+
+            GameObject existing = GameObject.Find(EncounterRootName);
+            if (existing != null)
+            {
+                Validate();
+                return;
+            }
+
+            GameObject root = new GameObject(EncounterRootName);
+            OpenZoneEncounterGate gate = root.AddComponent<OpenZoneEncounterGate>();
+            GameObject northEncounter = new GameObject(NorthEncounterName);
+            northEncounter.transform.SetParent(root.transform, false);
+
+            for (int i = 0; i < NorthEncounterPositions.Length; i++)
+            {
+                Vector2 point = NorthEncounterPositions[i];
+                GameObject enemy = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                enemy.name = $"Wurzelstreifer_Nordpfad_{i + 1}";
+                enemy.transform.SetParent(northEncounter.transform, true);
+                Vector3 position = new Vector3(point.x, 0f, point.y);
+                position.y = terrain.SampleHeight(position) + terrain.transform.position.y;
+                enemy.transform.position = position;
+                enemy.transform.rotation = Quaternion.Euler(0f, i == 0 ? 100f : 250f, 0f);
+            }
+
+            gate.Configure(regeneration, northEncounter);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+            Validate();
+            Debug.Log(
+                "OPEN_ZONE_ENCOUNTERS_READY: the northern Wurzelstreifer pair " +
+                "activates after the forest regeneration.");
+        }
+
         private static void PaintRoutes(Terrain terrain)
         {
             TerrainData data = terrain.terrainData;
@@ -374,8 +437,12 @@ namespace Elyndor.EditorTools
         {
             Scene scene = SceneManager.GetActiveScene();
             if (scene.path != ScenePath) throw new InvalidOperationException("Open the prototype scene first.");
-            List<SceneIntegrityIssue> issues = SceneIntegrityAnalyzer.Analyze(
-                scene, FinsterwaldSceneIntegrityValidator.CreateProfile());
+            SceneIntegrityProfile profile = FinsterwaldSceneIntegrityValidator.CreateProfile();
+            // The production scene deliberately has one teaching enemy. The
+            // prototype adds a later pair, while keeping every other integrity
+            // requirement identical.
+            profile.SingleInstanceTypes.Remove(typeof(EnemyController));
+            List<SceneIntegrityIssue> issues = SceneIntegrityAnalyzer.Analyze(scene, profile);
             if (issues.Count != 0)
                 throw new InvalidOperationException(string.Join("\n", issues.Select(issue => issue.ToString())));
             Terrain terrain = UnityEngine.Object.FindAnyObjectByType<Terrain>();
@@ -398,6 +465,20 @@ namespace Elyndor.EditorTools
                 routeRoot.transform.Find("North - Hoehenweg") == null ||
                 routeRoot.transform.Find("North - Steinkreis und Aussicht") == null)
                 throw new InvalidOperationException("Complete zone routes missing.");
+            GameObject encounterRoot = GameObject.Find(EncounterRootName);
+            if (encounterRoot != null)
+            {
+                OpenZoneEncounterGate gate =
+                    encounterRoot.GetComponent<OpenZoneEncounterGate>();
+                EnemyController[] enemies = scene.GetRootGameObjects()
+                    .SelectMany(root => root.GetComponentsInChildren<EnemyController>(true))
+                    .ToArray();
+                if (gate == null || gate.Regeneration == null ||
+                    gate.EncounterRoot == null || gate.EncounterRoot.activeSelf ||
+                    enemies.Length != 3)
+                    throw new InvalidOperationException(
+                        "Prototype encounter flow is incomplete or active too early.");
+            }
             Debug.Log("OPEN_ZONE_VALIDATION_PASS: scene integrity and isolated terrain.");
         }
 

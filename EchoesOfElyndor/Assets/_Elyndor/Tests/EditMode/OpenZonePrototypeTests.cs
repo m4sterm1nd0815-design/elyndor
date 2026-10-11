@@ -1,16 +1,21 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using Elyndor.EditorTools;
 using Elyndor.EditorTools.SceneIntegrity;
+using Elyndor.Enemies;
 using Elyndor.Persistence;
 using Elyndor.Player;
+using Elyndor.Prototypes;
 using Elyndor.Core;
 using Elyndor.Interaction;
 using Elyndor.UI;
+using Elyndor.World;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Elyndor.Tests.EditMode
@@ -31,8 +36,9 @@ namespace Elyndor.Tests.EditMode
                     "Assets/_Elyndor/Scenes/Finsterwald.unity")));
 
             var scene = EditorSceneManager.OpenScene(OpenZonePrototypeBuilder.ScenePath);
-            Assert.That(SceneIntegrityAnalyzer.Analyze(
-                scene, FinsterwaldSceneIntegrityValidator.CreateProfile()), Is.Empty);
+            SceneIntegrityProfile profile = FinsterwaldSceneIntegrityValidator.CreateProfile();
+            profile.SingleInstanceTypes.Remove(typeof(EnemyController));
+            Assert.That(SceneIntegrityAnalyzer.Analyze(scene, profile), Is.Empty);
             var terrain = UnityEngine.Object.FindAnyObjectByType<Terrain>();
             Assert.That(AssetDatabase.GetAssetPath(terrain.terrainData),
                 Is.EqualTo(OpenZonePrototypeBuilder.TerrainPath));
@@ -56,6 +62,15 @@ namespace Elyndor.Tests.EditMode
                 FindObjectsInactive.Include);
             Assert.That(tutorial == null || !tutorial.enabled, Is.True,
                 "Das alte WASD-Tutorial darf in der Maus-Probe nicht laufen.");
+            var encounterGate = UnityEngine.Object.FindAnyObjectByType<OpenZoneEncounterGate>();
+            Assert.That(encounterGate, Is.Not.Null);
+            Assert.That(encounterGate.Regeneration, Is.Not.Null);
+            Assert.That(encounterGate.EncounterRoot, Is.Not.Null);
+            Assert.That(encounterGate.EncounterRoot.activeSelf, Is.False,
+                "Das Nordpfad-Paar darf vor der Waldregeneration nicht aktiv sein.");
+            Assert.That(scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<EnemyController>(true))
+                .Count(), Is.EqualTo(3));
         }
 
         [Test]
@@ -188,6 +203,40 @@ namespace Elyndor.Tests.EditMode
                 UnityEngine.Object.DestroyImmediate(player);
                 UnityEngine.Object.DestroyImmediate(prompt);
                 UnityEngine.Object.DestroyImmediate(target);
+            }
+        }
+
+        [Test]
+        public void NorthernEncounter_ActivatesAfterRegeneration()
+        {
+            const string regionId = "finsterwald_bruecke_regeneration";
+            RegionRegenerationState.Forget(regionId);
+            Scene preview = EditorSceneManager.NewPreviewScene();
+            GameObject regenerationObject = new GameObject("TestRegeneration");
+            GameObject gateObject = new GameObject("TestEncounterGate");
+            GameObject encounter = new GameObject("TestEncounter");
+            SceneManager.MoveGameObjectToScene(regenerationObject, preview);
+            SceneManager.MoveGameObjectToScene(gateObject, preview);
+            SceneManager.MoveGameObjectToScene(encounter, preview);
+            try
+            {
+                FinsterwaldRegeneration regeneration =
+                    regenerationObject.AddComponent<FinsterwaldRegeneration>();
+                OpenZoneEncounterGate gate = gateObject.AddComponent<OpenZoneEncounterGate>();
+                gate.Configure(regeneration, encounter);
+
+                Assert.That(encounter.activeSelf, Is.False);
+                regeneration.Regenerate();
+                gate.Refresh();
+                Assert.That(encounter.activeSelf, Is.True);
+            }
+            finally
+            {
+                RegionRegenerationState.Forget(regionId);
+                UnityEngine.Object.DestroyImmediate(regenerationObject);
+                UnityEngine.Object.DestroyImmediate(gateObject);
+                UnityEngine.Object.DestroyImmediate(encounter);
+                EditorSceneManager.ClosePreviewScene(preview);
             }
         }
 

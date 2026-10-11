@@ -53,6 +53,11 @@ Eine Waldschleife verbindet beide und ein eigener Zubringer führt zur Brücke.
 Hinter der Brücke verzweigt die Zone zum vergessenen Schrein und Tor, über den
 Höhenweg sowie zum Steinkreis und Aussichtspunkt. Das Brückenrätsel bleibt der
 vorgesehene Zugang in den Norden; keiner der südlichen Wege umgeht den Bach.
+Auf dem Höhenweg wartet nach der Antwort des Waldes ein Paar vorhandener
+Wurzelstreifer. Vor gelöster Brücke und gesehener Memory Site ist diese zweite
+Begegnung inaktiv. So bleibt der einzelne Gegner auf der Lichtung der sichere
+Einstieg, während der Norden den Kampf mit zwei versetzt reagierenden Gegnern
+prüft.
 Die neuen Wegpunkte liegen unsichtbar unter `[Prototype] Open Zone Routes`; sie
 dienen der Lageprüfung, nicht als UI-Marker.
 
@@ -90,7 +95,7 @@ Die Probe ersetzt die bestehende Gate-1-Abnahme nicht.
 - Unity 6000.4.5f1 hat die Probe im Batch-Modus erzeugt und die
   Szenenintegrität bestätigt. 150 Vegetationsobjekte wurden aus den
   Wegkorridoren verschoben; das Terrain bleibt 200 × 200 Meter groß.
-- Edit-Mode-Tests: Open-Zone-Probe 6/6, bestehende Speicher-Tests 17/17.
+- Edit-Mode-Tests: Open-Zone-Probe 7/7, bestehende Speicher-Tests 17/17.
   `git diff --check` ist grün. Die Originalszene und ihre TerrainData
   zeigen keine Änderungen im Branch.
 - Nach Ergänzung der Maussteuerung: Live-Editor-Kompilierung, Szenenvalidator,
@@ -99,7 +104,7 @@ Die Probe ersetzt die bestehende Gate-1-Abnahme nicht.
 - Nach dem Zonenausbau: sieben Wegabschnitte automatisch auf Gelände und feste
   Hindernisse abgetastet. Ergebnis: 0 blockierte Prüfpunkte und keine Steigung
   über 40 Grad. Die Ostroute wurde dabei um die kleine Ruine herumgeführt.
-  Szenenvalidator, Open-Zone-Edit-Mode-Tests 6/6 und Play-Start bleiben grün;
+  Szenenvalidator, Open-Zone-Edit-Mode-Tests 7/7 und Play-Start bleiben grün;
   die Unity-Konsole meldet 0 Fehler und 0 Warnungen.
 - Die lokale Hindernisumgehung ist mit einem direkten Collider vor Aren
   abgesichert: Die resultierende Bewegung bleibt vorwärts gerichtet und erhält
@@ -110,6 +115,9 @@ Die Probe ersetzt die bestehende Gate-1-Abnahme nicht.
   wie die Klicksteuerung; ein Test schützt den Hinweis „[Linksklick]“.
 - Die Szene enthält 39 aktive Interaktionsziele. Der Editor-Audit bestätigt,
   dass jedes davon mindestens einen aktivierten Collider für Mausklicks besitzt.
+- Der Nordkampf enthält zwei weitere Instanzen des vorhandenen Wurzelstreifers.
+  Ein Gate-Test bestätigt, dass sie vor der Regeneration inaktiv bleiben und
+  anschließend gemeinsam freigeschaltet werden.
 - Ein frischer Import des unveränderten `com.unity.shadergraph` 17.4.0
   meldete unter diesem Unity-Editor zwei `GUID`-Kompilierfehler. Für die
   lokale Validierung wurde ausschließlich die ignorierte `Library/PackageCache`

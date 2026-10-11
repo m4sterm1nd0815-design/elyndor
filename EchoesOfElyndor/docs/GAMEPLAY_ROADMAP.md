@@ -1,6 +1,25 @@
 # Gameplay Roadmap
 
-Stand: 1. August 2026
+Stand: 11. Oktober 2026
+
+## Aktiver Umbau — Sacred trifft Zelda
+
+Der vorhandene Finsterwald-Vertical-Slice bleibt die technische und erzählerische
+Grundlage. Sein Ablauf wird in einer getrennten Open-Zone-Probe auf freiere
+Erkundung und kontextabhängige Maussteuerung umgestellt.
+
+1. **Zone und Eingabe — umgesetzt.** Südliche Wahlwege, Rückschleife,
+   Brückenzubringer und drei Nordrouten; Linksklick für Bewegung, Kampf und
+   Interaktion; WASD in der Probe deaktiviert.
+2. **Begegnungsrhythmus — in Arbeit.** Ein Wurzelstreifer als Einstieg, danach
+   Memory Watch und Brückenrätsel; nach der Waldregeneration wird ein
+   Wurzelstreifer-Paar auf dem nördlichen Höhenweg aktiv.
+3. **Vollständiger Durchlauf — als Nächstes.** Beide Südwege, Rätsel,
+   Nordbegegnung und alle drei nördlichen Ziele ohne Editor-Eingriff spielen.
+4. **Spielgefühl.** Mausbewegung, Animationen, Kampflesbarkeit und bei Bedarf
+   längere Wegfindung anhand des Durchlaufs verbessern.
+5. **Gate 1.** Erst nach visueller, spielerischer und technischer Abnahme wird
+   entschieden, welche Änderungen in die Produktionsszene übernommen werden.
 
 ## Ziel
 
@@ -9,7 +28,7 @@ Danach entsteht ein zusammenhaengender Finsterwald Vertical Slice. Einzelne
 Prototypen gelten erst als fertig, wenn sie im Ablauf integriert und manuell
 gespielt wurden.
 
-## Phase 0 — technische Grundlage
+## Historische Phase 0 — technische Grundlage
 
 1. HUD Foundation und UI Polish — integriert.
 2. HUD Gameplay Binding — integriert ueber PR #6.

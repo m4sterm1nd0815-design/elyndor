@@ -117766,6 +117766,53 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 30561f0857905b34a9ba4deaf1605261, type: 3}
   m_PrefabInstance: {fileID: 508146808}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &508242401
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 508242403}
+  - component: {fileID: 508242402}
+  m_Layer: 0
+  m_Name: '[Prototype] Open Zone Encounters'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &508242402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508242401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d5c276cbf23d9543a0487ed27bebeb7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Prototypes.OpenZoneEncounterGate
+  regeneration: {fileID: 402853041}
+  encounterRoot: {fileID: 1135201091}
+--- !u!4 &508242403
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508242401}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1135201092}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &508595869
 GameObject:
   m_ObjectHideFlags: 0
@@ -119400,6 +119447,68 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ab4dddeae3b836c4f8dc7f8a7aa6b4dd, type: 3}
   m_PrefabInstance: {fileID: 514607627}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &514776097
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1135201092}
+    m_Modifications:
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -16
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.0012893677
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 46
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.57357645
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.819152
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8081676854325578709, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_Name
+      value: Wurzelstreifer_Nordpfad_2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+--- !u!4 &514776098 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+  m_PrefabInstance: {fileID: 514776097}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &514875281
 PrefabInstance:
@@ -257881,8 +257990,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Elyndor.Runtime::Elyndor.Player.OpenZoneMouseController
   arrivalDistance: 0.7
+  slowdownDistance: 3
+  minimumMoveInput: 0.18
   attackDistance: 2
+  interactionDistance: 1.8
   rayDistance: 500
+  obstacleProbeDistance: 1.4
+  obstacleProbeRadius: 0.32
+  obstacleProbeHeight: 0.65
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  markerSegments: 32
+  markerRadius: 0.42
+  hoverMarkerRadius: 0.34
 --- !u!1001 &1118215899
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -261663,6 +261784,39 @@ CapsuleCollider:
   m_Height: 7.6409874
   m_Direction: 1
   m_Center: {x: 0, y: 3.8204937, z: 0}
+--- !u!1 &1135201091
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1135201092}
+  m_Layer: 0
+  m_Name: Nordpfad - Streiferpaar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1135201092
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135201091}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1849862650}
+  - {fileID: 514776098}
+  m_Father: {fileID: 508242403}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1135245507
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -437449,6 +437603,68 @@ CapsuleCollider:
   m_Height: 11.865903
   m_Direction: 1
   m_Center: {x: 0, y: 5.9329515, z: 0}
+--- !u!1001 &1849862649
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1135201092}
+    m_Modifications:
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -28
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.9724226
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 43
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.64278764
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.76604444
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8081676854325578709, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+      propertyPath: m_Name
+      value: Wurzelstreifer_Nordpfad_1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+--- !u!4 &1849862650 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5523911006395846834, guid: 7581bc10c39d6b24a884b0e643c1dffd, type: 3}
+  m_PrefabInstance: {fileID: 1849862649}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1850525419
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -507927,3 +508143,4 @@ SceneRoots:
   - {fileID: 740305679}
   - {fileID: 402853042}
   - {fileID: 1052308968}
+  - {fileID: 508242403}

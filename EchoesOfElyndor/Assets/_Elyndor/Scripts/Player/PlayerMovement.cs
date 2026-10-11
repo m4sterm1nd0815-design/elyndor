@@ -58,6 +58,7 @@ namespace Elyndor.Player
 
         private CharacterController characterController;
         private PlayerInputReader inputReader;
+        private OpenZoneMouseController mouseController;
         private Transform cameraTransform;
 
         private PlayerState currentState = PlayerState.Normal;
@@ -72,6 +73,7 @@ namespace Elyndor.Player
         {
             characterController = GetComponent<CharacterController>();
             inputReader = GetComponent<PlayerInputReader>();
+            mouseController = GetComponent<OpenZoneMouseController>();
 
             if (playerVitals == null)
             {
@@ -95,17 +97,26 @@ namespace Elyndor.Player
             Vector2 movementInput =
                 Vector2.ClampMagnitude(inputReader.Move, 1f);
 
+            if (mouseController != null && mouseController.isActiveAndEnabled &&
+                inputReader.MoveUsesKeyboard)
+                movementInput = Vector2.zero;
+
             Vector3 moveDirection =
                 ToCameraRelativeDirection(movementInput);
+
+            if (mouseController != null && mouseController.isActiveAndEnabled)
+            {
+                if (movementInput.sqrMagnitude > 0.01f)
+                    mouseController.Cancel();
+                else
+                    moveDirection = mouseController.GetMovement(transform.position);
+            }
 
             bool hasMovementInput =
                 moveDirection.sqrMagnitude > 0.01f;
 
             if (hasMovementInput)
-            {
                 lastMoveDirection = moveDirection.normalized;
-                RotateTowards(lastMoveDirection);
-            }
 
             if (inputReader.RollPressedThisFrame &&
                 Time.time >= nextRollTime &&
@@ -134,6 +145,16 @@ namespace Elyndor.Player
                 planarVelocity,
                 targetPlanarVelocity,
                 velocityChangeRate * Time.deltaTime);
+
+            if (hasMovementInput)
+            {
+                Vector3 facingDirection =
+                    mouseController != null && mouseController.isActiveAndEnabled &&
+                    planarVelocity.sqrMagnitude > 0.01f
+                        ? planarVelocity.normalized
+                        : lastMoveDirection;
+                RotateTowards(facingDirection);
+            }
 
             ApplyGravity();
 

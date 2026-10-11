@@ -104,6 +104,9 @@ namespace Elyndor.Player
         public Vector2 Move =>
             moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
 
+        public bool MoveUsesKeyboard =>
+            moveAction?.activeControl?.device is Keyboard;
+
         public Vector2 CameraLook
         {
             get

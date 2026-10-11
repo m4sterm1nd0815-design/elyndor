@@ -36,6 +36,8 @@ namespace Elyndor.Persistence
     /// </summary>
     public static class SaveBootstrap
     {
+        public const string TransientSessionKey = "Elyndor.OpenZone.TransientSave";
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Install()
         {
@@ -46,7 +48,14 @@ namespace Elyndor.Persistence
 
             try
             {
-                SaveService service = new SaveService(new FileSaveStore());
+                ISaveStore store = new FileSaveStore();
+#if UNITY_EDITOR
+                // Selected before domain reload by OpenZonePlayModeGuard.
+                // A prototype must never read or overwrite the player's save.
+                if (UnityEditor.SessionState.GetBool(TransientSessionKey, false))
+                    store = new MemorySaveStore();
+#endif
+                SaveService service = new SaveService(store);
                 SaveService.Install(service);
 
                 LoadOutcome outcome = service.LoadAndRestore();

@@ -4,6 +4,7 @@ using Elyndor.Inventory;
 using Elyndor.Player;
 using Elyndor.UIFoundation;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Elyndor.Combat
 {
@@ -42,6 +43,7 @@ namespace Elyndor.Combat
         private bool animatorHasCombatParameters;
         private PlayerInputReader inputReader;
         private PlayerVitals playerVitals;
+        private OpenZoneMouseController mouseController;
 
         private void Awake()
         {
@@ -49,6 +51,7 @@ namespace Elyndor.Combat
                 ?? PlayerInputReader.FindInLoadedScenes();
 
             playerVitals = GetComponent<PlayerVitals>();
+            mouseController = GetComponent<OpenZoneMouseController>();
 
             animator = GetComponentInChildren<Animator>();
 
@@ -149,6 +152,24 @@ namespace Elyndor.Combat
             AttackPerformed?.Invoke(attackType);
         }
 
+        /// <summary>One light attack after a prototype mouse order reaches its target.</summary>
+        public bool TryContextAttack(Transform target)
+        {
+            if (target == null || Time.time < nextAttackTime ||
+                PlayerInventory.GetEquipped(EquipmentSlot.MainHand) == null)
+                return false;
+
+            Vector3 direction = target.position - transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude < 0.01f || direction.sqrMagnitude > 4f ||
+                !TrySpendAttackStamina(AttackType.Light))
+                return false;
+
+            transform.rotation = Quaternion.LookRotation(direction);
+            PerformAttack(AttackType.Light);
+            return true;
+        }
+
         /// <summary>
         /// Blocken kostet laufend Ausdauer. Ist sie leer, faellt der Block in
         /// sich zusammen, statt kostenlos weiterzulaufen — sonst waere Halten
@@ -192,10 +213,14 @@ namespace Elyndor.Combat
         /// testbar.
         /// </summary>
         private bool ReadAttackPressed() =>
-            inputReader != null && inputReader.AttackPressedThisFrame;
+            inputReader != null && inputReader.AttackPressedThisFrame &&
+            !(mouseController != null && mouseController.isActiveAndEnabled &&
+              Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame);
 
         private bool ReadAttackReleased() =>
-            inputReader != null && inputReader.AttackReleasedThisFrame;
+            inputReader != null && inputReader.AttackReleasedThisFrame &&
+            !(mouseController != null && mouseController.isActiveAndEnabled &&
+              Mouse.current != null && Mouse.current.leftButton.wasReleasedThisFrame);
 
         private bool ReadBlockHeld() =>
             inputReader != null && inputReader.BlockHeld;

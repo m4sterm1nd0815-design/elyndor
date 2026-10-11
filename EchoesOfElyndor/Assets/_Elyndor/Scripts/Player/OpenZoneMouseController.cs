@@ -1,0 +1,371 @@
+using Elyndor.Combat;
+using Elyndor.Interaction;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+
+namespace Elyndor.Player
+{
+    /// <summary>Prototype-only contextual mouse control for the open-zone scene.</summary>
+    [RequireComponent(typeof(PlayerMovement))]
+    public sealed class OpenZoneMouseController : MonoBehaviour
+    {
+        [SerializeField, Min(0.1f)] private float arrivalDistance = 0.7f;
+        [SerializeField, Min(0.2f)] private float slowdownDistance = 3f;
+        [SerializeField, Range(0.05f, 1f)] private float minimumMoveInput = 0.18f;
+        [SerializeField, Min(0.1f)] private float attackDistance = 2f;
+        [SerializeField, Min(0.1f)] private float interactionDistance = 1.8f;
+        [SerializeField, Min(1f)] private float rayDistance = 500f;
+        [SerializeField, Min(0.1f)] private float obstacleProbeDistance = 1.4f;
+        [SerializeField, Min(0.05f)] private float obstacleProbeRadius = 0.32f;
+        [SerializeField, Min(0.1f)] private float obstacleProbeHeight = 0.65f;
+        [SerializeField] private LayerMask obstacleMask = ~0;
+        [SerializeField, Min(8)] private int markerSegments = 32;
+        [SerializeField, Min(0.05f)] private float markerRadius = 0.42f;
+        [SerializeField, Min(0.05f)] private float hoverMarkerRadius = 0.34f;
+
+        private static readonly float[] AvoidanceAngles = { 30f, 52f, 75f, 95f };
+
+        private PlayerCombat combat;
+        private PlayerInputReader inputReader;
+        private LineRenderer destinationMarker;
+        private LineRenderer hoverMarker;
+        private Material markerMaterial;
+        private readonly RaycastHit[] obstacleHits = new RaycastHit[16];
+        private Vector3 destination;
+        private Transform attackTarget;
+        private IInteractable interactionTarget;
+        private Transform interactionTransform;
+        private bool hasDestination;
+        private bool interactionConsumedUntilRelease;
+        private float preferredAvoidanceSide = 1f;
+
+        private void Awake()
+        {
+            combat = GetComponent<PlayerCombat>();
+            inputReader = GetComponent<PlayerInputReader>();
+            destinationMarker = CreateMarker("Mouse Destination", 0.055f);
+            hoverMarker = CreateMarker("Mouse Hover", 0.035f);
+        }
+
+        private void Update()
+        {
+            if (inputReader == null || !inputReader.GameplayMapEnabled ||
+                Mouse.current == null)
+                return;
+
+            if (!Mouse.current.leftButton.isPressed)
+            {
+                interactionConsumedUntilRelease = false;
+                UpdateHoverMarker();
+                return;
+            }
+
+            if (hoverMarker != null) hoverMarker.enabled = false;
+
+            if (
+                (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
+                return;
+
+            Camera view = Camera.main;
+            if (view == null) return;
+
+            Ray ray = view.ScreenPointToRay(Mouse.current.position.ReadValue());
+            if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance)) return;
+
+            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable is Component interactionComponent &&
+                interactionComponent.transform != transform)
+            {
+                if (interactionConsumedUntilRelease) return;
+                interactionTarget = interactable;
+                interactionTransform = interactionComponent.transform;
+                attackTarget = null;
+                destination = interactable.Position;
+                hasDestination = true;
+                UpdateDestinationMarker(destination, false, true);
+                return;
+            }
+
+            IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
+            if (damageable is Component target && target.transform != transform)
+            {
+                attackTarget = target.transform;
+                interactionTarget = null;
+                interactionTransform = null;
+                hasDestination = true;
+                UpdateDestinationMarker(target.transform.position, true, false);
+                return;
+            }
+
+            // While the button stays down, the terrain hit follows the cursor.
+            // Props and UI never create an arbitrary destination behind a
+            // visible obstacle.
+            if (hit.collider is TerrainCollider)
+            {
+                attackTarget = null;
+                interactionTarget = null;
+                interactionTransform = null;
+                destination = hit.point;
+                hasDestination = true;
+                UpdateDestinationMarker(destination, false, false);
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (interactionTarget != null && hasDestination)
+            {
+                if (PlanarDistance(transform.position, interactionTarget.Position) >
+                    interactionDistance)
+                    return;
+                if (interactionTarget.CanInteract(gameObject))
+                    interactionTarget.Interact(gameObject);
+                interactionConsumedUntilRelease = true;
+                Cancel();
+                return;
+            }
+
+            if (attackTarget == null || !hasDestination) return;
+            if (PlanarDistance(transform.position, attackTarget.position) > attackDistance) return;
+
+            if (combat != null && combat.TryContextAttack(attackTarget))
+                Cancel();
+        }
+
+        public Vector3 GetMovement(Vector3 position)
+        {
+            if (!hasDestination) return Vector3.zero;
+            if (attackTarget != null) destination = attackTarget.position;
+            else if (interactionTarget != null)
+            {
+                if (interactionTarget is Component component && component == null)
+                {
+                    Cancel();
+                    return Vector3.zero;
+                }
+                destination = interactionTarget.Position;
+            }
+
+            Vector3 offset = destination - position;
+            offset.y = 0f;
+            float stoppingDistance = attackTarget != null
+                ? attackDistance
+                : interactionTarget != null
+                    ? interactionDistance
+                    : arrivalDistance;
+            float distance = offset.magnitude;
+            if (distance <= stoppingDistance)
+            {
+                if (attackTarget == null && interactionTarget == null) Cancel();
+                return Vector3.zero;
+            }
+
+            Vector3 desiredDirection = offset.normalized;
+            Vector3 steeredDirection = SteerAroundObstacle(
+                position,
+                desiredDirection,
+                Mathf.Max(0.2f, distance - stoppingDistance));
+            if (steeredDirection.sqrMagnitude <= 0.01f) return Vector3.zero;
+
+            if (attackTarget != null || interactionTarget != null) return steeredDirection;
+
+            float speedScale = Mathf.InverseLerp(
+                arrivalDistance,
+                Mathf.Max(slowdownDistance, arrivalDistance + 0.1f),
+                distance);
+            return steeredDirection * Mathf.Lerp(minimumMoveInput, 1f, speedScale);
+        }
+
+        public void Cancel()
+        {
+            hasDestination = false;
+            attackTarget = null;
+            interactionTarget = null;
+            interactionTransform = null;
+            if (destinationMarker != null) destinationMarker.enabled = false;
+        }
+
+        private void OnDisable()
+        {
+            Cancel();
+            if (hoverMarker != null) hoverMarker.enabled = false;
+        }
+
+        private Vector3 SteerAroundObstacle(
+            Vector3 position,
+            Vector3 desiredDirection,
+            float remainingDistance)
+        {
+            float probeDistance = Mathf.Min(obstacleProbeDistance, remainingDistance);
+            if (!IsBlocked(position, desiredDirection, probeDistance))
+                return desiredDirection;
+
+            Vector3 bestDirection = Vector3.zero;
+            float bestScore = float.NegativeInfinity;
+            foreach (float angle in AvoidanceAngles)
+            {
+                for (int sideIndex = 0; sideIndex < 2; sideIndex++)
+                {
+                    float side = sideIndex == 0
+                        ? preferredAvoidanceSide
+                        : -preferredAvoidanceSide;
+                    Vector3 candidate =
+                        Quaternion.AngleAxis(angle * side, Vector3.up) * desiredDirection;
+                    if (IsBlocked(position, candidate, probeDistance)) continue;
+
+                    float score = Vector3.Dot(candidate, desiredDirection) +
+                                  Vector3.Dot(candidate, transform.forward) * 0.12f;
+                    if (score <= bestScore) continue;
+                    bestScore = score;
+                    bestDirection = candidate;
+                    preferredAvoidanceSide = side;
+                }
+            }
+            return bestDirection;
+        }
+
+        private bool IsBlocked(Vector3 position, Vector3 direction, float distance)
+        {
+            if (distance <= 0.05f) return false;
+            Vector3 origin = position + Vector3.up * obstacleProbeHeight;
+            int hitCount = Physics.SphereCastNonAlloc(
+                origin,
+                obstacleProbeRadius,
+                direction,
+                obstacleHits,
+                distance,
+                obstacleMask,
+                QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < hitCount; i++)
+            {
+                Collider collider = obstacleHits[i].collider;
+                if (collider == null || collider is TerrainCollider) continue;
+                Transform candidate = collider.transform;
+                if (candidate == transform || candidate.IsChildOf(transform)) continue;
+                if (attackTarget != null &&
+                    (candidate == attackTarget || candidate.IsChildOf(attackTarget) ||
+                     attackTarget.IsChildOf(candidate)))
+                    continue;
+                if (interactionTransform != null &&
+                    (candidate == interactionTransform ||
+                     candidate.IsChildOf(interactionTransform) ||
+                     interactionTransform.IsChildOf(candidate)))
+                    continue;
+                return true;
+            }
+            return false;
+        }
+
+        private void OnDestroy()
+        {
+            if (markerMaterial == null) return;
+            if (Application.isPlaying) Destroy(markerMaterial);
+            else DestroyImmediate(markerMaterial);
+        }
+
+        private LineRenderer CreateMarker(string markerName, float width)
+        {
+            GameObject marker = new GameObject(markerName);
+            marker.transform.SetParent(transform, false);
+            LineRenderer line = marker.AddComponent<LineRenderer>();
+            line.useWorldSpace = true;
+            line.loop = true;
+            line.positionCount = markerSegments;
+            line.startWidth = width;
+            line.endWidth = width;
+            line.numCornerVertices = 2;
+            line.numCapVertices = 2;
+            line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            line.receiveShadows = false;
+            Shader markerShader = Shader.Find("Sprites/Default") ??
+                                  Shader.Find("Universal Render Pipeline/Unlit");
+            if (markerShader != null)
+            {
+                if (markerMaterial == null) markerMaterial = new Material(markerShader);
+                line.sharedMaterial = markerMaterial;
+            }
+            line.enabled = false;
+            return line;
+        }
+
+        private void UpdateDestinationMarker(
+            Vector3 point,
+            bool hostile,
+            bool interactive)
+        {
+            if (destinationMarker == null) return;
+            Color color = hostile
+                ? new Color(1f, 0.28f, 0.12f, 0.9f)
+                : interactive
+                    ? new Color(1f, 0.72f, 0.18f, 0.9f)
+                    : new Color(0.25f, 0.9f, 0.75f, 0.85f);
+            destinationMarker.startColor = color;
+            destinationMarker.endColor = color;
+            DrawMarker(destinationMarker, point, markerRadius);
+            destinationMarker.enabled = true;
+        }
+
+        private void UpdateHoverMarker()
+        {
+            if (hoverMarker == null) return;
+            hoverMarker.enabled = false;
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+            Camera view = Camera.main;
+            if (view == null) return;
+            Ray ray = view.ScreenPointToRay(Mouse.current.position.ReadValue());
+            if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance)) return;
+
+            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable is Component interactionComponent &&
+                interactionComponent.transform != transform &&
+                interactable.CanInteract(gameObject))
+            {
+                hoverMarker.startColor = new Color(1f, 0.72f, 0.18f, 0.72f);
+                hoverMarker.endColor = hoverMarker.startColor;
+                DrawMarker(hoverMarker, hit.point, hoverMarkerRadius);
+                hoverMarker.enabled = true;
+                return;
+            }
+
+            IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
+            if (damageable is Component target && target.transform != transform)
+            {
+                hoverMarker.startColor = new Color(1f, 0.28f, 0.12f, 0.72f);
+                hoverMarker.endColor = hoverMarker.startColor;
+                DrawMarker(hoverMarker, hit.point, hoverMarkerRadius);
+                hoverMarker.enabled = true;
+            }
+        }
+
+        private void DrawMarker(LineRenderer marker, Vector3 point, float radius)
+        {
+            point.y += 0.08f;
+            for (int i = 0; i < markerSegments; i++)
+            {
+                float angle = i * Mathf.PI * 2f / markerSegments;
+                marker.SetPosition(i, point + new Vector3(
+                    Mathf.Cos(angle) * radius,
+                    0f,
+                    Mathf.Sin(angle) * radius));
+            }
+        }
+
+        private void OnValidate()
+        {
+            slowdownDistance = Mathf.Max(slowdownDistance, arrivalDistance + 0.1f);
+            obstacleProbeDistance = Mathf.Max(0.1f, obstacleProbeDistance);
+            obstacleProbeRadius = Mathf.Max(0.05f, obstacleProbeRadius);
+            obstacleProbeHeight = Mathf.Max(0.1f, obstacleProbeHeight);
+            markerSegments = Mathf.Max(8, markerSegments);
+            hoverMarkerRadius = Mathf.Max(0.05f, hoverMarkerRadius);
+        }
+
+        private static float PlanarDistance(Vector3 a, Vector3 b)
+        {
+            a.y = b.y;
+            return Vector3.Distance(a, b);
+        }
+    }
+}

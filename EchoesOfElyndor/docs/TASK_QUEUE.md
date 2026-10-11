@@ -1,5 +1,57 @@
 # Task Queue
 
+## Open-Zone-Probe – 11. Oktober 2026
+
+- Status: **TECHNISCH ERSTELLT / MANUELL OFFEN** auf `feature/open-zone-camera-probe`, Basis
+  `developer` bei `a6330e5`. Aktuelle Nutzerentscheidung: offener
+  Sacred-meets-Zelda-Spielfluss mit vorhandenen Systemen als erste Testzone.
+- Scope: separate Finsterwald-Szene und TerrainData, erhöhte Kamera, zwei
+  Südwege mit Rückschleife, Anschluss an die Brücke sowie drei Nordrouten zu
+  Schrein, Tor, Höhenweg, Steinkreis und Aussichtspunkt. Dazu ein isolierter
+  Editor-Spielstand und kontextabhängiger Linksklick für Bodenbewegung bzw.
+  Annäherung/Angriff am Gegner. Kein Umbau der Produktionsszene und keine neuen
+  externen Assets.
+- Technische und manuelle Abnahme: `OPEN_ZONE_PROTOTYPE.md`. Unity-Batch und
+  Szenenintegrität grün; Open-Zone-Tests 7/7 und Speicher-Tests 17/17 grün.
+  Der saubere ShaderGraph-Paketimport ist als Umgebungsrisiko dokumentiert.
+- Implementierung: Commit `46181f3`; Draft-PR
+  [#55](https://github.com/m4sterm1nd0815-design/elyndor/pull/55) gegen
+  `developer`. Manuelle Prüfrunde und Gate-1-Entscheidung stehen aus.
+- Maussteuerung: Nutzerentscheidung am 11.10.2026. Unity-Editor-Kompilierung,
+  Szenenvalidator, Open-Zone-Tests 2/2 und Play-Start ohne Konsolenfehler;
+  manueller Klicktest und Wegfindung an Hindernissen offen. Ergänzung zu
+  Draft-PR #55 in Commit `c3b649b`.
+- Halten der linken Maustaste: Nutzerentscheidung am 11.10.2026. Das Laufziel
+  folgt während des Haltens fortlaufend dem Cursor; über Gegnern bleibt die
+  kontextabhängige Annäherung mit leichtem Angriff aktiv.
+- Reine Mausbewegung: Nutzerentscheidung am 11.10.2026. WASD und Pfeiltasten
+  bewegen Aren in der Open-Zone-Probe nicht mehr; das alte WASD-Starttutorial
+  ist dort deaktiviert. Gamepad-Unterstützung bleibt erhalten.
+- Movement-Polish: weiches Abbremsen innerhalb der letzten drei Meter,
+  Ausrichtung an der tatsächlichen Bewegungsrichtung und farbiger Zielring für
+  Lauf- beziehungsweise Angriffsziele. Finale Animationen und Wegfindung um
+  feste Hindernisse bleiben eigene spätere Schritte.
+- Lokale Hindernisumgehung: kurze Kugelprobe vor Aren mit stabil bevorzugter
+  Ausweichseite. Direkte Baum-, Fels- und Ruinenkollisionen werden seitlich
+  umgangen; komplexe Sackgassen bleiben Aufgabe einer späteren Wegfindung.
+- Kontextinteraktion: Linksklick auf ein `IInteractable` nähert Aren bis auf
+  Interaktionsreichweite und löst die Aktion einmal pro gedrückter Maustaste
+  aus. Ein goldener Zielring unterscheidet die Aktion von Lauf und Angriff.
+  Die Vorschau markiert anwählbare Interaktionen bereits beim Darüberfahren;
+  der Hinweis in Reichweite zeigt in der Probe „[Linksklick]“ statt „[E]“.
+- Zonenausbau: Nutzerentscheidung am 11.10.2026. Sieben sichtbare
+  Wegabschnitte verbinden Start, Lichtung, Rastplatz, Brücke und die nördlichen
+  Landmarken. Eine Abtastung aller Routen meldet 0 blockierte Punkte und keine
+  Steigung über 40 Grad; Szene, Open-Zone-Tests 7/7 und Play-Start sind grün.
+  Das Brückenrätsel bleibt der vorgesehene Zugang in den Norden. Manueller
+  kompletter Durchlauf steht aus.
+- Begegnungsrhythmus: Der einzelne Wurzelstreifer auf der Lichtung bleibt der
+  Einstieg. Nach Memory Site, Brückenrätsel und Waldregeneration aktiviert die
+  Probe zwei vorhandene Wurzelstreifer auf dem nördlichen Höhenweg. Neue
+  Gegnertypen und neue Lore sind dafür nicht vorweggenommen.
+- Diese Nutzerentscheidung autorisiert den Prototyp. Gate 1 für die
+  Produktionsübernahme und weitere Regionen bleibt gesondert offen.
+
 Stand: 16. August 2026
 Basis der Bestandsaufnahme: `origin/developer` bei `b5536ee`
 

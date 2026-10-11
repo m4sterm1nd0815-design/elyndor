@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Elyndor.Cameras;
+using Elyndor.Core;
 using Elyndor.EditorTools.SceneIntegrity;
 using Elyndor.Player;
 using UnityEditor;
@@ -115,6 +116,9 @@ namespace Elyndor.EditorTools
             camera.ApplyModifiedPropertiesWithoutUndo();
             Transform player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>().transform;
             player.gameObject.AddComponent<OpenZoneMouseController>();
+            TutorialSequence tutorial = UnityEngine.Object.FindAnyObjectByType<TutorialSequence>(
+                FindObjectsInactive.Include);
+            if (tutorial != null) tutorial.enabled = false;
             Vector3 focus = player.position + Vector3.up * 1.2f;
             follow.transform.position = focus + Quaternion.Euler(60f, 0f, 0f) * Vector3.back * 21f;
             follow.transform.LookAt(focus);
@@ -382,6 +386,10 @@ namespace Elyndor.EditorTools
             PlayerMovement player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>();
             if (player == null || player.GetComponent<OpenZoneMouseController>() == null)
                 throw new InvalidOperationException("Prototype mouse control missing from Player.");
+            TutorialSequence tutorial = UnityEngine.Object.FindAnyObjectByType<TutorialSequence>(
+                FindObjectsInactive.Include);
+            if (tutorial != null && tutorial.enabled)
+                throw new InvalidOperationException("Legacy WASD tutorial is active in mouse-only prototype.");
             GameObject routeRoot = GameObject.Find("[Prototype] Open Zone Routes");
             if (routeRoot == null ||
                 routeRoot.transform.Find("East - Rastplatz")?.childCount != EastRoute.Length ||
@@ -393,7 +401,7 @@ namespace Elyndor.EditorTools
             Debug.Log("OPEN_ZONE_VALIDATION_PASS: scene integrity and isolated terrain.");
         }
 
-        [MenuItem("Elyndor/Open Zone/Enable Mouse Control In Prototype")]
+        [MenuItem("Elyndor/Open Zone/Enable Mouse-Only Control In Prototype")]
         public static void EnableMouseControl()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -403,9 +411,21 @@ namespace Elyndor.EditorTools
                 throw new InvalidOperationException("Open the prototype scene first.");
             PlayerMovement player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>();
             if (player == null) throw new InvalidOperationException("Player missing.");
+            bool changed = false;
             if (player.GetComponent<OpenZoneMouseController>() == null)
             {
                 player.gameObject.AddComponent<OpenZoneMouseController>();
+                changed = true;
+            }
+            TutorialSequence tutorial = UnityEngine.Object.FindAnyObjectByType<TutorialSequence>(
+                FindObjectsInactive.Include);
+            if (tutorial != null && tutorial.enabled)
+            {
+                tutorial.enabled = false;
+                changed = true;
+            }
+            if (changed)
+            {
                 EditorSceneManager.MarkSceneDirty(scene);
                 EditorSceneManager.SaveScene(scene);
             }

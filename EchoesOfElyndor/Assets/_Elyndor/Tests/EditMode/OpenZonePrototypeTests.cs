@@ -4,6 +4,7 @@ using Elyndor.EditorTools;
 using Elyndor.EditorTools.SceneIntegrity;
 using Elyndor.Persistence;
 using Elyndor.Player;
+using Elyndor.Core;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -48,6 +49,10 @@ namespace Elyndor.Tests.EditMode
             var player = UnityEngine.Object.FindAnyObjectByType<PlayerMovement>();
             Assert.That(player, Is.Not.Null);
             Assert.That(player.GetComponent<OpenZoneMouseController>(), Is.Not.Null);
+            var tutorial = UnityEngine.Object.FindAnyObjectByType<TutorialSequence>(
+                FindObjectsInactive.Include);
+            Assert.That(tutorial == null || !tutorial.enabled, Is.True,
+                "Das alte WASD-Tutorial darf in der Maus-Probe nicht laufen.");
         }
 
         [Test]

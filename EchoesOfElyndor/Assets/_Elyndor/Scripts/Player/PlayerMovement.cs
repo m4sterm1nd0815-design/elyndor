@@ -97,6 +97,10 @@ namespace Elyndor.Player
             Vector2 movementInput =
                 Vector2.ClampMagnitude(inputReader.Move, 1f);
 
+            if (mouseController != null && mouseController.isActiveAndEnabled &&
+                inputReader.MoveUsesKeyboard)
+                movementInput = Vector2.zero;
+
             Vector3 moveDirection =
                 ToCameraRelativeDirection(movementInput);
 

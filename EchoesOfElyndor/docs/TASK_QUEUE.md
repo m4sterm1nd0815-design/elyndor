@@ -24,6 +24,9 @@
 - Halten der linken Maustaste: Nutzerentscheidung am 11.10.2026. Das Laufziel
   folgt während des Haltens fortlaufend dem Cursor; über Gegnern bleibt die
   kontextabhängige Annäherung mit leichtem Angriff aktiv.
+- Reine Mausbewegung: Nutzerentscheidung am 11.10.2026. WASD und Pfeiltasten
+  bewegen Aren in der Open-Zone-Probe nicht mehr; das alte WASD-Starttutorial
+  ist dort deaktiviert. Gamepad-Unterstützung bleibt erhalten.
 - Zonenausbau: Nutzerentscheidung am 11.10.2026. Sieben sichtbare
   Wegabschnitte verbinden Start, Lichtung, Rastplatz, Brücke und die nördlichen
   Landmarken. Eine Abtastung aller Routen meldet 0 blockierte Punkte und keine

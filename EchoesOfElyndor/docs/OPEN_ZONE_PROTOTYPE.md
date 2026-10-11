@@ -28,9 +28,10 @@ Die Probe nutzt die linke Maustaste kontextabhängig: auf freien Terrainboden
 klicken, um dorthin zu laufen; die Taste gedrückt halten, damit Aren dem Cursor
 laufend folgt; auf einen Gegner klicken oder gedrückt halten, um sich zu nähern
 und in Reichweite leicht anzugreifen. Der Spieler muss dafür eine Waffe in der
-Haupthand tragen. Rechtsklick bewegt weiterhin die Kamera,
-WASD und Gamepad bleiben als zusätzliche Eingaben erhalten. Eine WASD-Eingabe
-bricht das aktuelle Klickziel ab. UI-Klicks lösen keine Bewegung aus.
+Haupthand tragen. Rechtsklick bewegt weiterhin die Kamera. Die
+Tastaturbewegung über WASD und Pfeiltasten ist in dieser Probe abgeschaltet;
+das Gamepad bleibt als alternative Eingabe erhalten. UI-Klicks lösen keine
+Bewegung aus. Das alte WASD-Starttutorial ist in der Probe deaktiviert.
 
 Diese erste Eingabeprobe steuert direkt auf das Ziel zu. Automatische
 Wegfindung um Hindernisse und Kontextinteraktion per Klick sind noch offen.
@@ -65,8 +66,8 @@ nicht in die Build Settings aufgenommen werden; ein Build-Check verhindert das.
    Öffnen alle drei Nordrouten bis Schrein/Tor, Höhenweg und
    Steinkreis/Aussichtspunkt ablaufen.
    Zusätzlich auf freie Wegstellen und auf den Wurzelstreifer klicken:
-   Bewegung und genau ein Angriff nach Annäherung prüfen. Danach mit WASD
-   das Klickziel abbrechen und mit Rechtsklick die Kamera drehen.
+   Bewegung und Angriffe nach Annäherung prüfen. Mit Rechtsklick die Kamera
+   drehen und sicherstellen, dass WASD die Figur nicht bewegt.
 4. Play stoppen und die Originalszene öffnen. Dort müssen Kamera, Terrain,
    Objekte und echter Spielstand unverändert geblieben sein.
 5. Für die spätere Freigabe zusätzlich Playthrough mit Maus/Tastatur und

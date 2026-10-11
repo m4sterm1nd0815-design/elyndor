@@ -18,7 +18,7 @@
 - Maussteuerung: Nutzerentscheidung am 11.10.2026. Unity-Editor-Kompilierung,
   Szenenvalidator, Open-Zone-Tests 2/2 und Play-Start ohne Konsolenfehler;
   manueller Klicktest und Wegfindung an Hindernissen offen. Ergänzung zu
-  Draft-PR #55.
+  Draft-PR #55 in Commit `c3b649b`.
 - Diese Nutzerentscheidung autorisiert den Prototyp. Gate 1 für die
   Produktionsübernahme und weitere Regionen bleibt gesondert offen.
 
